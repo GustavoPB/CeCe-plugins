@@ -162,15 +162,24 @@ endfunction()
 
 # ######################################################################### #
 
+set(CECE_PLUGINS_BUILD "")
+
 # Build plugins option
 foreach(PLUGIN_NAME ${CECE_PLUGINS})
     if (IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/${PLUGIN_NAME}")
         option(CECE_PLUGINS_BUILD_${PLUGIN_NAME} "Build plugin '${PLUGIN_NAME}'" On)
 
         if (CECE_PLUGINS_BUILD_${PLUGIN_NAME})
+            list(APPEND CECE_PLUGINS_BUILD ${PLUGIN_NAME})
             add_subdirectory(${PLUGIN_NAME})
         endif ()
     endif()
 endforeach()
+
+# ######################################################################### #
+
+add_custom_target(${PROJECT_NAME}
+    DEPENDS ${CECE_PLUGINS_BUILD}
+)
 
 # ######################################################################### #
