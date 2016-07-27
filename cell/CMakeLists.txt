@@ -36,7 +36,7 @@ set(SRCS
     StoreMolecules.cpp
 )
 
-if (CONFIG_RENDER_ENABLE)
+if (CECE_RENDER_ENABLE)
     set(SRCS ${SRCS}
         DrawableCell.hpp
         DrawableCell.cpp
