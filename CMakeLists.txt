@@ -43,6 +43,10 @@ endif ()
 
 # ######################################################################### #
 
+option(DEV_PLUGINS "Enable special mode for developers that helps develop plugins (doesn't require installation)" Off)
+
+# ######################################################################### #
+
 # Available plugins
 set(CECE_PLUGINS
     agglutination
@@ -158,6 +162,22 @@ function(build_plugin NAME)
         )
     endif ()
 
+    if (DEV_PLUGINS)
+        if (UNIX)
+            add_custom_command(
+                TARGET ${FULLNAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E
+                    create_symlink $<TARGET_FILE:${FULLNAME}> ${CMAKE_CURRENT_BINARY_DIR}/../$<TARGET_FILE_NAME:${FULLNAME}>
+            )
+        elseif (WIN32)
+            add_custom_command(
+                TARGET ${FULLNAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E
+                    copy $<TARGET_FILE:${FULLNAME}> ${CMAKE_CURRENT_BINARY_DIR}/../$<TARGET_FILE_NAME:${FULLNAME}>
+            )
+        endif ()
+    endif ()
+
 endfunction()
 
 # ######################################################################### #
@@ -175,6 +195,8 @@ foreach(PLUGIN_NAME ${CECE_PLUGINS})
         endif ()
     endif()
 endforeach()
+
+mark_as_advanced(CECE_PLUGINS_BUILD)
 
 # ######################################################################### #
 
