@@ -27,11 +27,11 @@ cmake_minimum_required(VERSION 3.1)
 
 # ######################################################################### #
 
-project(CeCe-plugins)
+project(cece-plugins)
 
 # ######################################################################### #
 
-if (NOT TARGET CeCe)
+if (NOT TARGET cece)
     # Standalone build
     # TODO: find CeCe library
     add_subdirectory(CeCe)
@@ -142,7 +142,7 @@ function(build_plugin NAME)
     target_link_libraries(${PROJECT_NAME}
         ${PLUGINS_DEPENDENCIES}
         ${ARG_LIBRARIES}
-        CeCe
+        cece
     )
 
     set_target_properties(${PROJECT_NAME} PROPERTIES
