@@ -33,7 +33,7 @@ project(cece-plugins)
 
 # In case of standalone build, checkout CeCe-core repository into subdirectory
 if (NOT TARGET cece)
-    if (NOT EXISTS "CeCe-core/CMakeLists.txt")
+    if (NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/CeCe-core/CMakeLists.txt")
         find_package(Git REQUIRED)
         execute_process(
             COMMAND ${GIT_EXECUTABLE} submodule update --init CeCe-core
@@ -47,6 +47,12 @@ endif ()
 # ######################################################################### #
 
 option(CECE_PLUGINS_DEV "Enable special mode for developers that symlink/copy plugins into a single directory" Off)
+
+# ######################################################################### #
+
+if (CECE_TESTS_BUILD)
+    enable_testing()
+endif()
 
 # ######################################################################### #
 
@@ -169,6 +175,56 @@ function(build_plugin NAME)
     endif ()
 
 endfunction()
+
+# ######################################################################### #
+
+##
+## Build tests
+##
+## param: PROJECT_NAME Project name.
+##
+function(build_test PROJECT_NAME)
+
+    if (NOT CECE_TESTS_BUILD)
+        message(WARNING "Trying to build test '${PROJECT_NAME}' without CECE_TESTS_BUILD")
+    endif ()
+
+    # Parse arguments
+    include(CMakeParseArguments)
+    cmake_parse_arguments(ARG "" "" "SOURCES;LIBRARIES;DEPENDENCIES;PLUGINS_REQUIRED" ${ARGN})
+
+    # Modify list of plugins (add prefixes)
+    set(PLUGINS_DEPENDENCIES "")
+
+    foreach (PLUGIN ${ARG_PLUGINS_REQUIRED})
+        plugin_project_name(${PLUGIN} PLUGIN_NAME)
+        list(APPEND PLUGINS_DEPENDENCIES "${PLUGIN_NAME}")
+    endforeach ()
+
+    # Test name
+    set(TEST_NAME "${PROJECT_NAME}_test")
+
+    # Create executable
+    add_executable(${TEST_NAME}
+        ${ARG_SOURCES}
+    )
+
+    set_target_properties(${TEST_NAME} PROPERTIES
+        CXX_STANDARD 11
+        CXX_EXTENSIONS Off
+        CXX_STANDARD_REQUIRED On
+    )
+
+    # Link libraries
+    target_link_libraries(${TEST_NAME}
+        ${ARG_LIBRARIES}
+        ${PLUGINS_DEPENDENCIES}
+        gtest_main
+    )
+
+    # Add test
+    add_test(${PROJECT_NAME} ${TEST_NAME})
+endfunction ()
 
 # ######################################################################### #
 

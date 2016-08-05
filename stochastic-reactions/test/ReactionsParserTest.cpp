@@ -36,12 +36,12 @@
 #include "cece/simulator/DefaultSimulation.hpp"
 
 // Plugins
-#include "cece/plugins/cell/CellBase.hpp"
+#include "../../cell/CellBase.hpp"
 
 // Plugin
-#include "cece/plugins/stochastic-reactions/ReactionsParser.hpp"
-#include "cece/plugins/stochastic-reactions/Reactions.hpp"
-#include "cece/plugins/stochastic-reactions/Context.hpp"
+#include "../ReactionsParser.hpp"
+#include "../Reactions.hpp"
+#include "../Context.hpp"
 
 /* ************************************************************************ */
 

@@ -23,30 +23,14 @@
 #                                                                           #
 # ######################################################################### #
 
-# Build plugin
-build_plugin(stochastic-reactions
+# Add tests
+build_test(stochastic-reactions
     SOURCES
-        Plugin.cpp
-        Types.hpp
-        Reaction.hpp
-        Reactions.hpp
-        Reactions.cpp
-        ReactionsParser.hpp
-        ReactionsParser.cpp
-        Context.hpp
-        Function.hpp
-        Diffusion.hpp
-        Diffusion.cpp
-        Functors.hpp
+        ReactionsParserTest.cpp
     PLUGINS_REQUIRED
-        cell
+        stochastic-reactions
         diffusion
+        cell
 )
-
-# ######################################################################### #
-
-if (CECE_TESTS_BUILD)
-    add_subdirectory(test)
-endif ()
 
 # ######################################################################### #
