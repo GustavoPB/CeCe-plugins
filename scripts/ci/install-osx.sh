@@ -25,11 +25,8 @@
 #                                                                           #
 # ######################################################################### #
 
-# Print versions of installed apps
-brew list --versions
-
 # Install dependencies
 brew outdated libpng || brew upgrade libpng
-brew ccache cmake    || brew upgrade ccache
+brew outdated ccache || brew upgrade ccache
 
 # ######################################################################### #
