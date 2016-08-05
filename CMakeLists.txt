@@ -31,19 +31,19 @@ project(cece-plugins)
 
 # ######################################################################### #
 
+# In case of standalone build, checkout CeCe-core repository into subdirectory
 if (NOT TARGET cece)
-    # Standalone build
-    # TODO: find CeCe library
-    add_subdirectory(CeCe)
-    include_directories(
-        CeCe
-        ${CMAKE_CURRENT_BINARY_DIR}/CeCe
-    )
+    if (NOT EXISTS "CeCe-core/CMakeLists.txt")
+        find_package(Git REQUIRED)
+        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init ${CMAKE_CURRENT_SOURCE_DIR}/CeCe-core)
+    endif()
+
+    add_subdirectory(CeCe-core)
 endif ()
 
 # ######################################################################### #
 
-option(DEV_PLUGINS "Enable special mode for developers that helps develop plugins (doesn't require installation)" Off)
+option(CECE_PLUGINS_DEV "Enable special mode for developers that symlink/copy plugins into a single directory" Off)
 
 # ######################################################################### #
 
@@ -77,6 +77,9 @@ set(CECE_PLUGINS
 ##
 ## Get plugin project name.
 ##
+## param: PLUGIN_NAME  Plugin
+## param: PROJECT_NAME Name of output variable.
+##
 function(plugin_project_name PLUGIN_NAME PROJECT_NAME)
     set(${PROJECT_NAME} "plugin-${PLUGIN_NAME}" PARENT_SCOPE)
 endfunction ()
@@ -84,27 +87,11 @@ endfunction ()
 # ######################################################################### #
 
 ##
-## Get plugins project names.
-##
-function(plugin_project_names PLUGIN_NAMES PROJECT_NAMES)
-    set(NAMES "")
-
-    foreach (PLUGIN_NAME ${PLUGIN_NAMES})
-        plugin_project_name(${PLUGIN_NAME} PROJECT_NAME)
-        list(APPEND NAMES ${PROJECT_NAME})
-    endforeach ()
-
-    set(${PROJECT_NAMES} ${NAMES} PARENT_SCOPE)
-endfunction ()
-
-# ######################################################################### #
-
-##
 ## Build plugin helper function
 ##
-## param: NAME      Plugin name.
-## param: SOURCES   List of sources.
-## param: LIBRARIES A list of required libraries.
+## param: NAME             Plugin name.
+## param: SOURCES          List of sources.
+## param: LIBRARIES        A list of required libraries.
 ## param: PLUGINS_REQUIRED A list of required plugins.
 ##
 ## Function uses PLUGINS_BUILTIN_${NAME} variable.
@@ -162,7 +149,7 @@ function(build_plugin NAME)
         )
     endif ()
 
-    if (DEV_PLUGINS)
+    if (CECE_PLUGINS_DEV)
         if (UNIX)
             add_custom_command(
                 TARGET ${FULLNAME} POST_BUILD
