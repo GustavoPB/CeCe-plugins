@@ -42,6 +42,12 @@ if (NOT TARGET cece)
     endif()
 
     add_subdirectory(CeCe-core)
+
+    find_program(CCACHE_FOUND ccache)
+    if (CCACHE_FOUND)
+        set_property(DIRECTORY CeCe-core PROPERTY RULE_LAUNCH_COMPILE ccache)
+        set_property(DIRECTORY CeCe-core PROPERTY RULE_LAUNCH_LINK ccache)
+    endif()
 endif ()
 
 # ######################################################################### #

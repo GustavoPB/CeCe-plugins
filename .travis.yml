@@ -38,6 +38,8 @@ compiler:
 
 language: cpp
 
+cache: ccache
+
 # Disable build for AppVeyor branch
 branches:
     except:
