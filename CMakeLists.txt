@@ -147,6 +147,7 @@ function(build_plugin NAME)
         CXX_STANDARD 11
         CXX_EXTENSIONS Off
         CXX_STANDARD_REQUIRED On
+        WINDOWS_EXPORT_ALL_SYMBOLS On
     )
 
     # Generate export header
