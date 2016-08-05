@@ -257,4 +257,8 @@ add_custom_target(${PROJECT_NAME}
     DEPENDS ${CECE_PLUGINS_BUILD}
 )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
+)
+
 # ######################################################################### #
