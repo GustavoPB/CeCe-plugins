@@ -44,9 +44,9 @@
 /* ************************************************************************ */
 
 namespace cece { namespace config { class Configuration; } }
+namespace cece { namespace object { class Object; } }
 
 #ifdef CECE_ENABLE_RENDER
-namespace cece { namespace object { class Object; } }
 namespace cece { namespace render { class Context; } }
 namespace cece { namespace simulator { class Visualization; } }
 #endif

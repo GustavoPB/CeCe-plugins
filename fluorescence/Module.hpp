@@ -32,9 +32,9 @@
 #include "cece/core/Real.hpp"
 #include "cece/core/Grid.hpp"
 #include "cece/module/Module.hpp"
-#include "cece/render/Context.hpp"
 
 #ifdef CECE_ENABLE_RENDER
+#  include "cece/render/Context.hpp"
 #  include "cece/render/Object.hpp"
 #  include "cece/render/State.hpp"
 #  include "cece/render/Image.hpp"
