@@ -1,6 +1,9 @@
 
 # CeCe plugins
 
+[![Build Status](https://travis-ci.org/GeorgievLab/CeCe-plugins.svg?branch=master)](https://travis-ci.org/GeorgievLab/CeCe-plugins)
+[![Build status](https://ci.appveyor.com/api/projects/status/nsh176yuvfyhvp3i/branch/master?svg=true)](https://ci.appveyor.com/project/NTSFka/cece-plugins/branch/master)
+
 CeCe is a platform for advanced simulation of cell communication in dynamic environment.
 
 This repository contains only plugins, for whole project see [https://github.com/GeorgievLab/CeCe](https://github.com/GeorgievLab/CeCe)
