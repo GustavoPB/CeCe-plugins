@@ -45,6 +45,7 @@ branches:
         - travis-ci
 
 install:
+    - git submodule update --init --recursive
     - call CeCe-core\scripts\ci\install-win32.bat
     - call scripts\ci\install-win32.bat
 
