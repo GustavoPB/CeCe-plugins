@@ -31,7 +31,7 @@ ARGS="\
     -DCECE_TESTS_BUILD=On"
 
 # Disable rendering
-if "${ENABLE_RENDER}" = false; then
+if [ "${ENABLE_RENDER}" = false ]; then
     ARGS="$ARGS \
         -DCECE_RENDER_ENABLE=Off"
 fi
