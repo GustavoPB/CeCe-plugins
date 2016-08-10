@@ -23,12 +23,22 @@
 #                                                                           #
 # ######################################################################### #
 
-if (CECE_RENDER_ENABLE)
+if (NOT CECE_RENDER_ENABLE)
+    message(WARNING "'background' plugin requires CECE_RENDER_ENABLE, plugin will not be built")
+    set(CECE_PLUGINS_BUILD_background Off PARENT_SCOPE)
+    return ()
+endif ()
 
 # ######################################################################### #
 
-# LibPNG is required
-find_package(PNG REQUIRED)
+# Find LibPNG
+find_package(PNG)
+
+if (NOT PNG_FOUND)
+    message(WARNING "'background' plugin requires PNG library, plugin will not be built")
+    set(CECE_PLUGINS_BUILD_background Off PARENT_SCOPE)
+    return ()
+endif ()
 
 if (WIN32)
     include_directories(${PNG_PNG_INCLUDE_DIR})
@@ -50,11 +60,5 @@ build_plugin(background
     SOURCES ${SRCS}
     LIBRARIES ${PNG_LIBRARIES}
 )
-
-# ######################################################################### #
-
-else ()
-    message(WARNING "'background' plugin is not built")
-endif ()
 
 # ######################################################################### #
