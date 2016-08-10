@@ -53,7 +53,6 @@ cmake --build .
 
 * C++11 compiler - GCC, Clang, MSVC.
 * [CMake](https://cmake.org) v3.0 or newer.
-* [Boost C++ Libraries](http://www.boost.org) - Filesystem, System, Any, Tribool and Variant.
 * [Python](http://www.python.org) v2.7
 * [LibPNG](https://github.com/glennrp/libpng)
 * [Zlib](https://github.com/madler/zlib)
