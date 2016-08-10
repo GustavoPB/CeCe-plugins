@@ -28,7 +28,7 @@ find_package(PythonLibs 2.7)
 
 if (NOT PYTHONLIBS_FOUND)
     message(WARNING "'streamlines-python' plugin requires Python library, plugin will not be built")
-    set(CECE_PLUGINS_BUILD_streamlines-python Off PARENT_SCOPE)
+    set(CECE_PLUGINS_BUILD_streamlines-python_DISABLE Off PARENT_SCOPE)
     return ()
 endif ()
 

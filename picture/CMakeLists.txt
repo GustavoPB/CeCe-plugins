@@ -25,7 +25,7 @@
 
 if (NOT CECE_RENDER_ENABLE)
     message(WARNING "'picture' plugin requires CECE_RENDER_ENABLE, plugin will not be built")
-    set(CECE_PLUGINS_BUILD_picture Off PARENT_SCOPE)
+    set(CECE_PLUGINS_BUILD_picture_DISABLE Off PARENT_SCOPE)
     return ()
 endif ()
 
@@ -36,7 +36,7 @@ find_package(PNG)
 
 if (NOT PNG_FOUND)
     message(WARNING "'picture' plugin requires PNG library, plugin will not be built")
-    set(CECE_PLUGINS_BUILD_picture Off PARENT_SCOPE)
+    set(CECE_PLUGINS_BUILD_picture_DISABLE Off PARENT_SCOPE)
     return ()
 endif ()
 

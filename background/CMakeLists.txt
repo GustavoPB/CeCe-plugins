@@ -25,7 +25,7 @@
 
 if (NOT CECE_RENDER_ENABLE)
     message(WARNING "'background' plugin requires CECE_RENDER_ENABLE, plugin will not be built")
-    set(CECE_PLUGINS_BUILD_background Off PARENT_SCOPE)
+    set(CECE_PLUGINS_BUILD_background_DISABLE On PARENT_SCOPE)
     return ()
 endif ()
 
@@ -36,7 +36,7 @@ find_package(PNG)
 
 if (NOT PNG_FOUND)
     message(WARNING "'background' plugin requires PNG library, plugin will not be built")
-    set(CECE_PLUGINS_BUILD_background Off PARENT_SCOPE)
+    set(CECE_PLUGINS_BUILD_background_DISABLE On PARENT_SCOPE)
     return ()
 endif ()
 
