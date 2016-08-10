@@ -36,14 +36,6 @@ git clone https://github.com/glennrp/libpng -b libpng16 libpng
 SET PATH=%PATH:C:\Program Files\Git\usr\bin;=%
 SET PATH=C:\MinGW\bin;%PATH%
 
-:: Build boost with MinGW
-IF "%GENERATOR%" == "MinGW Makefiles" (
-    pushd %BOOST_ROOT%
-    call bootstrap.bat mingw
-    b2 toolset=gcc --with-filesystem --with-system variant=release
-    popd
-)
-
 ::::::::::::::::
 
 :: Zlib
