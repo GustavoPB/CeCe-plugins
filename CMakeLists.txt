@@ -96,7 +96,7 @@ set(CECE_PLUGINS
 ## param: PROJECT_NAME Name of output variable.
 ##
 function(plugin_project_name PLUGIN_NAME PROJECT_NAME)
-    set(${PROJECT_NAME} "plugin-${PLUGIN_NAME}" PARENT_SCOPE)
+    set(${PROJECT_NAME} "cece-${PLUGIN_NAME}" PARENT_SCOPE)
 endfunction ()
 
 # ######################################################################### #
@@ -158,7 +158,7 @@ function(build_plugin NAME)
         include(GenerateExportHeader)
         generate_export_header(${FULLNAME}
             EXPORT_FILE_NAME "export.hpp"
-            BASE_NAME "CECE_${FULLNAME}"
+            BASE_NAME "CECE_PLUGIN_${NAME}"
         )
     endif ()
 
