@@ -26,9 +26,9 @@
 @echo on
 
 IF "%GENERATOR%" == "Visual Studio 14 2015" (
-    SET SUFFIX=""
+    SET SUFFIX=
 ) ELSE (
-    SET SUFFIX=" (x86)"
+    SET SUFFIX= (x86)
 )
 
 :: Shared configuration arguments
