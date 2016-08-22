@@ -127,27 +127,24 @@ function(build_plugin NAME)
         list(APPEND PLUGINS_DEPENDENCIES "${PLUGIN_NAME}")
     endforeach ()
 
-    # Create project
-    project(${FULLNAME})
-
     # Shared module
-    add_library(${PROJECT_NAME} SHARED ${ARG_SOURCES})
+    add_library(${FULLNAME} SHARED ${ARG_SOURCES})
 
     # Setup dependencies
     if (${ARG_DEPENDENCIES})
-        add_dependencies(${PROJECT_NAME}
+        add_dependencies(${FULLNAME}
             ${ARG_DEPENDENCIES}
         )
     endif ()
 
     # Link libraries
-    target_link_libraries(${PROJECT_NAME}
+    target_link_libraries(${FULLNAME}
         ${PLUGINS_DEPENDENCIES}
         ${ARG_LIBRARIES}
         cece
     )
 
-    set_target_properties(${PROJECT_NAME} PROPERTIES
+    set_target_properties(${FULLNAME} PROPERTIES
         INSTALL_RPATH "$ORIGIN"
         MACOSX_RPATH On
         CXX_STANDARD 11
