@@ -29,6 +29,7 @@ version: 0.6.0.{build}
 
 environment:
     matrix:
+        - GENERATOR: Visual Studio 14 2015 Win64
         - GENERATOR: Visual Studio 14 2015
         - GENERATOR: MinGW Makefiles
 
