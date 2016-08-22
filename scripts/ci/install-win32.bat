@@ -74,6 +74,7 @@ IF "%GENERATOR%" == "Visual Studio 14 2015 Win64" SET PF=Program Files
 cmake -G "%GENERATOR%" ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DPNG_SHARED=Off ^
+    -DZLIB_INCLUDE_DIR="C:\%PF%\zlib\include" ^
     -DZLIB_LIBRARY="C:\%PF%\zlib\lib\zlibstatic.lib" ^
     .. ^
     || EXIT /B 1

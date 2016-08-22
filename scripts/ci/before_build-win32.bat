@@ -32,8 +32,9 @@ IF "%GENERATOR%" == "Visual Studio 14 2015 Win64" SET PF=Program Files
 SET ARGS=^
     -DCMAKE_BUILD_TYPE=Release ^
     -DPNG_PNG_INCLUDE_DIR="C:\%PF%\libpng\include" ^
-    -DZLIB_LIBRARY="C:\%PF%\zlib\lib\zlibstatic.lib" ^
-    -DPNG_LIBRARY_RELEASE="C:\%PF%\libpng\lib\libpng16_static.lib"
+    -DPNG_LIBRARY_RELEASE="C:\%PF%\libpng\lib\libpng16_static.lib" ^
+    -DZLIB_INCLUDE_DIR="C:\%PF%\zlib\include" ^
+    -DZLIB_LIBRARY="C:\%PF%\zlib\lib\zlibstatic.lib"
 
 md build
 pushd build
