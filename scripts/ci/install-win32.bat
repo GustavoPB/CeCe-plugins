@@ -67,17 +67,14 @@ pushd libpng
 md build
 pushd build
 
-IF "%GENERATOR%" == "Visual Studio 14 2015" (
-    SET SUFFIX=
-) ELSE (
-    SET SUFFIX= (x86)
-)
+SET PF=Program Files (x86)
+IF "%GENERATOR%" == "Visual Studio 14 2015 Win64" SET PF=Program Files
 
 :: Configure
 cmake -G "%GENERATOR%" ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DPNG_SHARED=Off ^
-    -DZLIB_LIBRARY="C:\Program Files%SUFFIX%\zlib\lib\zlibstatic.lib" ^
+    -DZLIB_LIBRARY="C:\%PF%\zlib\lib\zlibstatic.lib" ^
     .. ^
     || EXIT /B 1
 

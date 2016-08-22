@@ -25,18 +25,15 @@
 
 @echo on
 
-IF "%GENERATOR%" == "Visual Studio 14 2015" (
-    SET SUFFIX=
-) ELSE (
-    SET SUFFIX= (x86)
-)
+SET PF=Program Files (x86)
+IF "%GENERATOR%" == "Visual Studio 14 2015 Win64" SET PF=Program Files
 
 :: Shared configuration arguments
 SET ARGS=^
     -DCMAKE_BUILD_TYPE=Release ^
-    -DPNG_PNG_INCLUDE_DIR="C:\Program Files%SUFFIX%\libpng\include" ^
-    -DZLIB_LIBRARY="C:\Program Files%SUFFIX%\zlib\lib\zlibstatic.lib" ^
-    -DPNG_LIBRARY_RELEASE="C:\Program Files%SUFFIX%\libpng\lib\libpng16_static.lib"
+    -DPNG_PNG_INCLUDE_DIR="C:\%PF%\libpng\include" ^
+    -DZLIB_LIBRARY="C:\%PF%\zlib\lib\zlibstatic.lib" ^
+    -DPNG_LIBRARY_RELEASE="C:\%PF%\libpng\lib\libpng16_static.lib"
 
 md build
 pushd build
