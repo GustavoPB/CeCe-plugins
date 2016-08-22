@@ -178,6 +178,10 @@ function(build_plugin NAME)
         endif ()
     endif ()
 
+    install(TARGETS ${FULLNAME}
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+    )
 endfunction()
 
 # ######################################################################### #
