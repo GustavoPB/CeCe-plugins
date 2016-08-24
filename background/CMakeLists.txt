@@ -23,8 +23,8 @@
 #                                                                           #
 # ######################################################################### #
 
-if (NOT CECE_RENDER_ENABLE)
-    message(WARNING "'background' plugin requires CECE_RENDER_ENABLE, plugin will not be built")
+if (NOT CECE_RENDER)
+    message(WARNING "'background' plugin requires CECE_RENDER, plugin will not be built")
     set(CECE_PLUGINS_BUILD_background_DISABLE On PARENT_SCOPE)
     return ()
 endif ()

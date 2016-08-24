@@ -33,7 +33,7 @@ ARGS="\
 # Disable rendering
 if [ "${ENABLE_RENDER}" = false ]; then
     ARGS="$ARGS \
-        -DCECE_RENDER_ENABLE=Off"
+        -DCECE_RENDER=Off"
 fi
 
 mkdir build || exit 1

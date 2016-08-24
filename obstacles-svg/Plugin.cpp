@@ -23,16 +23,12 @@
 /*                                                                          */
 /* ************************************************************************ */
 
-// CeCe config
-#include "cece/config.hpp"
-
-/* ************************************************************************ */
-
 // C++
 #include <iterator>
 #include <algorithm>
 
 // CeCe
+#include "cece/config.hpp"
 #include "cece/core/DynamicArray.hpp"
 #include "cece/core/StaticArray.hpp"
 #include "cece/core/Log.hpp"
@@ -44,7 +40,7 @@
 #include "cece/object/Object.hpp"
 #include "cece/simulator/Simulation.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/Color.hpp"
 #endif
 
@@ -217,7 +213,7 @@ class ObstaclesSvgApi : public plugin::Api
         auto obstacle = simulation.createObject("obstacle.Polygon", object::Object::Type::Static);
         auto& shapes = obstacle->getMutableShapes();
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
         obstacle->setColor(config.get("color", obstacle->getColor()));
 #endif
 

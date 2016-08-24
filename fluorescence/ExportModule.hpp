@@ -36,7 +36,7 @@
 #include "cece/core/VectorUnits.hpp"
 #include "cece/module/ExportModule.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/Object.hpp"
 #  include "cece/render/Color.hpp"
 #  include "cece/render/Rectangle.hpp"
@@ -44,7 +44,7 @@
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 namespace cece { namespace render { class Context; } }
 namespace cece { namespace simulator { class Visualization; } }
 #endif
@@ -122,7 +122,8 @@ public:
     }
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
+
     /**
      * @brief Returns area color.
      *
@@ -143,6 +144,7 @@ public:
     {
         return m_layerName;
     }
+
 #endif
 
 
@@ -194,7 +196,8 @@ public:
     }
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
+
     /**
      * @brief Set area color.
      *
@@ -215,6 +218,7 @@ public:
     {
         m_layerName = std::move(name);
     }
+
 #endif
 
 
@@ -250,7 +254,7 @@ public:
     void update() override;
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render module.
@@ -281,7 +285,7 @@ private:
     /// Store only average values.
     bool m_average = false;
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// Render grid
     render::ObjectPtr<render::Rectangle> m_drawable;
 

@@ -27,12 +27,10 @@
 
 /* ************************************************************************ */
 
-// CeCe config
+// CeCe
 #include "cece/config.hpp"
 
-/* ************************************************************************ */
-
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/State.hpp"
 #  include "cece/render/Object.hpp"
 #  include "cece/render/Context.hpp"
@@ -228,7 +226,7 @@ public:
     void budRelease();
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render yeast.
@@ -272,7 +270,7 @@ protected:
 // Private Structures
 private:
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     struct RenderState
     {
         units::PositionVector position;
@@ -313,7 +311,7 @@ private:
     /// Volume (bud) that is needed to bud release.
     units::Volume m_volumeBudRelease = units::um3(10);
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// Render object for Yeast.
     /// Shared between all instances, it's same for all instances.
     render::ObjectSharedPtr<DrawableYeast> m_renderObject;

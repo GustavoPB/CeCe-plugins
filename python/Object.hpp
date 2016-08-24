@@ -27,18 +27,14 @@
 
 /* ************************************************************************ */
 
-// CeCe config
-#include "cece/config.hpp"
-
-/* ************************************************************************ */
-
 // This must be first
 #include "Python.hpp"
 
 // CeCe
+#include "cece/config.hpp"
 #include "cece/core/String.hpp"
 #include "cece/object/Object.hpp"
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/Context.hpp"
 #endif
 
@@ -93,7 +89,7 @@ public:
     void update(units::Duration dt) override;
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render object.
@@ -118,7 +114,7 @@ private:
     /// Update function.
     Handle<PyObject> m_updateFn;
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// Draw function.
     Handle<PyObject> m_drawFn;
 #endif

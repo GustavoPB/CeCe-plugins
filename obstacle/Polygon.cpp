@@ -60,7 +60,7 @@ void Polygon::configure(const config::Configuration& config, simulator::Simulati
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Polygon::draw(render::Context& context)
 {
     const RenderState& state = m_drawableState.getFront();
@@ -77,7 +77,7 @@ void Polygon::draw(render::Context& context)
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Polygon::drawStoreState()
 {
     RenderState& state = m_drawableState.getBack();
@@ -112,7 +112,7 @@ void Polygon::drawStoreState()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Polygon::drawSwapState()
 {
     m_drawableState.swap();

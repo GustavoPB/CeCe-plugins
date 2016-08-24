@@ -32,7 +32,7 @@
 
 /* ************************************************************************ */
 
-#ifndef CECE_ENABLE_RENDER
+#ifndef CECE_RENDER
 #error Background plugin requires enabled rendering.
 #endif
 

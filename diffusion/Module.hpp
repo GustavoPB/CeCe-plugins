@@ -38,7 +38,7 @@
 #include "cece/core/VectorUnits.hpp"
 #include "cece/module/Module.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/Color.hpp"
 #  include "cece/render/Context.hpp"
 #  include "cece/render/Object.hpp"
@@ -121,7 +121,7 @@ public:
     explicit Module(simulator::Simulation& simulation) noexcept
         : module::Module(simulation)
     {
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
         setZOrder(100);
 #endif
     }
@@ -425,7 +425,7 @@ public:
     }
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Get signal color.
@@ -699,7 +699,7 @@ public:
     }
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Set signal color.
@@ -819,7 +819,7 @@ public:
     void update() override;
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render module.
@@ -904,7 +904,7 @@ protected:
      */
     virtual void updateObstacles();
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Update drawable.
@@ -934,7 +934,7 @@ private:
         /// Signal degradation rate.
         DegradationRate degradationRate;
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
         /// Signal visualization color.
         render::Color color;
@@ -950,7 +950,7 @@ private:
 // Private Structures
 private:
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     struct RenderState
     {
         /// Image scale.
@@ -980,7 +980,7 @@ private:
     /// Grid with obstacle data. Cannot be bool, because of std::vector<bool>.
     Grid<int> m_obstacles;
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// Background color.
     render::Color m_background = render::Color{0, 0, 0, 0};
 

@@ -27,17 +27,13 @@
 
 /* ************************************************************************ */
 
-// CeCe config
-#include "cece/config.hpp"
-
-/* ************************************************************************ */
-
 // CeCe
+#include "cece/config.hpp"
 #include "cece/core/DynamicArray.hpp"
 #include "cece/core/UniquePtr.hpp"
 #include "cece/object/Object.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/State.hpp"
 #  include "cece/render/Object.hpp"
 #  include "cece/render/Lines.hpp"
@@ -88,7 +84,7 @@ public:
     void configure(const config::Configuration& config, simulator::Simulation& simulation) override;
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render obstacle.
@@ -121,7 +117,7 @@ public:
 // Private Structures
 private:
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     struct RenderState
     {
         units::PositionVector position;
@@ -133,7 +129,7 @@ private:
 // Private Data Members
 private:
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /// Shared object for drawing polygon.
     render::ObjectPtr<render::Lines> m_drawPolygon;

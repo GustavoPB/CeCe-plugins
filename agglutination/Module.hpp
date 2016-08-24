@@ -27,21 +27,14 @@
 
 /* ************************************************************************ */
 
-// CeCe config
-#include "cece/config.hpp"
-
-/* ************************************************************************ */
-
-#ifndef CECE_ENABLE_BOX2D_PHYSICS
-#error Agglutination requires physics engine
-#endif
-
-/* ************************************************************************ */
-
 // C++
 #include <utility>
 
+// Physics
+#include <Box2D/Box2D.h>
+
 // CeCe
+#include "cece/config.hpp"
 #include "cece/core/DynamicArray.hpp"
 #include "cece/core/String.hpp"
 #include "cece/core/Real.hpp"
@@ -50,9 +43,6 @@
 
 // Plugins
 #include "../cell/CellBase.hpp"
-
-// Physics
-#include <Box2D/Box2D.h>
 
 /* ************************************************************************ */
 

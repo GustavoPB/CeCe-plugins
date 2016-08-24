@@ -23,7 +23,7 @@
 #                                                                           #
 # ######################################################################### #
 
-if (CECE_RENDER_ENABLE)
+if (CECE_RENDER)
     option(CONFIG_PLUGIN_diffusion_SMOOTH "Render smooth diffusion" On)
     option(DEV_PLUGIN_diffusion_OBSTACLES_RENDER "Render obstacles" Off)
 endif ()

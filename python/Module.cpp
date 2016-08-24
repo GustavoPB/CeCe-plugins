@@ -63,7 +63,7 @@ void Module::loadConfig(const config::Configuration& config)
     m_configureFn = m_source.getFunction("configure");
     m_updateFn = m_source.getFunction("update");
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     m_drawFn = m_source.getFunction("draw");
 #endif
 
@@ -92,7 +92,7 @@ void Module::update()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::draw(render::Context& context)
 {
     if (!m_drawFn)

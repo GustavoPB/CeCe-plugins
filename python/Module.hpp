@@ -27,17 +27,13 @@
 
 /* ************************************************************************ */
 
-// CeCe config
-#include "cece/config.hpp"
-
-/* ************************************************************************ */
-
 // This must be first
 #include "Python.hpp"
 
 // CeCe
+#include "cece/config.hpp"
 #include "cece/module/Module.hpp"
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/Context.hpp"
 #endif
 
@@ -84,7 +80,7 @@ public:
     void update() override;
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render module.
@@ -109,7 +105,7 @@ private:
     /// Update function.
     ObjectHandle m_updateFn;
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// Draw function.
     ObjectHandle m_drawFn;
 #endif

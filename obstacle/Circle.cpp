@@ -51,7 +51,7 @@ void Circle::configure(const config::Configuration& config, simulator::Simulatio
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Circle::draw(render::Context& context)
 {
     if (!m_drawCircle)
@@ -69,7 +69,7 @@ void Circle::draw(render::Context& context)
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Circle::drawStoreState()
 {
     RenderState& state = m_drawableState.getBack();
@@ -83,7 +83,7 @@ void Circle::drawStoreState()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Circle::drawSwapState()
 {
     m_drawableState.swap();

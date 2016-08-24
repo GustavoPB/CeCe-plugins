@@ -56,7 +56,7 @@ namespace {
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 constexpr StaticArray<render::Color, 6> g_colors{{
     render::colors::CYAN,
     render::colors::MAGENTA,
@@ -110,7 +110,7 @@ Module::SignalId Module::registerSignal(String name, DiffusionRate rate, Degrada
         std::move(name),
         rate,
         degRate
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
         , g_colors[id % g_colors.size()]
         , SignalConcentration{1}
         , String{}
@@ -139,7 +139,7 @@ void Module::loadConfig(const config::Configuration& config)
     for (auto&& signal : config.getConfigurations("signal"))
     {
         // Register signal
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
         auto id =
 #endif
         registerSignal(
@@ -148,7 +148,7 @@ void Module::loadConfig(const config::Configuration& config)
             signal.get<DegradationRate>("degradation-rate", Zero)
         );
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
         // Set signal color
         setSignalColor(id, signal.get("color", getSignalColor(id)));
         setSignalSaturation(id, signal.get("saturation", getSignalSaturation(id)));
@@ -156,7 +156,7 @@ void Module::loadConfig(const config::Configuration& config)
 #endif
     }
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     // Set background color
     m_background = config.get("background", m_background);
 #endif
@@ -169,7 +169,7 @@ void Module::loadConfig(const config::Configuration& config)
         Log::info("[diffusion]   Diffusion rate: ", getDiffusionRate(id), " um2/s");
         Log::info("[diffusion]   Degradation rate: ", getDegradationRate(id), " /s");
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
         Log::info("[diffusion]   Color: ", getSignalColor(id));
         Log::info("[diffusion]   Saturation: ", getSignalSaturation(id), " umol/um3");
 #endif
@@ -194,13 +194,13 @@ void Module::storeConfig(config::Configuration& config) const
         signalConfig.set("diffusion-rate", getDiffusionRate(id));
         signalConfig.set("degradation-rate", getDegradationRate(id));
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
         signalConfig.set("color", getSignalColor(id));
         signalConfig.set("saturation", getSignalSaturation(id));
 #endif
     }
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     // Set background color
     config.set("background", m_background);
 #endif
@@ -235,7 +235,7 @@ void Module::update()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::draw(const simulator::Visualization& visualization, render::Context& context)
 {
     Assert(getGridSize() != Zero);
@@ -265,7 +265,7 @@ void Module::draw(const simulator::Visualization& visualization, render::Context
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::drawStoreState(const simulator::Visualization& visualization)
 {
     RenderState& state = m_drawableState.getBack();
@@ -279,7 +279,7 @@ void Module::drawStoreState(const simulator::Visualization& visualization)
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::drawSwapState()
 {
     m_drawableState.swap();
@@ -419,7 +419,7 @@ void Module::updateObstacles()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::updateImage(render::Image& img, const simulator::Visualization& visualization) const
 {
     img.resize(getGridSize());

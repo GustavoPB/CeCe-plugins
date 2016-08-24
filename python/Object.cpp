@@ -103,7 +103,7 @@ void Object::configure(const config::Configuration& config, simulator::Simulatio
     m_configureFn = m_source.getFunction("configure");
     m_updateFn = m_source.getFunction("update");
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     m_drawFn = m_source.getFunction("draw");
 #endif
 
@@ -129,7 +129,7 @@ void Object::update(units::Duration dt)
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Object::draw(render::Context& context)
 {
     if (!m_drawFn)

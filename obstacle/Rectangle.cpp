@@ -51,7 +51,7 @@ void Rectangle::configure(const config::Configuration& config, simulator::Simula
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Rectangle::draw(render::Context& context)
 {
     if (!m_drawRectangle)
@@ -69,7 +69,7 @@ void Rectangle::draw(render::Context& context)
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Rectangle::drawStoreState()
 {
     RenderState& state = m_drawableState.getBack();
@@ -83,7 +83,7 @@ void Rectangle::drawStoreState()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Rectangle::drawSwapState()
 {
     m_drawableState.swap();

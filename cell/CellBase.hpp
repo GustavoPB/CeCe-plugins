@@ -27,15 +27,11 @@
 
 /* ************************************************************************ */
 
-// CeCe config
-#include "cece/config.hpp"
-
-/* ************************************************************************ */
-
 // C++
 #include <cmath>
 
 // CeCe
+#include "cece/config.hpp"
 #include "cece/core/constants.hpp"
 #include "cece/core/Units.hpp"
 #include "cece/core/UnitsCtors.hpp"
@@ -44,8 +40,8 @@
 #include "cece/core/StringView.hpp"
 #include "cece/object/Object.hpp"
 
-#ifdef CECE_ENABLE_RENDER
-#include "cece/render/Color.hpp"
+#ifdef CECE_RENDER
+#  include "cece/render/Color.hpp"
 #endif
 
 /* ************************************************************************ */
@@ -76,7 +72,7 @@ public:
     /// Cell growth rate type.
     using GrowthRate = units::Inverse<units::Time>::type;
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// Type of fluorescent saturation.
     using FluorescentSaturation = units::Inverse<units::Volume>::type;
 #endif
@@ -176,7 +172,7 @@ public:
     }
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Returns cell identification color.
@@ -339,7 +335,7 @@ public:
     }
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Set cell identification color.
@@ -455,7 +451,7 @@ public:
     }
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Calculate color of fluorescent proteins.
@@ -495,7 +491,7 @@ private:
     /// Map of molecules.
     Map<String, MoleculeCount> m_molecules;
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// GFP saturation.
     FluorescentSaturation m_gfpSaturation{20};
 

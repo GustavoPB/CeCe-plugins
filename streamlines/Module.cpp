@@ -253,7 +253,7 @@ void Module::loadConfig(const config::Configuration& config)
     // Enable dynamic object obstacles
     setDynamicObjectsObstacles(config.get("dynamic-object-obstacles", isDynamicObjectsObstacles()));
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     m_visualizationLayerDynamicsType = config.get("layer-dynamics", m_visualizationLayerDynamicsType);
     m_visualizationLayerMagnitude = config.get("layer-magnitude", m_visualizationLayerMagnitude);
     m_visualizationLayerDensity = config.get("layer-density", m_visualizationLayerDensity);
@@ -290,7 +290,7 @@ void Module::storeConfig(config::Configuration& config) const
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::draw(const simulator::Visualization& visualization, render::Context& context)
 {
     const auto size = m_lattice.getSize();
@@ -337,7 +337,7 @@ void Module::draw(const simulator::Visualization& visualization, render::Context
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::drawStoreState(const simulator::Visualization& visualization)
 {
     const auto size = m_lattice.getSize();
@@ -456,7 +456,7 @@ void Module::drawStoreState(const simulator::Visualization& visualization)
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::drawSwapState()
 {
     m_drawableState.swap();

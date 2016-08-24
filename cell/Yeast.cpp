@@ -37,7 +37,7 @@
 #include "cece/config/Configuration.hpp"
 #include "cece/simulator/Simulation.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/Color.hpp"
 #endif
 
@@ -55,7 +55,7 @@ static std::random_device g_rd;
 
 Yeast::Yeast(simulator::Simulation& simulation, String typeName, object::Object::Type type) noexcept
     : CellBase(simulation, std::move(typeName), type)
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     , m_renderObject()
 #endif
 {
@@ -199,7 +199,7 @@ void Yeast::budRelease()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Yeast::draw(render::Context& context)
 {
     if (!m_renderObject)
@@ -223,7 +223,7 @@ void Yeast::draw(render::Context& context)
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Yeast::drawStoreState()
 {
     RenderState& state = m_drawableState.getBack();
@@ -249,7 +249,7 @@ void Yeast::drawStoreState()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Yeast::drawSwapState()
 {
     m_drawableState.swap();

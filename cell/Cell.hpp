@@ -33,7 +33,7 @@
 /* ************************************************************************ */
 
 // CeCe
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/State.hpp"
 #  include "cece/render/Object.hpp"
 #  include "cece/render/Context.hpp"
@@ -109,7 +109,7 @@ public:
     void configure(const config::Configuration& config, simulator::Simulation& simulation) override;
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render cell.
@@ -142,7 +142,7 @@ public:
 // Private Structures
 private:
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     struct RenderState
     {
         units::PositionVector position;
@@ -155,7 +155,7 @@ private:
 // Private Data Members
 private:
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// Cell drawable.
     render::ObjectSharedPtr<DrawableCell> m_renderObject;
 

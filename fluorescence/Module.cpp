@@ -36,7 +36,7 @@
 #include "cece/config/Configuration.hpp"
 #include "cece/simulator/Simulation.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/Color.hpp"
 #  include "cece/simulator/Visualization.hpp"
 #endif
@@ -60,7 +60,7 @@ void Module::loadConfig(const config::Configuration& config)
     // Set grid size
     m_grid.resize(config.get<GridType::CoordinateType>("size"));
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     String layerName = config.get("layer", String{});
     m_layerNames.rfp = config.get("layer-RFP", layerName);
     m_layerNames.gfp = config.get("layer-GFP", layerName);
@@ -86,7 +86,7 @@ void Module::init()
 {
     module::Module::init();
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     setZOrder(1000);
 #endif
 }
@@ -137,7 +137,7 @@ void Module::update()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::draw(const simulator::Visualization& visualization, render::Context& context)
 {
     // If visualization is disabled, do nothing
@@ -170,7 +170,7 @@ void Module::draw(const simulator::Visualization& visualization, render::Context
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::drawStoreState()
 {
     RenderState& state = m_drawableState.getBack();
@@ -214,7 +214,7 @@ void Module::drawStoreState()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::drawSwapState()
 {
     m_drawableState.swap();

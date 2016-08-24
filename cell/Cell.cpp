@@ -72,7 +72,7 @@ void Cell::configure(const config::Configuration& config, simulator::Simulation&
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Cell::draw(render::Context& context)
 {
     if (!m_renderObject)
@@ -96,7 +96,7 @@ void Cell::draw(render::Context& context)
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Cell::drawStoreState()
 {
     RenderState& state = m_drawableState.getBack();
@@ -110,7 +110,7 @@ void Cell::drawStoreState()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Cell::drawSwapState()
 {
     m_drawableState.swap();

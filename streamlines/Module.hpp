@@ -27,12 +27,8 @@
 
 /* ************************************************************************ */
 
-// CeCe config
-#include "cece/config.hpp"
-
-/* ************************************************************************ */
-
 // CeCe
+#include "cece/config.hpp"
 #include "cece/core/Units.hpp"
 #include "cece/core/UnitsCtors.hpp"
 #include "cece/core/Vector.hpp"
@@ -48,7 +44,7 @@
 #include "cece/module/Module.hpp"
 #include "cece/object/Object.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/Context.hpp"
 #  include "cece/render/Object.hpp"
 #  include "cece/render/State.hpp"
@@ -330,7 +326,7 @@ public:
     void update() override;
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render module.
@@ -451,7 +447,7 @@ protected:
 // Private Structures
 private:
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     struct RenderState
     {
         units::ScaleVector scale;
@@ -488,7 +484,7 @@ private:
     /// Use dynamic objects as obstacles
     bool m_dynamicObjectsObstacles = false;
 
-#if defined(CECE_ENABLE_RENDER)
+#ifdef CECE_RENDER
     /// Name of layer for flow dynamics type visualization.
     String m_visualizationLayerDynamicsType;
 

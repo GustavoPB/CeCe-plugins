@@ -37,7 +37,7 @@
 #include "cece/config/Configuration.hpp"
 #include "cece/simulator/Simulation.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/simulator/Visualization.hpp"
 #endif
 
@@ -60,7 +60,7 @@ void ExportModule::loadConfig(const config::Configuration& config)
     setSize(config.get("size", getSimulation().getWorldSize()));
     setTotal(config.get("total", isTotal()));
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     setLayerName(config.get("layer", getLayerName()));
     setColor(config.get("color", getColor()));
 #endif
@@ -76,7 +76,7 @@ void ExportModule::storeConfig(config::Configuration& config) const
     config.set("size", getSize());
     config.set("total", isTotal());
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     config.set("layer", getLayerName());
     config.get("color", getColor());
 #endif
@@ -94,7 +94,7 @@ void ExportModule::init()
 
     module::ExportModule::init();
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     setZOrder(1001);
 #endif
 
@@ -211,7 +211,7 @@ void ExportModule::update()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void ExportModule::draw(const simulator::Visualization& visualization, render::Context& context)
 {
     // If visualization is disabled, do nothing

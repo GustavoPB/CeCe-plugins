@@ -34,7 +34,7 @@
 #include "cece/core/Set.hpp"
 #include "cece/module/ExportModule.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/State.hpp"
 #  include "cece/render/Object.hpp"
 #  include "cece/render/Color.hpp"
@@ -46,7 +46,7 @@
 namespace cece { namespace config { class Configuration; } }
 namespace cece { namespace object { class Object; } }
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 namespace cece { namespace render { class Context; } }
 namespace cece { namespace simulator { class Visualization; } }
 #endif
@@ -142,7 +142,8 @@ public:
     }
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
+
     /**
      * @brief Returns area color.
      *
@@ -220,7 +221,7 @@ public:
     void update() override;
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render module.
@@ -254,7 +255,7 @@ public:
 // Private Structures
 private:
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     struct RenderState
     {
         units::PositionVector position;
@@ -278,7 +279,7 @@ private:
     /// Last measured objects.
     Set<ViewPtr<object::Object>> m_objects;
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// Renderable object.
     render::ObjectPtr<render::Rectangle> m_drawable;
 

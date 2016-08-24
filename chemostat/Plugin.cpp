@@ -72,7 +72,7 @@ class ChemostatApi : public plugin::Api
         const auto pipeTop = config.get<units::Length>("pipe-top");
         const auto pipeRadius = config.get<units::Length>("pipe-radius");
         const auto size = config.get<Vector<units::Length>>("size");
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
         const auto visible = config.get("visible", false);
 #endif
 
@@ -102,7 +102,7 @@ class ChemostatApi : public plugin::Api
             shapes[0] = Shape::makeEdges(vertices);
 
             obstacle->initShapes();
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
             obstacle->setVisible(visible);
 #endif
         }
@@ -151,7 +151,7 @@ class ChemostatApi : public plugin::Api
             shapes[0] = Shape::makeEdges(vertices);
 
             obstacle->initShapes();
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
             obstacle->setVisible(visible);
 #endif
         }

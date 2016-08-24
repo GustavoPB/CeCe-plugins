@@ -34,7 +34,7 @@
 #include "cece/config/Configuration.hpp"
 #include "cece/simulator/Simulation.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/simulator/Visualization.hpp"
 #endif
 
@@ -58,7 +58,7 @@ void Module::loadConfig(const config::Configuration& config)
     setPosition(config.get<units::PositionVector>("position"));
     setSize(config.get<units::SizeVector>("size"));
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     setLayerName(config.get("layer", getLayerName()));
     setColor(config.get("color", getColor()));
 #endif
@@ -74,7 +74,7 @@ void Module::storeConfig(config::Configuration& config) const
     config.set("position", getPosition());
     config.set("size", getSize());
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     config.set("layer", getLayerName());
     config.get("color", getColor());
 #endif
@@ -163,7 +163,7 @@ void Module::update()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::draw(const simulator::Visualization& visualization, render::Context& context)
 {
     // If visualization is disabled, do nothing
@@ -193,7 +193,7 @@ void Module::draw(const simulator::Visualization& visualization, render::Context
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::drawStoreState()
 {
     RenderState& state = m_drawableState.getBack();
@@ -206,7 +206,7 @@ void Module::drawStoreState()
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 void Module::drawSwapState()
 {
     m_drawableState.swap();

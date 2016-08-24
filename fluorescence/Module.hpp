@@ -33,7 +33,7 @@
 #include "cece/core/Grid.hpp"
 #include "cece/module/Module.hpp"
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 #  include "cece/render/Context.hpp"
 #  include "cece/render/Object.hpp"
 #  include "cece/render/State.hpp"
@@ -43,7 +43,7 @@
 
 /* ************************************************************************ */
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 namespace cece { namespace render { class Context; } }
 namespace cece { namespace simulator { class Visualization; } }
 #endif
@@ -166,7 +166,7 @@ public:
     void update() override;
 
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
 
     /**
      * @brief Render module.
@@ -200,7 +200,7 @@ public:
 // Private Structures
 private:
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     struct RenderState
     {
         units::ScaleVector scale;
@@ -214,7 +214,7 @@ private:
     /// Fluorescence grid.
     GridType m_grid;
 
-#ifdef CECE_ENABLE_RENDER
+#ifdef CECE_RENDER
     /// Render grid
     render::ObjectPtr<render::GridColorSmooth> m_drawable;
 
