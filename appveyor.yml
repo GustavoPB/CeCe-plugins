@@ -30,8 +30,17 @@ version: 0.6.0.{build}
 environment:
     matrix:
         - GENERATOR: Visual Studio 14 2015 Win64
+          CECE_RENDER: On
+        - GENERATOR: Visual Studio 14 2015 Win64
+          CECE_RENDER: Off
         - GENERATOR: Visual Studio 14 2015
+          CECE_RENDER: On
+        - GENERATOR: Visual Studio 14 2015
+          CECE_RENDER: Off
         - GENERATOR: MinGW Makefiles
+          CECE_RENDER: On
+        - GENERATOR: MinGW Makefiles
+          CECE_RENDER: Off
 
 matrix:
     allow_failures:
@@ -44,16 +53,17 @@ branches:
 
 install:
     - git submodule update --init --recursive
-    - call CeCe-core\scripts\ci\install-win32.bat
+    - SET PATH=%PATH:C:\Program Files\Git\usr\bin;=%
+    - SET PATH=C:\MinGW\bin;%PATH%
     - call scripts\ci\install-win32.bat
 
 before_build:
     - call scripts\ci\before_build-win32.bat
 
 build_script:
-    - call scripts\ci\build_script-win32.bat
+    - pushd build && cmake --build . --config Release & popd
 
 test_script:
-    - call scripts\ci\test_script-win32.bat
+    - pushd build && ctest --verbose & popd
 
 # ######################################################################### #

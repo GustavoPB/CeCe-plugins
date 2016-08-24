@@ -48,23 +48,45 @@ branches:
 # Environment variables
 env:
     matrix:
-        - ENABLE_RENDER=true
-        - ENABLE_RENDER=false
+        - CECE_RENDER=On
+        - CECE_RENDER=Off
+
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+        packages:
+            - g++-4.9
+            - clang-3.6
+            - libgl1-mesa-dev
+            - libpython2.7-dev
 
 before_install:
-    - bash -x ./CeCe-core/scripts/ci/before_install-$TRAVIS_OS_NAME.sh
-    - bash -x ./scripts/ci/before_install-$TRAVIS_OS_NAME.sh
+    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew update; fi
 
 install:
-    - bash -x ./CeCe-core/scripts/ci/install-$TRAVIS_OS_NAME.sh
-    - bash -x ./scripts/ci/install-$TRAVIS_OS_NAME.sh
+    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew outdated cmake  || brew upgrade cmake  ; fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew outdated ccache || brew upgrade ccache ; fi
+    - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew outdated libpng || brew upgrade libpng ; fi
 
-before_script:  bash -x ./scripts/ci/before_script-$TRAVIS_OS_NAME.sh
-script:         bash -x ./scripts/ci/script-$TRAVIS_OS_NAME.sh
-after_success:  bash -x ./scripts/ci/after_success-$TRAVIS_OS_NAME.sh
+before_script:
+    - if [ "$TRAVIS_OS_NAME" == "linux" -a "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
+    - if [ "$TRAVIS_OS_NAME" == "linux" -a "$CXX" = "clang++" ]; then export CXX="clang++-3.6" CC="clang-3.6"; fi
+    - mkdir build
+    - pushd build
+    - cmake -DCMAKE_BUILD_TYPE=release -DCECE_TESTS_BUILD=On -DCECE_RENDER=$CECE_RENDER ..
+    - popd
+
+script:
+    - VERBOSE=1 cmake --build build
+
+after_success:
+    - pushd build
+    - GTEST_COLOR=1 ctest --verbose
+    - popd
 
 notifications:
     slack:
-        secure: Q3gZ4jp6VtWVuCs7S0CzNcuPCd4HtUyhdY0I3uGVintyDJhN0wsJObsBwD6exYkw9FxsIZx7E8STqZoxZgD5S5siqXs6X/cFlzWCME06917+xKOqo5p+vHmPRNr7rYhiH3KYguRJGodf1Xovjjvtas1cI0rNI4jX6MW6NbKrTv0++GAoMOoy4BNGhcZ5MCpHQyalsqLP1yT2wMAFYOIAy6vvJaolF+367etH2HsKeH9Sjz4M2XvZq+A8m4MPvbBhMwYV6vmeS+a1R956OJh8C2Ksz0WuAHpV7KXly9dO8sMsAXZ0Ev7iMs6AsUo6fuJrIECq6LdgoaN0YxLJmNJy8fQEIGMPhfQ+tBfMdje5jUt6WRMQl+qD5M1Pi8iCJQdrx4CXD/CIKdmZSP81McE9RYw1OdIH2Fj+CGpk0gtXF9GrlZO2OmuYWz190bt3go1W5uCYbicfeLxmVL1gZlc4ZK1xbu6VgpI07Z2LIyU2qnA4uJ9Oldrg44nDE3qXpQZvQUJ5yMCRJ8nhr7nvSVbls1COxg2erg4oH4r3FMWyLxWuQnyhJ32FsCCvmbvu2Qr3dXdyuqxTCmaOd587JF2aiN1RV5dpimGszT7mxDB+bvlrN5dxnHayM8uIZ+X7+2f3sZ3GXob5HZrKtAu/ryG3hvz9yypGyPdNAz3bTT5OBSY=
+        secure: "TDjLJCNdUM+Iwe318zYNeTYIeOi0JZJCPpzATSXRvTdxvCcYHMespzKoGOfLsqxdQNse3DCOECMMtPVfjH1KQIx6h9nx7BkX/0HenPX4PUa/wnPWfoUxj3vJdzOUx83ih7wQrJd6Sqr9OmyrSoeYtohf53WEyYaqD/aco3aIIij+7LqiFgSMeet4CehNjMZM2INu93MDU2tNn0ibOiLAd5078HDj3nJvg508Owccl1J8IWfRnE/ONEMbYgdXzNd5zgfYoGHQIZe7GV2pWVdV8vAUMX3ym5u9FIbRnTMvyt2W3Og363OcFk+lBcEKQBWlHAZmwn8UCgo7QOhL0sA/qUSpu7A/gBC6AZFfNyoRhFCFLAMkoJBcgrqFX8hFyDrnZip6h2J2FMPMy3pHoKnXLsRm5L5uur0JA7ODu8hHiwFA7BReWUJZQlAUnpsdFmeUA2Oaahkhil3GrT89O95tyIRFyYW0DzXP4R89FD5MyhDycMyA0Chd2TrhbhEX4ogfEv7xN5HD2UMYCGbMCrcgJor5QoV7lo8FfVdjKyp90KYT1GUFMagCGBjZHHyDDMMpDGFQsponRvWepYL+5XkRhhX6zx9YPPh9yzL70+/ILKs/OQpm+F1yYr0pXrYK0c2mgn5qXJBU7aaPCqhzER+Q7khTO0z36nB0KvIU8mRp8fc="
 
 # ######################################################################### #
