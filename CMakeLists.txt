@@ -73,6 +73,7 @@ set(CECE_PLUGINS
     diffusion
     diffusion-python
     diffusion-streamlines
+    diffusion-streamlines-python
     fluorescence
     object-generator
     object-streamlines-generator
