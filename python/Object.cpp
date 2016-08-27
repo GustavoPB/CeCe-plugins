@@ -49,6 +49,16 @@ namespace python {
 
 /* ************************************************************************ */
 
+/// MSVC 2015 Update 3 contains a bug which doesn't include ref template function body into object file.
+#if _MSC_FULL_VER == 190024213
+inline object::Object& ref(object::Object* ptr)
+{
+    return *ptr;
+}
+#endif
+
+/* ************************************************************************ */
+
 Object::Object(simulator::Simulation& simulation, const String& name, Type type)
     : object::Object(simulation, "python.Object", type)
 {
