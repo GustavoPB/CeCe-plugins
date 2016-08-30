@@ -159,6 +159,9 @@ void Reactions::executeRules(unsigned int index, const Context& pointers)
 
 void Reactions::changeMoleculesInEnvironment(const int change, const String& name, const Context& pointers)
 {
+    if (pointers.diffusion == nullptr)
+        throw RuntimeException("Diffusion module is required for 'env' keyword");
+
     // get signal ID
     const auto id = pointers.diffusion->requireSignalId(name);
 
@@ -208,6 +211,9 @@ PropensityType Reactions::computePropensity(const unsigned int index, const Cont
         // intercellular
         if (m_reactions[index].getEnvRequirement(moleculeIndex) != 0u)
         {
+            if (context.diffusion == nullptr)
+                throw RuntimeException("Diffusion module is required for 'env' keyword");
+
             const auto id = context.diffusion->getSignalId(m_moleculeNames[moleculeIndex]);
             if (id != plugin::diffusion::Module::INVALID_SIGNAL_ID)
             {
