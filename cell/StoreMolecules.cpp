@@ -44,8 +44,7 @@ namespace cell {
 /* ************************************************************************ */
 
 // TODO: find a better solution
-static bool g_header = false;
-CsvFile g_file("molecules.csv");
+static CsvFile g_file;
 
 /* ************************************************************************ */
 
@@ -65,10 +64,10 @@ void StoreMolecules::call(simulator::Simulation& simulation, object::Object& obj
     // Cast to cell
     auto& cell = object.castThrow<CellBase>("Cell object required");
 
-    if (!g_header)
+    if (!g_file.isOpen())
     {
+        g_file.open("molecules.csv");
         g_file.writeHeader("iteration", "totalTime", "oid", "molecule", "amount");
-        g_header = true;
     }
 
     // Store molecules
