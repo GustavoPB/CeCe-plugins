@@ -26,8 +26,19 @@
 // Declaration
 #include "Module.hpp"
 
-// LibPNG
-#include <png.h>
+// STB
+#define STB_IMAGE_IMPLEMENTATION
+//#define STBI_NO_JPEG
+//#define STBI_NO_PNG
+#define STBI_NO_BMP
+#define STBI_NO_PSD
+#define STBI_NO_TGA
+#define STBI_NO_GIF
+#define STBI_NO_HDR
+#define STBI_NO_PIC
+#define STBI_NO_PNM
+#define STBI_NO_SIMD // __cpu_model issue
+#include "stb_image.h"
 
 // CeCe
 #include "cece/core/VectorRange.hpp"
@@ -41,10 +52,6 @@
 namespace cece {
 namespace plugin {
 namespace background {
-
-/* ************************************************************************ */
-
-constexpr png_size_t PNGSIGSIZE = 8;
 
 /* ************************************************************************ */
 
@@ -76,90 +83,37 @@ void Module::init()
     if (!file)
         throw RuntimeException("Image '" + getImageName() + "' not found");
 
-    // Read and check header
-    png_byte header[PNGSIGSIZE];
-    file->read(reinterpret_cast<char*>(header), sizeof(header));
-    if (png_sig_cmp(header, 0, PNGSIGSIZE))
-        throw RuntimeException("Asset is not a PNG file");
+    // Define callbacks
+    const stbi_io_callbacks callbacks{
+        // read
+        [] (void* user, char* data, int size) -> int {
+            return reinterpret_cast<InOutStream*>(user)->read(data, size).gcount();
+        },
+        // skip
+        [] (void* user, int n) -> void {
+            reinterpret_cast<InOutStream*>(user)->ignore(n);
+        },
+        // eof
+        [] (void* user) -> int {
+            return reinterpret_cast<InOutStream*>(user)->eof();
+        }
+    };
 
-    // Create read structure
-    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    // Load image
+    int x, y, n;
+    unsigned char* data = stbi_load_from_callbacks(&callbacks, file.get(), &x, &y, &n, 0);
 
-    if (!png)
-        throw RuntimeException("Internal PNG error");
+    // Store size and channels
+    m_size = Vector<unsigned int>(x, y);
+    m_channels = n;
 
-    // Create info structure
-    png_infop info = png_create_info_struct(png);
+    // Allocate memory
+    m_data.resize(x * y * n);
 
-    if (!info)
-    {
-        png_destroy_read_struct(&png, nullptr, nullptr);
-        throw RuntimeException("Internal PNG error");
-    }
+    // Copy data
+    std::memcpy(m_data.data(), data, m_data.size());
 
-    // Set error function. In case of error, program jumps here
-    if (setjmp(png_jmpbuf(png)))
-    {
-        png_destroy_read_struct(&png, &info, nullptr);
-        throw RuntimeException("Internal PNG error");
-    }
-
-    // Set read function
-    png_set_read_fn(png, file.get(), [](png_structp png, png_bytep buf, png_size_t size) noexcept {
-        InStream* file = reinterpret_cast<InStream*>(png_get_io_ptr(png));
-        file->read(reinterpret_cast<char*>(buf), size);
-    });
-
-    // Skip signature read that we already read
-    png_set_sig_bytes(png, PNGSIGSIZE);
-
-    // Read PNG info
-    png_read_info(png, info);
-
-    // Store image size
-    m_size = Vector<unsigned int>(png_get_image_width(png, info), png_get_image_height(png, info));
-
-    // Number of channels
-    m_channels = png_get_channels(png, info);
-
-    // Detect color type
-    switch (png_get_color_type(png, info))
-    {
-        default:
-            break;
-
-        case PNG_COLOR_TYPE_PALETTE:
-            png_set_palette_to_rgb(png);
-            break;
-    }
-
-    // Alpha channel
-    if (png_get_valid(png, info, PNG_INFO_tRNS))
-    {
-        png_set_tRNS_to_alpha(png);
-    }
-
-    // Read data
-    if (setjmp(png_jmpbuf(png)))
-    {
-        png_destroy_read_struct(&png, &info, nullptr);
-        throw RuntimeException("PNG reading error");
-    }
-
-    // Allocate memory for row pointers. It stores pointer to part of data buffer.
-    DynamicArray<png_bytep> rowPtrs(m_size.getHeight());
-
-    // Row size
-    const auto rowSize = png_get_rowbytes(png, info);
-
-    // Allocate memory for data
-    m_data.resize(m_size.getHeight() * rowSize);
-
-    for (png_int_32 y = m_size.getHeight(); y >= 0; y--)
-        rowPtrs[y] = m_data.data() + y * rowSize;
-
-    // Read image data
-    png_read_image(png, rowPtrs.data());
+    stbi_image_free(data);
 }
 
 /* ************************************************************************ */

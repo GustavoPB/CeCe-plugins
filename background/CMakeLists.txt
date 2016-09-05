@@ -31,34 +31,12 @@ endif ()
 
 # ######################################################################### #
 
-# Find LibPNG
-find_package(PNG)
-
-if (NOT PNG_FOUND)
-    message(WARNING "'background' plugin requires PNG library, plugin will not be built")
-    set(CECE_PLUGINS_BUILD_background_DISABLE On PARENT_SCOPE)
-    return ()
-endif ()
-
-if (WIN32)
-    include_directories(${PNG_PNG_INCLUDE_DIR})
-else ()
-    include_directories(${PNG_INCLUDE_DIRS})
-endif ()
-
-# ######################################################################### #
-
-# Sources
-set(SRCS
-    Module.hpp
-    Module.cpp
-    Plugin.cpp
-)
-
 # Build plugin
 build_plugin(background
-    SOURCES ${SRCS}
-    LIBRARIES ${PNG_LIBRARIES}
+    SOURCES
+        Module.hpp
+        Module.cpp
+        Plugin.cpp
 )
 
 # ######################################################################### #
