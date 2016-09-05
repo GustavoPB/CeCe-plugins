@@ -54,6 +54,9 @@ endif ()
 
 option(CECE_PLUGINS_DEV "Enable special mode for developers that symlink/copy plugins into a single directory" Off)
 
+# A list of custom plugins
+set(CECE_PLUGINS_CUSTOM "" CACHE String "A list of additional plugins")
+
 # ######################################################################### #
 
 if (CECE_TESTS_BUILD)
@@ -62,8 +65,8 @@ endif()
 
 # ######################################################################### #
 
-# Available plugins
-set(CECE_PLUGINS
+# Standard plugins
+set(CECE_PLUGINS_STANDARD
     agglutination
     background
     cell
@@ -87,6 +90,10 @@ set(CECE_PLUGINS
     streamlines-python
     xml
 )
+
+# ######################################################################### #
+
+set(CECE_PLUGINS ${CECE_PLUGINS_STANDARD} ${CECE_PLUGINS_CUSTOM})
 
 # ######################################################################### #
 
