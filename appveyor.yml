@@ -57,6 +57,7 @@ install:
     - SET PATH=C:\MinGW\bin;%PATH%
 
 before_build:
+    - md build
     - pushd build && cmake -G "%GENERATOR%" -DCMAKE_BUILD_TYPE=Release .. & popd
 
 build_script:
