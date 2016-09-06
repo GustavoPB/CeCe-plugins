@@ -156,15 +156,41 @@ void Module::save(const FilePath& filename)
         reinterpret_cast<OutFileStream*>(context)->write(reinterpret_cast<const char*>(data), size);
     };
 
+    DynamicArray<unsigned char> data_flip;
+    bool alpha;
+    unsigned int width;
+    unsigned int height;
+    int channel_count;
+
     // Copy data
     {
 #ifdef CECE_THREAD_SAFE
         // Lock access
         MutexGuard guard(m_mutex);
 #endif
-        if (!stbi_write_png_to_func(func, &file, m_size.getWidth(), m_size.getHeight(), m_alpha ? 4 : 3, m_data.data(), 0))
-            throw RuntimeException("Unable to write a picture");
+        alpha = m_alpha;
+        width = m_size.getWidth();
+        height = m_size.getHeight();
+        channel_count = alpha ? 4 : 3;
+
+        // Image is vertically flipped
+        data_flip.resize(m_data.size());
+
+        const unsigned int line_size = width * channel_count;
+
+        // Vertically flip lines
+        for (unsigned int i = 0; i < height; ++i)
+        {
+            std::memcpy(
+                data_flip.data() + i * line_size,
+                m_data.data() + (height - i - 1) * line_size,
+                line_size
+            );
+        }
     }
+
+    if (!stbi_write_png_to_func(func, &file, width, height, channel_count, data_flip.data(), 0))
+        throw RuntimeException("Unable to write a picture");
 }
 
 /* ************************************************************************ */
