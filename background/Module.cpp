@@ -130,7 +130,7 @@ void Module::draw(render::Context& context)
             render::Color pixel;
 
             // Pointer
-            const auto ptr = m_data.data() + m_channels * (c.getY() * m_size.getWidth() + c.getX());
+            const auto ptr = m_data.data() + m_channels * ((m_size.getHeight() - c.getY() - 1) * m_size.getWidth() + c.getX());
 
             switch (m_channels)
             {
