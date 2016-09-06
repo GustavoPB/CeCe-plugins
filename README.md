@@ -14,7 +14,7 @@ There are some plugins which are available as a part of the CeCe.
 
 Building from source code is done by CMake (see Requirements).
 
-### Linux & OSX
+### Linux & macOS
 
 ```bash
 $ mkdir build && cd build
@@ -38,11 +38,10 @@ cmake --build .
 ### Optional Requirements
 
 * [Python](http://www.python.org) v2.7
-* [LibPNG](https://github.com/glennrp/libpng)
-* [Zlib](https://github.com/madler/zlib)
 
 ## Third party libraries
 Libraries that are part of source code.
 
 * [pugixml](http://pugixml.org) (*xml* plugin).
 * [nanosvg](https://github.com/memononen/nanosvg) (*obstacles-svg* plugin).
+* [stb](https://github.com/nothings/stb)
