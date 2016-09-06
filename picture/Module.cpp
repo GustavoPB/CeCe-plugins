@@ -152,7 +152,7 @@ void Module::save(const FilePath& filename)
         throw InvalidArgumentException("Cannot open output file: " + filename.string());
 
     // Write function
-    const stbi_write_func* func = [] (void* context, void* data, int size) {
+    stbi_write_func* func = [] (void* context, void* data, int size) {
         reinterpret_cast<OutFileStream*>(context)->write(reinterpret_cast<const char*>(data), size);
     };
 
