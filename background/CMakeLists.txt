@@ -37,6 +37,7 @@ build_plugin(background
         Module.hpp
         Module.cpp
         Plugin.cpp
+        stb_image.h
 )
 
 # ######################################################################### #
