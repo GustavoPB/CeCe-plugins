@@ -29,8 +29,10 @@
 // C++
 #include <cstdio>
 
-// LibPNG
-#include <png.h>
+// stb_image_write
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#define STBI_WRITE_NO_STDIO
+#include "stb_image_write.h"
 
 // CeCe
 #include "cece/core/Log.hpp"
@@ -149,51 +151,10 @@ void Module::save(const FilePath& filename)
     if (!file.is_open())
         throw InvalidArgumentException("Cannot open output file: " + filename.string());
 
-    // Create write struct
-    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-
-    if (!png)
-        throw RuntimeException("Internal PNG error");
-
-    // Create info struct
-    png_infop info = png_create_info_struct(png);
-
-    if (!info)
-    {
-        png_destroy_write_struct(&png, nullptr);
-        throw RuntimeException("Internal PNG error");
-    }
-
-    // Set error function. In case of error, program jumps here
-    if (setjmp(png_jmpbuf(png)))
-    {
-        png_destroy_write_struct(&png, &info);
-        throw RuntimeException("Internal PNG error");
-    }
-
-    // Set write/flush function
-    png_set_write_fn(png, &file, [](png_structp png, png_bytep buf, png_size_t size) noexcept {
-        OutFileStream* file = reinterpret_cast<OutFileStream*>(png_get_io_ptr(png));
-        file->write(reinterpret_cast<const char*>(buf), size);
-    }, [](png_structp png) noexcept {
-        OutFileStream* file = reinterpret_cast<OutFileStream*>(png_get_io_ptr(png));
-        file->flush();
-    });
-
-    // Set info
-    png_set_IHDR(png, info, m_size.getWidth(), m_size.getHeight(),
-        8, m_alpha ? PNG_COLOR_TYPE_RGBA : PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE,
-        PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE
-    );
-
-    // Write header
-    png_write_info(png, info);
-
-    // Allocate memory for row pointers. It stores pointer to part of data buffer.
-    DynamicArray<png_bytep> rowPtrs(m_size.getHeight());
-
-    // Row size
-    const auto rowSize = png_get_rowbytes(png, info);
+    // Write function
+    const stbi_write_func* func = [] (void* context, void* data, int size) {
+        reinterpret_cast<OutFileStream*>(context)->write(reinterpret_cast<const char*>(data), size);
+    };
 
     // Copy data
     {
@@ -201,16 +162,9 @@ void Module::save(const FilePath& filename)
         // Lock access
         MutexGuard guard(m_mutex);
 #endif
-
-        for (png_int_32 y = m_size.getHeight(); y >= 0; y--)
-            rowPtrs[y] = m_data.data() + y * rowSize;
+        if (!stbi_write_png_to_func(func, &file, m_size.getWidth(), m_size.getHeight(), m_alpha ? 4 : 3, m_data.data(), 0))
+            throw RuntimeException("Unable to write a picture");
     }
-
-    // Write data
-    png_write_image(png, rowPtrs.data());
-
-    // Write end info
-    png_write_end(png, nullptr);
 }
 
 /* ************************************************************************ */
