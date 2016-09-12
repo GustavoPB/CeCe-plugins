@@ -38,6 +38,9 @@
 #include "cece/simulator/TimeMeasurement.hpp"
 #include "cece/simulator/Simulation.hpp"
 
+// Plugins
+#include "../cell/CellBase.hpp"
+
 /* ************************************************************************ */
 
 namespace cece {
@@ -95,71 +98,10 @@ RealType getDisassociationPropensity(
 
 /* ************************************************************************ */
 
-void Module::update()
-{
-    // Store time step
-    m_step = getSimulation().getTimeStep();
-
-    auto _ = measure_time("agglutination", simulator::TimeMeasurement(getSimulation()));
-
-    // Get physics world
-    auto& world = getSimulation().getWorld();
-
-    // Foreach pending bodies
-    for (const auto& p : m_toJoin)
-    {
-        b2WeldJointDef joint;
-        joint.Initialize(p.bodyA, p.bodyB, p.bodyA->GetWorldCenter());
-        JointUserData* jUserData = new JointUserData();
-        jUserData->module = this;
-        jUserData->Kd = p.dConst;
-        joint.userData = jUserData;
-        world.CreateJoint(&joint);
-    }
-
-    m_toJoin.clear();
-
-    // Joints to remove
-    DynamicArray<b2Joint*> toRemove;
-
-    // Foreach active joints
-    for (auto joint = world.GetJointList(); joint != nullptr; joint = joint->GetNext())
-    {
-        const JointUserData* jUserData = reinterpret_cast<const JointUserData*>(joint->GetUserData());
-        // Not our joint
-        if (jUserData == nullptr)
-            continue;
-        if (jUserData->guard != '@')
-            continue;
-
-        std::bernoulli_distribution dist(
-            getDisassociationPropensity(
-                m_step,
-                jUserData->Kd
-            )
-        );
-
-        if (dist(g_gen))
-        {
-            Log::debug("Released: ", joint->GetBodyA(), ", ", joint->GetBodyB());
-            toRemove.push_back(joint);
-            delete jUserData;
-        }
-    }
-
-    // Destroy joints
-    for (auto joint : toRemove)
-        world.DestroyJoint(joint);
-}
-
-/* ************************************************************************ */
-
 void Module::loadConfig(const config::Configuration& config)
 {
     // Configure parent
     module::Module::loadConfig(config);
-
-    getSimulation().getWorld().SetContactListener(this);
 
     for (auto&& c_bond : config.getConfigurations("bond"))
     {
@@ -191,49 +133,118 @@ void Module::storeConfig(config::Configuration& config) const
 
 /* ************************************************************************ */
 
-void Module::BeginContact(b2Contact* contact)
+void Module::init()
 {
-    auto ba = contact->GetFixtureA()->GetBody();
-    auto bb = contact->GetFixtureB()->GetBody();
-    auto oa = static_cast<object::Object*>(ba->GetUserData());
-    auto ob = static_cast<object::Object*>(bb->GetUserData());
-    if (!oa->is<plugin::cell::CellBase>() || !ob->is<plugin::cell::CellBase>())
-        return;
-    auto& ca = static_cast<object::Object*>(ba->GetUserData())->castThrow<plugin::cell::CellBase>();
-    auto& cb = static_cast<object::Object*>(bb->GetUserData())->castThrow<plugin::cell::CellBase>();
-    auto radius1 = ca.getShapes()[0].getCircle().radius;
-    auto radius2 = cb.getShapes()[0].getCircle().radius;
+    getSimulation().setContactListener(this);
+}
 
-    for (unsigned int i = 0; i < m_bonds.size(); i++)
+/* ************************************************************************ */
+
+void Module::update()
+{
+    // Store time step
+    m_step = getSimulation().getTimeStep();
+
+    auto _ = measure_time("agglutination", simulator::TimeMeasurement(getSimulation()));
+
+    // Foreach pending bindings
+    for (auto& p : m_bindings)
     {
-        std::bernoulli_distribution dist1(
-            getAssociationPropensity(m_step, radius1.value(), radius2.value(),
-                ca.getMoleculeCount(m_bonds[i].receptor), cb.getMoleculeCount(m_bonds[i].ligand),
-                m_bonds[i].aConst));
-        if (dist1(g_gen))
-        {
-            Log::debug("Joined: ", ba, ", ", bb);
-            m_toJoin.push_back(JointDef{ba, bb, m_bonds[i].dConst});
+        auto data = makeUnique<BoundData>();
+        data->module = this;
+        data->Kd = p.dConst;
+
+        p.o1->createBound(*p.o2, std::move(data));
+    }
+
+    m_bindings.clear();
+
+    // Foreach objects
+    for (auto& object : getSimulation().getObjects())
+    {
+        if (!object->is<plugin::cell::CellBase>())
             continue;
-        }
-        std::bernoulli_distribution dist2(
-            getAssociationPropensity(m_step, radius1.value(), radius2.value(),
-                cb.getMoleculeCount(m_bonds[i].receptor), ca.getMoleculeCount(m_bonds[i].ligand),
-                m_bonds[i].aConst));
-        if (dist2(g_gen))
+
+        auto cell = object->cast<plugin::cell::CellBase>();
+
+        for (const auto& bound : cell->getBounds())
         {
-            Log::debug("Joined: ", ba, ", ", bb);
-            m_toJoin.push_back(JointDef{ba, bb, m_bonds[i].dConst});
-            continue;
+            if (bound.data == nullptr)
+                continue;
+
+            const auto data = static_cast<const BoundData*>(bound.data.get());
+
+            if (data->guard != '@')
+                continue;
+
+            std::bernoulli_distribution dist(
+                getDisassociationPropensity(m_step, data->Kd)
+            );
+
+            if (dist(g_gen))
+            {
+                CECE_ASSERT(bound.object);
+                Log::debug("Released: ", cell->getId(), ", ", bound.object->getId());
+                cell->removeBound(*bound.object);
+            }
         }
     }
 }
 
 /* ************************************************************************ */
 
-void Module::EndContact(b2Contact* contact)
+void Module::terminate()
 {
-    // Nothing to do?
+    getSimulation().setContactListener(nullptr);
+}
+
+/* ************************************************************************ */
+
+void Module::onContact(object::Object& o1, object::Object& o2)
+{
+    if (!o1.is<plugin::cell::CellBase>() || !o2.is<plugin::cell::CellBase>())
+        return;
+
+    // Get cell objects
+    auto cell1 = o1.cast<plugin::cell::CellBase>();
+    auto cell2 = o2.cast<plugin::cell::CellBase>();
+
+    // Get cells radiuses
+    const auto radius1 = o1.getShapes()[0].getCircle().radius;
+    const auto radius2 = o2.getShapes()[0].getCircle().radius;
+
+    for (unsigned int i = 0; i < m_bonds.size(); i++)
+    {
+        std::bernoulli_distribution dist1(
+            getAssociationPropensity(
+                m_step, radius1.value(), radius2.value(),
+                cell1->getMoleculeCount(m_bonds[i].receptor), cell2->getMoleculeCount(m_bonds[i].ligand),
+                m_bonds[i].aConst
+            )
+        );
+
+        if (dist1(g_gen))
+        {
+            Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
+            m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst});
+            continue;
+        }
+
+        std::bernoulli_distribution dist2(
+            getAssociationPropensity(
+                m_step, radius1.value(), radius2.value(),
+                cell2->getMoleculeCount(m_bonds[i].receptor), cell1->getMoleculeCount(m_bonds[i].ligand),
+                m_bonds[i].aConst
+            )
+        );
+
+        if (dist2(g_gen))
+        {
+            Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
+            m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst});
+            continue;
+        }
+    }
 }
 
 /* ************************************************************************ */

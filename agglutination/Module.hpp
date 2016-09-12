@@ -30,19 +30,15 @@
 // C++
 #include <utility>
 
-// Physics
-#include <Box2D/Box2D.h>
-
 // CeCe
 #include "cece/config.hpp"
 #include "cece/core/DynamicArray.hpp"
 #include "cece/core/String.hpp"
 #include "cece/core/Real.hpp"
-#include "cece/core/Tuple.hpp"
+#include "cece/core/ViewPtr.hpp"
 #include "cece/module/Module.hpp"
-
-// Plugins
-#include "../cell/CellBase.hpp"
+#include "cece/object/ContactListener.hpp"
+#include "cece/object/BoundData.hpp"
 
 /* ************************************************************************ */
 
@@ -55,7 +51,7 @@ namespace agglutination {
 /**
  * @brief Module for agglutination.
  */
-class Module : public module::Module, public b2ContactListener
+class Module : public module::Module, public object::ContactListener
 {
 
 // Public Ctors & Dtors
@@ -86,25 +82,30 @@ public:
 
 
     /**
+     * @brief Initialize module.
+     */
+    void init() override;
+
+
+    /**
      * @brief Update module state.
      */
     void update() override;
 
 
     /**
-     * @brief Called when two fixtures begin to touch.
-     *
-     * @param contact
+     * @brief Terminate module.
      */
-    void BeginContact(b2Contact* contact) override;
+    void terminate() override;
 
 
     /**
-     * @brief Called when two fixtures cease to touch.
+     * @brief When two objects contact.
      *
-     * @param contact
+     * @param o1 The first object.
+     * @param o2 The second object.
      */
-    void EndContact(b2Contact* contact) override;
+    void onContact(object::Object& o1, object::Object& o2) override;
 
 
 // Private Structures
@@ -126,10 +127,10 @@ private:
     /**
      * @brief User data for joint.
      */
-    struct JointUserData
+    struct BoundData : public object::BoundData
     {
-        const char guard = '@';
-        Module* module;
+        char guard = '@';
+        ViewPtr<Module> module;
         RealType Kd;
     };
 
@@ -139,8 +140,8 @@ private:
      */
     struct JointDef
     {
-        b2Body* bodyA;
-        b2Body* bodyB;
+        ViewPtr<object::Object> o1;
+        ViewPtr<object::Object> o2;
         RealType dConst;
     };
 
@@ -148,11 +149,11 @@ private:
 // Private Data Members
 private:
 
-    /// List of bodies to join
-    DynamicArray<JointDef> m_toJoin;
+    /// List of bindings.
+    DynamicArray<JointDef> m_bindings;
 
     /// Used time step.
-    units::Duration m_step;
+    units::Time m_step;
 
     /// List of created bonds.
     DynamicArray<Bond> m_bonds;
