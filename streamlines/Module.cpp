@@ -119,7 +119,7 @@ void Module::init(AtomicBool& flag)
 
     bool initialized = false;
 
-    if (!m_initFile.empty() && fileExists(m_initFile))
+    if (!m_initFile.empty() && pathExists(m_initFile))
     {
         try
         {

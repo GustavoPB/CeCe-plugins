@@ -77,7 +77,7 @@ Object::Object(simulator::Simulation& simulation, const String& name, Type type)
         {
             auto path = p / name;
 
-            if (fileExists(path))
+            if (pathExists(path))
             {
                 foundPath = path;
                 break;
