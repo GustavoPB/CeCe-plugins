@@ -216,13 +216,13 @@ public:
 
 
     /**
-     * @brief Returns object class name.
+     * @brief Returns object type name.
      *
      * @param self
      *
      * @return
      */
-    static PyObject* getClassName(SelfType* self) noexcept
+    static PyObject* getTypeName(SelfType* self) noexcept
     {
         return makeObject(self->value->getTypeName()).release();
     }
@@ -235,9 +235,9 @@ public:
      *
      * @return
      */
-    static PyObject* getTypeName(SelfType* self) noexcept
+    static PyObject* getRealTypeName(SelfType* self) noexcept
     {
-        return makeObject(self->value->getTypeName()).release();
+        return makeObject(self->value->getRealTypeName()).release();
     }
 
 
@@ -304,14 +304,14 @@ private:
 
     /// Type properties.
     PyGetSetDef m_properties[9] = {
-        {const_cast<char*>("id"),        (getter) getId,        nullptr,               nullptr},
-        {const_cast<char*>("position"),  (getter) getPosition,  (setter) setPosition,  nullptr},
-        {const_cast<char*>("rotation"),  (getter) getRotation,  (setter) setRotation,  nullptr},
-        {const_cast<char*>("velocity"),  (getter) getVelocity,  (setter) setVelocity,  nullptr},
-        {const_cast<char*>("density"),   (getter) getDensity,   (setter) setDensity,   nullptr},
-        {const_cast<char*>("mass"),      (getter) getMass,      nullptr,               nullptr},
-        {const_cast<char*>("className"), (getter) getClassName, nullptr,               nullptr},
-        {const_cast<char*>("typeName"),  (getter) getTypeName,  nullptr,               nullptr},
+        {const_cast<char*>("id"),           (getter) getId,             nullptr,               nullptr},
+        {const_cast<char*>("position"),     (getter) getPosition,       (setter) setPosition,  nullptr},
+        {const_cast<char*>("rotation"),     (getter) getRotation,       (setter) setRotation,  nullptr},
+        {const_cast<char*>("velocity"),     (getter) getVelocity,       (setter) setVelocity,  nullptr},
+        {const_cast<char*>("density"),      (getter) getDensity,        (setter) setDensity,   nullptr},
+        {const_cast<char*>("mass"),         (getter) getMass,           nullptr,               nullptr},
+        {const_cast<char*>("typeName"),     (getter) getTypeName,       nullptr,               nullptr},
+        {const_cast<char*>("realTypeName"), (getter) getRealTypeName,   nullptr,               nullptr},
         {nullptr}  /* Sentinel */
     };
 

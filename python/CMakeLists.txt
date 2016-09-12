@@ -94,7 +94,7 @@ if (WIN32)
     )
 
     if (PYTHON_DLL)
-        message("Python DLL found: ${PYTHON_DLL}")
+        message(STATUS "Python DLL found: ${PYTHON_DLL}")
         install(FILES ${PYTHON_DLL} DESTINATION bin)
     else ()
         message(WARNING "Unable to find python DLL")
