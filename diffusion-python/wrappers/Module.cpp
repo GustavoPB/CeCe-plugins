@@ -26,6 +26,9 @@
 // Must be first
 #include "../../python/Python.hpp"
 
+// CeCe
+#include "cece/core/StringStream.hpp"
+
 // Diffusion
 #include "../../diffusion/Module.hpp"
 
@@ -137,12 +140,24 @@ public:
         if (!PyArg_ParseTuple(args, "Oii", &id, &x, &y))
             return nullptr;
 
+        // Check if is in range
+        const auto size = self->value->getGridSize();
+        const auto coord = plugin::diffusion::Module::Coordinate(x, y);
+
+        if (!self->value->inRange(coord))
+        {
+            OutStringStream oss;
+            oss << "Coordinates [" << x << ", " << y << "] out of range [" << size.getWidth() << ", " << size.getHeight() << "]";
+            PyErr_SetString(PyExc_RuntimeError, oss.str().c_str());
+            return nullptr;
+        }
+
         if (PyInt_Check(id) || PyLong_Check(id))
         {
             return makeObject(
                 self->value->getSignal(
                     plugin::diffusion::Module::SignalId(PyLong_AsLong(id)),
-                    plugin::diffusion::Module::Coordinate(x, y)
+                    coord
                 )
             ).release();
         }
@@ -151,10 +166,12 @@ public:
             return makeObject(
                 self->value->getSignal(
                     PyString_AsString(id),
-                    plugin::diffusion::Module::Coordinate(x, y)
+                    coord
                 )
             ).release();
         }
+
+        PyErr_SetString(PyExc_RuntimeError, "Invalid ID argument type, only int and string are allowed");
 
         return nullptr;
     }
@@ -178,11 +195,23 @@ public:
         if (!PyArg_ParseTuple(args, "Oiid", &id, &x, &y, &value))
             return nullptr;
 
+        // Check if is in range
+        const auto size = self->value->getGridSize();
+        const auto coord = plugin::diffusion::Module::Coordinate(x, y);
+
+        if (!self->value->inRange(coord))
+        {
+            OutStringStream oss;
+            oss << "Coordinates [" << x << ", " << y << "] out of range [" << size.getWidth() << ", " << size.getHeight() << "]";
+            PyErr_SetString(PyExc_RuntimeError, oss.str().c_str());
+            return nullptr;
+        }
+
         if (PyInt_Check(id) || PyLong_Check(id))
         {
             self->value->setSignal(
                 plugin::diffusion::Module::SignalId(PyLong_AsLong(id)),
-                plugin::diffusion::Module::Coordinate(x, y),
+                coord,
                 plugin::diffusion::Module::SignalConcentration(value)
             );
         }
@@ -190,7 +219,7 @@ public:
         {
             self->value->setSignal(
                 PyString_AsString(id),
-                plugin::diffusion::Module::Coordinate(x, y),
+                coord,
                 plugin::diffusion::Module::SignalConcentration(value)
             );
         }
