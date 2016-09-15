@@ -231,7 +231,7 @@ public:
         }
 
         // units appendix
-        if (isIdentifierBegin())
+        if (isIdentifierBegin() || is('/'))
         {
             token.code = TokenCode::Units;
             do
