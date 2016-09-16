@@ -257,4 +257,4 @@ Defines program that extensively use potential of Stochastic reaction plugin.
 ]]></program>
 ```
 
-![Example output](reactions.png)
+![Example output](img/reactions.png)

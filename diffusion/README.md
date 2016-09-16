@@ -1,6 +1,6 @@
 
 # Diffusion Plugin
-  
+
 The main module adds support for global diffusion in simulation. Diffusion can handle any number of separate signals. They cannot affect each other.
 
 ## Example:

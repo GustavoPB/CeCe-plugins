@@ -8,7 +8,7 @@ CeCe is a platform for advanced simulation of cell communication in dynamic envi
 
 > This repository contains only plugins, for whole project see [https://github.com/GeorgievLab/CeCe](https://github.com/GeorgievLab/CeCe)
 
-The repository contains plugins which are distributed as a part of CeCe standard package. It's possible to add a third-party plugin (see used application documentation) or build a custom plugin (see repository [https://github.com/GeorgievLab/CeCe-plugins/wiki/Custom-plugin](wiki)).
+The repository contains plugins which are distributed as a part of CeCe standard package. It's possible to add a third-party plugin (see used application documentation) or build [a custom plugin](http://georgievlab.github.io/CeCe/documentation/custom-plugin/).
 
 ## Building from source
 

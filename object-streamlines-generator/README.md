@@ -11,7 +11,7 @@ This example create module that generates different Yeast cells in each iteratio
 ```xml
 <plugin name="object-streamlines-generator" />
 <plugin name="streamlines" />
-<module name="streamlines>
+<module name="streamlines">
   <boundary type="inlet" name="inlet1" inlet-flow-rate="10ml/s" />
 </module>
 <module name="object-generator">
