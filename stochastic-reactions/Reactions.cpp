@@ -27,6 +27,7 @@
 #include "Reactions.hpp"
 
 // C++
+#include <cmath>
 #include <numeric>
 
 // CeCe
@@ -93,7 +94,10 @@ void Reactions::executeReactions(units::Time step, const Context& pointers)
     // Gillespie algorithm + tau-leaping
     while (true)
     {
-        PropensityType sum = std::accumulate(m_propensities.begin(), m_propensities.end(), 0.0f);
+        PropensityType sum = std::accumulate(m_propensities.begin(), m_propensities.end(), PropensityType{});
+
+        if (std::isnan(sum))
+            throw RuntimeException("NaN in propensities found!");
 
         if (sum == 0)
         {
@@ -105,7 +109,7 @@ void Reactions::executeReactions(units::Time step, const Context& pointers)
         std::discrete_distribution<> distr(m_propensities.begin(), m_propensities.end());
 
         // get time of reaction
-        const auto delta_time = - (step / sum) * std::log(rand(gen));
+        const auto delta_time = -(units::Time(1) / sum) * std::log(rand(gen));
 
         // quit if time exceeds iteration time
         if (timeleft < delta_time)
