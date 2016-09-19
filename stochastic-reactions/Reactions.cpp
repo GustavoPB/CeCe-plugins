@@ -81,10 +81,10 @@ void Reactions::call(simulator::Simulation& simulation, object::Object& object, 
 
 /* ************************************************************************ */
 
-void Reactions::executeReactions(units::Time step, const Context& pointers)
+void Reactions::executeReactions(units::Time step, const Context& context)
 {
     // initialize for iteration
-    initializePropensities(pointers);
+    initializePropensities(context);
     auto timeleft = step;
 
     // initialize random device
@@ -122,13 +122,13 @@ void Reactions::executeReactions(units::Time step, const Context& pointers)
         const auto reactionIndex = distr(gen);
 
         // execute
-        executeRules(reactionIndex, pointers);
+        executeRules(reactionIndex, context);
     }
 }
 
 /* ************************************************************************ */
 
-void Reactions::executeRules(unsigned int index, const Context& pointers)
+void Reactions::executeRules(unsigned int index, const Context& context)
 {
     Assert(index < m_reactions.size());
 
@@ -148,29 +148,29 @@ void Reactions::executeRules(unsigned int index, const Context& pointers)
 
         // change molecule count inside the cell
         if (change)
-            pointers.cell.changeMoleculeCount(moleculeName, change);
+            context.cell.changeMoleculeCount(moleculeName, change);
 
         // change molecule count in diffusion
         if (env_change)
-            changeMoleculesInEnvironment(env_change, moleculeName, pointers);
+            changeMoleculesInEnvironment(env_change, moleculeName, context);
 
         // refresh propensities
-        refreshPropensities(pointers);
+        refreshPropensities(context);
     }
 }
 
 /* ************************************************************************ */
 
-void Reactions::changeMoleculesInEnvironment(const int change, const String& name, const Context& pointers)
+void Reactions::changeMoleculesInEnvironment(const int change, const String& name, const Context& context)
 {
-    if (pointers.diffusion == nullptr)
+    if (context.diffusion == nullptr)
         throw RuntimeException("Diffusion module is required for 'env' keyword");
 
     // get signal ID
-    const auto id = pointers.diffusion->requireSignalId(name);
+    const auto id = context.diffusion->requireSignalId(name);
 
     // change amount of molecules
-    changeMolecules(pointers.cell.getSimulation(), *pointers.diffusion, *pointers.coords, id, change);
+    changeMolecules(context.cell.getSimulation(), *context.diffusion, *context.coords, id, change);
 }
 
 /* ************************************************************************ */
@@ -232,7 +232,7 @@ PropensityType Reactions::computePropensity(const unsigned int index, const Cont
 
 /* ************************************************************************ */
 
-void Reactions::initializePropensities(const Context& pointers)
+void Reactions::initializePropensities(const Context& context)
 {
     // clear array first
     m_propensities.clear();
@@ -243,17 +243,17 @@ void Reactions::initializePropensities(const Context& pointers)
     // fill
     for (unsigned int i = 0; i < m_reactions.size(); i++)
     {
-        m_propensities.push_back(computePropensity(i, pointers));
+        m_propensities.push_back(computePropensity(i, context));
     }
 }
 
 /* ************************************************************************ */
 
-void Reactions::refreshPropensities(const Context& pointers)
+void Reactions::refreshPropensities(const Context& context)
 {
     for (unsigned int i = 0; i < m_reactions.size(); i++)
     {
-        m_propensities[i] = computePropensity(i, pointers);
+        m_propensities[i] = computePropensity(i, context);
     }
 }
 

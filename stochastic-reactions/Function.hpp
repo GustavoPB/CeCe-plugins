@@ -54,7 +54,7 @@ namespace stochastic_reactions {
 template <typename Return>
 struct Node
 {
-    virtual Return eval(const Context& pointers) const = 0;
+    virtual Return eval(const Context& context) const = 0;
 };
 
 /* ************************************************************************ */
@@ -77,9 +77,9 @@ private:
 
 public:
 
-    typename OperatorType::result_type eval(const Context& pointers) const override
+    typename OperatorType::result_type eval(const Context& context) const override
     {
-        return OperatorType{}(m_one->eval(pointers), m_two->eval(pointers), m_three->eval(pointers));
+        return OperatorType{}(m_one->eval(context), m_two->eval(context), m_three->eval(context));
     }
 
 public:
@@ -107,9 +107,9 @@ private:
 
 public:
 
-    typename OperatorType::result_type eval(const Context& pointers) const override
+    typename OperatorType::result_type eval(const Context& context) const override
     {
-        return OperatorType{}(m_left->eval(pointers), m_right->eval(pointers));
+        return OperatorType{}(m_left->eval(context), m_right->eval(context));
     }
 
 public:
@@ -135,9 +135,9 @@ private:
 
 public:
 
-    typename OperatorType::result_type eval(const Context& pointers) const override
+    typename OperatorType::result_type eval(const Context& context) const override
     {
-        return OperatorType{}(root->eval(pointers));
+        return OperatorType{}(root->eval(context));
     }
 
 public:
@@ -163,9 +163,9 @@ private:
 
 public:
 
-    Return eval(const Context& pointers) const override
+    Return eval(const Context& context) const override
     {
-        return root->eval(pointers);
+        return root->eval(context);
     }
 
 public:
@@ -195,9 +195,9 @@ private:
 
 public:
 
-    RealType eval(const Context& pointers) const override
+    RealType eval(const Context& context) const override
     {
-        return pointers.cell.getMoleculeCount(m_identifier);
+        return context.cell.getMoleculeCount(m_identifier);
     }
 
 public:
@@ -220,17 +220,17 @@ private:
 
 public:
 
-    RealType eval(const Context& pointers) const override
+    RealType eval(const Context& context) const override
     {
-        if (pointers.diffusion == nullptr)
+        if (context.diffusion == nullptr)
             return 0;
 
-        const auto id = pointers.diffusion->getSignalId(m_identifier);
+        const auto id = context.diffusion->getSignalId(m_identifier);
 
         if (id == plugin::diffusion::Module::INVALID_SIGNAL_ID)
             return 0;
 
-        return getMolarConcentration(*pointers.diffusion, *pointers.coords, id).value();
+        return getMolarConcentration(*context.diffusion, *context.coords, id).value();
     }
 
 public:
@@ -253,7 +253,7 @@ private:
 
 public:
 
-    RealType eval(const Context& pointers) const override
+    RealType eval(const Context& context) const override
     {
         return m_amount;
     }
@@ -278,9 +278,9 @@ private:
 
 public:
 
-    RealType eval(const Context& pointers) const override
+    RealType eval(const Context& context) const override
     {
-        return units::parse(pointers.parameters.get(m_identifier));
+        return units::parse(context.parameters.get(m_identifier));
     }
 
 public:

@@ -67,6 +67,7 @@ class Reactions : public program::Program
 // Public Acessors:
 public:
 
+
     /**
      * @brief Evaluates rate.
      *
@@ -74,10 +75,11 @@ public:
      *
      * @return rate
      */
-    inline RateType evalRate(unsigned int index, const Context& pointers) const noexcept
+    inline RateType evalRate(unsigned int index, const Context& context) const noexcept
     {
-        return m_reactions[index].evaluateRate(pointers);
+        return m_reactions[index].evaluateRate(context);
     }
+
 
     /**
      * @brief Evaluates condition.
@@ -86,10 +88,11 @@ public:
      *
      * @return condition was satisfied or not
      */
-    inline bool evalCond(unsigned int index, const Context& pointers) const noexcept
+    inline bool evalCond(unsigned int index, const Context& context) const noexcept
     {
-        return m_reactions[index].evaluateCondition(pointers);
+        return m_reactions[index].evaluateCondition(context);
     }
+
 
     /**
      * @brief Returns number of different molecules in reactions.
@@ -100,6 +103,7 @@ public:
     {
         return m_moleculeNames.size();
     }
+
 
     /**
      * @brief Check if given molecule is used in reactions.
@@ -113,6 +117,7 @@ public:
         return std::find(m_moleculeNames.begin(), m_moleculeNames.end(), name) != m_moleculeNames.end();
     }
 
+
     /**
      * @brief Returns molecule name.
      *
@@ -125,6 +130,7 @@ public:
         return m_moleculeNames[index];
     }
 
+
     /**
      * @brief Returns number of reactions.
      *
@@ -134,6 +140,7 @@ public:
     {
         return m_reactions.size();
     }
+
 
     /**
      * @brief Returns the last row in reaction rule matrix.
@@ -148,6 +155,7 @@ public:
         return m_reactions[index];
     }
 
+
     /**
      * @brief Returns the last row in reaction rule matrix.
      *
@@ -161,6 +169,7 @@ public:
         return m_reactions[index];
     }
 
+
     /**
      * @brief Returns the last row in reaction rule matrix.
      *
@@ -171,6 +180,7 @@ public:
         Assert(!m_reactions.empty());
         return m_reactions.back();
     }
+
 
     /**
      * @brief Returns the last row in reaction rule matrix.
@@ -183,6 +193,7 @@ public:
         return m_reactions.back();
     }
 
+
     /**
      * @brief Returns size of propensity array.
      *
@@ -192,6 +203,7 @@ public:
     {
         return m_propensities.size();
     }
+
 
     /**
      * @brief Returns the propensity of reaction at given index.
@@ -204,12 +216,14 @@ public:
         return m_propensities[index];
     }
 
+
     /**
      * @brief Computes propensities of all reactions.
      *
      * @return
      */
-    void initializePropensities(const Context& pointers);
+    void initializePropensities(const Context& context);
+
 
     /**
      * @brief Searches global bool functions for the one with given ID
@@ -224,6 +238,7 @@ public:
         return nullptr;
     }
 
+
     /**
      * @brief Searches global real functions for the one with given ID
      *
@@ -237,15 +252,18 @@ public:
         return nullptr;
     }
 
+
 // Private Operations
 private:
+
 
     /**
      * @brief Execute reactions each step.
      *
      * @param step
      */
-    void executeReactions(units::Time step, const Context& pointers);
+    void executeReactions(units::Time step, const Context& context);
+
 
     /**
      * @brief Computes propensity of given reaction.
@@ -253,7 +271,8 @@ private:
      * @param index of row, cell, diffusion
      * @return propensity
      */
-    void executeRules(unsigned int index, const Context& pointers);
+    void executeRules(unsigned int index, const Context& context);
+
 
     /**
      * @brief Computes propensity of given reaction.
@@ -261,21 +280,23 @@ private:
      * @param index of row, cell, diffusion
      * @return propensity
      */
-    PropensityType computePropensity(const unsigned int index, const Context& pointers);
+    PropensityType computePropensity(const unsigned int index, const Context& context);
+
 
     /**
      * @brief Refreshes propensities of ractions which have requirements of specific molecule.
      *
      * @param index of column, cell, diffusion
      */
-    void refreshPropensities(const Context& pointers);
+    void refreshPropensities(const Context& context);
+
 
     /**
      * @brief Function that releases or absorbs the molecules outside the cell.
      *
      * @param id of molecule, number of molecules, diffusion
      */
-    void changeMoleculesInEnvironment(const int change, const String& id, const Context& pointers);
+    void changeMoleculesInEnvironment(const int change, const String& id, const Context& context);
 
 
 // Public Operations

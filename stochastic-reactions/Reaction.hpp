@@ -87,18 +87,18 @@ public:
 // Public Accessors
 public:
 
-    inline bool evaluateCondition(const Context& pointers) const
+    inline bool evaluateCondition(const Context& context) const
     {
         if (m_condition == nullptr)
             return true;
-        return m_condition->eval(pointers);
+        return m_condition->eval(context);
     }
 
-    inline RateType evaluateRate(const Context& pointers) const
+    inline RateType evaluateRate(const Context& context) const
     {
         Assert(m_rate != nullptr);
 
-        return m_rate->eval(pointers);
+        return m_rate->eval(context);
     }
 
     inline unsigned int getRequirement(unsigned int index) const noexcept
