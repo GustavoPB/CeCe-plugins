@@ -50,7 +50,7 @@ Cell::Cell(simulator::Simulation& simulation, String typeName, object::Object::T
 
 /* ************************************************************************ */
 
-void Cell::update(units::Duration dt)
+void Cell::update(units::Time dt)
 {
     CellBase::update(dt);
 

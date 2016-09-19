@@ -97,7 +97,7 @@ public:
      *
      * @param dt Time step.
      */
-    void update(units::Duration dt) override;
+    void update(units::Time dt) override;
 
 
     /**

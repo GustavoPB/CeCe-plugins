@@ -79,7 +79,7 @@ Yeast::~Yeast()
 
 /* ************************************************************************ */
 
-void Yeast::update(units::Duration dt)
+void Yeast::update(units::Time dt)
 {
     const auto volume0 = getVolume();
     CellBase::update(dt);

@@ -61,21 +61,16 @@ std::default_random_engine g_gen(g_rd());
 
 /* ************************************************************************ */
 
-RealType getRelativeReceptorProportion(
-    RealType radius,
-    unsigned int numberOfRec)
+RealType getRelativeReceptorProportion(RealType radius, unsigned int numberOfRec)
 {
     return 1 - std::exp(- numberOfRec / (4 * core::constants::PI * radius * radius));
 }
 
 /* ************************************************************************ */
 
-RealType getAssociationPropensity(
-    units::Duration step,
-    RealType radius1,
-    RealType radius2,
-    unsigned int numberOfRec1,
-    unsigned int numberOfRec2,
+RealType getAssociationPropensity(units::Time step,
+    RealType radius1, RealType radius2,
+    unsigned int numberOfRec1, unsigned int numberOfRec2,
     RealType Ka)
 {
     return  getRelativeReceptorProportion(radius1, numberOfRec1) *
@@ -85,9 +80,7 @@ RealType getAssociationPropensity(
 
 /* ************************************************************************ */
 
-RealType getDisassociationPropensity(
-    units::Duration step,
-    RealType Kd)
+RealType getDisassociationPropensity(units::Time step, RealType Kd)
 {
     return 1 - std::exp(-Kd * step.value());
 }

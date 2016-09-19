@@ -86,7 +86,7 @@ public:
      *
      * @param dt Simulation time step.
      */
-    void update(units::Duration dt) override;
+    void update(units::Time dt) override;
 
 
 #ifdef CECE_RENDER

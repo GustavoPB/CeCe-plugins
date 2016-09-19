@@ -127,7 +127,7 @@ void Object::configure(const config::Configuration& config, simulator::Simulatio
 
 /* ************************************************************************ */
 
-void Object::update(units::Duration dt)
+void Object::update(units::Time dt)
 {
     if (!m_updateFn)
         return;
