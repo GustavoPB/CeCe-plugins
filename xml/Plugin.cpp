@@ -79,7 +79,11 @@ class XmlLoader : public loader::Loader
         pugi::xml_parse_result result = doc.load(source);
 
         if (!result)
-            throw RuntimeException("XML parse error @" + toString(result.offset) + ": " + String(result.description()));
+        {
+            throw RuntimeException(
+                "XML parse error @" + toString(static_cast<unsigned long>(result.offset)) + ": " + String(result.description())
+            );
+        }
 
         // Create configuration
         const config::Configuration config(
