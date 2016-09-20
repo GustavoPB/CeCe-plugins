@@ -80,7 +80,9 @@ void Module::init()
     diffusion::Module::init();
 
     m_streamlines = getSimulation().getModule("streamlines");
-    Assert(m_streamlines);
+
+    if (!m_streamlines)
+        throw InvalidArgumentException("Missing streamlines module");
 
     // Get lattice
     const auto& lattice = m_streamlines->getLattice();
