@@ -1018,6 +1018,82 @@ PyObject* nmol_um3(PyObject* self, PyObject* args) noexcept
 /* ************************************************************************ */
 
 /**
+ * @brief Returns concentration.
+ *
+ * @param value
+ *
+ * @return Molar concentration.
+ */
+PyObject* mM(PyObject* self, PyObject* args) noexcept
+{
+    float value;
+
+    if (!PyArg_ParseTuple(args, "f", &value))
+        return nullptr;
+
+    return makeObject(units::mol_um3(value)).release();
+}
+
+/* ************************************************************************ */
+
+/**
+ * @brief Returns concentration.
+ *
+ * @param value
+ *
+ * @return Molar concentration.
+ */
+PyObject* uM(PyObject* self, PyObject* args) noexcept
+{
+    float value;
+
+    if (!PyArg_ParseTuple(args, "f", &value))
+        return nullptr;
+
+    return makeObject(units::mmol_um3(value)).release();
+}
+
+/* ************************************************************************ */
+
+/**
+ * @brief Returns concentration.
+ *
+ * @param value
+ *
+ * @return Molar concentration.
+ */
+PyObject* nM(PyObject* self, PyObject* args) noexcept
+{
+    float value;
+
+    if (!PyArg_ParseTuple(args, "f", &value))
+        return nullptr;
+
+    return makeObject(units::umol_um3(value)).release();
+}
+
+/* ************************************************************************ */
+
+/**
+ * @brief Returns concentration.
+ *
+ * @param value
+ *
+ * @return Molar concentration.
+ */
+PyObject* pM(PyObject* self, PyObject* args) noexcept
+{
+    float value;
+
+    if (!PyArg_ParseTuple(args, "f", &value))
+        return nullptr;
+
+    return makeObject(units::nmol_um3(value)).release();
+}
+
+/* ************************************************************************ */
+
+/**
  * @brief Radian constructor.
  *
  * @param value Value in radians.
@@ -1131,6 +1207,10 @@ PyMethodDef core_functions[] = {
     {"mmol_um3", mmol_um3, METH_VARARGS, nullptr},
     {"umol_um3", umol_um3, METH_VARARGS, nullptr},
     {"nmol_um3", nmol_um3, METH_VARARGS, nullptr},
+    {"mM", mM, METH_VARARGS, nullptr},
+    {"uM", uM, METH_VARARGS, nullptr},
+    {"nM", nM, METH_VARARGS, nullptr},
+    {"pM", pM, METH_VARARGS, nullptr},
     {"rad",     rad, METH_VARARGS, nullptr},
     {"deg",     deg, METH_VARARGS, nullptr},
     {"precent", precent, METH_VARARGS, nullptr},
