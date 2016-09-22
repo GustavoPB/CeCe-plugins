@@ -55,14 +55,6 @@ public:
 
 
     /**
-     * @brief Clone initializer.
-     *
-     * @return
-     */
-    UniquePtr<init::Initializer> clone() const override;
-
-
-    /**
      * @brief Load initializer configuration.
      *
      * @param simulation Current simulation.
@@ -76,7 +68,7 @@ public:
      *
      * @param simulation Simulation object.
      */
-    void call(simulator::Simulation& simulation) override;
+    void init(simulator::Simulation& simulation) const override;
 
 
 // Private Data Members

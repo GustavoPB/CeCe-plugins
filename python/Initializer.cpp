@@ -57,13 +57,6 @@ inline object::Object& ref(object::Object* ptr)
 
 /* ************************************************************************ */
 
-UniquePtr<init::Initializer> Initializer::clone() const
-{
-    return makeUnique<Initializer>(*this);
-}
-
-/* ************************************************************************ */
-
 void Initializer::loadConfig(simulator::Simulation& simulation, const config::Configuration& config)
 {
     if (config.has("filename"))
@@ -88,7 +81,7 @@ void Initializer::loadConfig(simulator::Simulation& simulation, const config::Co
 
 /* ************************************************************************ */
 
-void Initializer::call(simulator::Simulation& simulation)
+void Initializer::init(simulator::Simulation& simulation) const
 {
     // Call function
     python::call(m_call, &simulation);
