@@ -1,6 +1,8 @@
 
 # Agglutination Plugin
 
+Original author: [Václav Pelíšek](https://github.com/peldax)
+
 This plugin enables simulation object sticking. When two simulation object collides
 they might be bound together and after some time the bound can be removed.
 This is based on bond definition where you can specify required molecules
