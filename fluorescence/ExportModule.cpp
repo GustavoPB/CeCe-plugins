@@ -102,7 +102,7 @@ void ExportModule::init()
     if (isTotal())
         writeHeader("iteration", "time", "protein", "amount", "cells", "average");
     else
-        writeHeader("iteration", "time", "x", "y", "xw", "yw", "protein", "amount", "average", "cells", "average");
+        writeHeader("iteration", "time", "x", "y", "xw", "yw", "protein", "average", "cells", "average");
 }
 
 /* ************************************************************************ */
