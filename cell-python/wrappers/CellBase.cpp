@@ -205,11 +205,11 @@ public:
      *
      * @return
      */
-    static PyObject* getSaturationGFP(SelfType* self) noexcept
+    static PyObject* getGfpSaturation(SelfType* self) noexcept
     {
         CECE_ASSERT(self);
         CECE_ASSERT(self->value);
-        return makeObject(self->value->getSaturationGFP()).release();
+        return makeObject(self->value->getGfpSaturation()).release();
     }
 
 
@@ -221,12 +221,12 @@ public:
      *
      * @return
      */
-    static int setSaturationGFP(SelfType* self, PyObject* value) noexcept
+    static int setGfpSaturation(SelfType* self, PyObject* value) noexcept
     {
         CECE_ASSERT(self);
         CECE_ASSERT(self->value);
         CECE_ASSERT(value);
-        self->value->setSaturationGFP(cast<plugin::cell::CellBase::FluorescentSaturation>(value));
+        self->value->setGfpSaturation(cast<plugin::cell::CellBase::FluorescentSaturation>(value));
 
         return 0;
     }
@@ -238,11 +238,11 @@ public:
      *
      * @return
      */
-    static PyObject* getSaturationRFP(SelfType* self) noexcept
+    static PyObject* getRfpSaturation(SelfType* self) noexcept
     {
         CECE_ASSERT(self);
         CECE_ASSERT(self->value);
-        return makeObject(self->value->getSaturationRFP()).release();
+        return makeObject(self->value->getRfpSaturation()).release();
     }
 
 
@@ -254,12 +254,12 @@ public:
      *
      * @return
      */
-    static int setSaturationRFP(SelfType* self, PyObject* value) noexcept
+    static int setRfpSaturation(SelfType* self, PyObject* value) noexcept
     {
         CECE_ASSERT(self);
         CECE_ASSERT(self->value);
         CECE_ASSERT(value);
-        self->value->setSaturationRFP(cast<plugin::cell::CellBase::FluorescentSaturation>(value));
+        self->value->setRfpSaturation(cast<plugin::cell::CellBase::FluorescentSaturation>(value));
 
         return 0;
     }
@@ -271,11 +271,11 @@ public:
      *
      * @return
      */
-    static PyObject* getSaturationYFP(SelfType* self) noexcept
+    static PyObject* getYfpSaturation(SelfType* self) noexcept
     {
         CECE_ASSERT(self);
         CECE_ASSERT(self->value);
-        return makeObject(self->value->getSaturationYFP()).release();
+        return makeObject(self->value->getYfpSaturation()).release();
     }
 
 
@@ -287,12 +287,12 @@ public:
      *
      * @return
      */
-    static int setSaturationYFP(SelfType* self, PyObject* value) noexcept
+    static int setYfpSaturation(SelfType* self, PyObject* value) noexcept
     {
         CECE_ASSERT(self);
         CECE_ASSERT(self->value);
         CECE_ASSERT(value);
-        self->value->setSaturationYFP(cast<plugin::cell::CellBase::FluorescentSaturation>(value));
+        self->value->setYfpSaturation(cast<plugin::cell::CellBase::FluorescentSaturation>(value));
 
         return 0;
     }
@@ -312,7 +312,7 @@ public:
     {
         CECE_ASSERT(self);
         CECE_ASSERT(self->value);
-        CECE_ASSERT(value);
+        CECE_ASSERT(args);
 
         char* name;
 
@@ -415,15 +415,19 @@ public:
 private:
 
     /// Type properties.
-    PyGetSetDef m_properties[4] = {
+#ifdef CECE_RENDER
+    PyGetSetDef m_properties[8] = {
+#else
+    PyGetSetDef m_properties[5] = {
+#endif
         {const_cast<char*>("volume"),        (getter) getVolume,        (setter) setVolume,          nullptr},
         {const_cast<char*>("volumeMax"),     (getter) getVolumeMax,     (setter) setVolumeMax,       nullptr},
         {const_cast<char*>("growthRate"),    (getter) getGrowthRate,    (setter) setGrowthRate,      nullptr},
         {const_cast<char*>("radius"),        (getter) getRadius,        nullptr,                     nullptr},
 #ifdef CECE_RENDER
-        {const_cast<char*>("saturationGFP"), (getter) getSaturationGFP, (setter) setSaturationGFP,   nullptr},
-        {const_cast<char*>("saturationRFP"), (getter) getSaturationRFP, (setter) setSaturationRFP,   nullptr},
-        {const_cast<char*>("saturationYFP"), (getter) getSaturationYFP, (setter) setSaturationYFP,   nullptr},
+        {const_cast<char*>("gfpSaturation"), (getter) getGfpSaturation, (setter) setGfpSaturation,   nullptr},
+        {const_cast<char*>("rfpSaturation"), (getter) getRfpSaturation, (setter) setRfpSaturation,   nullptr},
+        {const_cast<char*>("yfpSaturation"), (getter) getYfpSaturation, (setter) setYfpSaturation,   nullptr},
 #endif
         {nullptr}  /* Sentinel */
     };
