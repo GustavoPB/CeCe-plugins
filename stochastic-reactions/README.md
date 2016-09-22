@@ -1,6 +1,8 @@
 
 # Stochastic reactions Plugin
 
+Original author: [Václav Pelíšek](https://github.com/peldax)
+
 Allows to specify reaction rules that are stochastically being executed inside the cell or in surrounding environment around the cell.
 
 > The syntax is similar to one in NFSim.
