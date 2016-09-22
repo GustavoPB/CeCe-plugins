@@ -27,6 +27,7 @@
 #include "../../python/Python.hpp"
 
 // CeCe
+#include "cece/core/Assert.hpp"
 #include "cece/core/StringStream.hpp"
 
 // Diffusion
@@ -87,6 +88,8 @@ public:
      */
     static PyObject* getSignalCount(SelfType* self) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
         return makeObject(self->value->getSignalCount()).release();
     }
 
@@ -100,6 +103,8 @@ public:
      */
     static PyObject* getGridSize(SelfType* self) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
         return makeObject(self->value->getGridSize()).release();
     }
 
@@ -114,11 +119,16 @@ public:
      */
     static PyObject* getSignalId(SelfType* self, PyObject* args) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(args);
+
         char* name;
 
         if (!PyArg_ParseTuple(args, "s", &name))
             return nullptr;
 
+        CECE_ASSERT(name);
         return makeObject(self->value->getSignalId(name)).release();
     }
 
@@ -133,6 +143,10 @@ public:
      */
     static PyObject* getSignal(SelfType* self, PyObject* args) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(args);
+
         PyObject* id;
         int x;
         int y;
@@ -187,6 +201,10 @@ public:
      */
     static PyObject* setSignal(SelfType* self, PyObject* args) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(args);
+
         PyObject* id;
         int x;
         int y;

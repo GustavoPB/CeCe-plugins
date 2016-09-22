@@ -16,12 +16,10 @@ def update(dt, simulation):
     size = diffusion.gridSize
     radius = size.x / 20
     signalAmount = 1
-    signalId = diffusion.getSignalId("S1")
-
     for x in range(-radius, radius + 1):
         for y in range(-radius, radius + 1):
             if (math.sqrt(x * x + y * y) <= radius):
-                diffusion.setSignal(signalId, size.x / 2 + x, size.y / 2 + y, signalAmount)
+                diffusion.setSignal("S1", size.x / 2 + x, size.y / 2 + y, signalAmount)
 ]]></module>
 ```
 
@@ -38,8 +36,8 @@ Diffusion module wrapping class.
 
 ### Methods:
 
-| Name          | Return   | Arguments                       | Description                                               |
-| ------------- | -------- | ------------------------------- | --------------------------------------------------------- |
-| `getSignalId` | `int`    | `string`                        | Returns signal identifier from signal name.               |
-| `getSignal`   | `float`  | `string`, `int`, `int`          | Return signal value of given signal at given coordinates. |
-| `setSignal`   | -        | `string`, `int`, `int`, `float` | Change signal value of given signal at given coordinates. |
+| Name          | Signature                                             | Description                                               |
+| ------------- | ----------------------------------------------------- | --------------------------------------------------------- |
+| `getSignalId` | `int(name: string)`                                   | Returns signal identifier from signal name.               |
+| `getSignal`   | `float(name: string|int, x: int, y: int)`             | Return signal value of given signal at given coordinates. |
+| `setSignal`   | `void(name: string|int, x: int, y: int, conc: float)` | Change signal value of given signal at given coordinates. |
