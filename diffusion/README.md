@@ -49,6 +49,15 @@ Store diffusion data for all iterations.
 <module name="diffusion.export" filename="diffusion.csv" active="100-200" signals="S1 S2" />
 ```
 
+### Parameters:
+
+| Name        | Type           | Default | Description | Example |
+| ----------- | -------------- | ------- | ----------- | ------- |
+| `filename`  | `string`       | -       | Name of output file. | |
+| `active`    | `-`            | -       | List of iteration when is module active. | `1-10 20-50 59 70-73` |
+| `signals`   | `list[string]` | -       | List of exported signals. If not present (or empty) all signals are exported. | |
+| `obstacles` | `boolean`      | `false` | If column with obstacle value is stored. | |
+
 ##### Stored data:
 
 * `iteration` - Iteration number.
@@ -57,3 +66,28 @@ Store diffusion data for all iterations.
 * `y`         - Grid Y coordinate.
 * `name`      - Signal name.
 * `concentration` - Signal concentration.
+* `obstacle`  - If grid node is an obstacle.
+
+### `Generator`
+
+Diffusion generator which can generate signal withing specified region.
+
+### Example:
+
+Store diffusion data for all iterations.
+
+```xml
+<module name="diffusion.generator">
+  <source signal="S1" position="30um 0" size="30um 20um" production="30nM/s" active="1-200" />
+</module>
+```
+
+### Source parameters:
+
+| Name        | Type               | Default | Description |
+| ----------- | ------------------ | ------- | ----------- |
+| `signal`     | `string`          | -       | Signal name. |
+| `position`   | `vector[m]`       | -       | Source position. |
+| `size`       | `vector[m]`       | -       | Source size - rectangle. |
+| `production` | `unit[mol/um3/s]` | -       | Signal production per second. |
+| `active`     | `-`               | -       | List of iteration when is module active. |
