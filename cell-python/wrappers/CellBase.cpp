@@ -26,6 +26,9 @@
 // Must be first
 #include "../../python/Python.hpp"
 
+// CeCe
+#include "cece/core/Assert.hpp"
+
 // Cell
 #include "../../cell/CellBase.hpp"
 
@@ -85,6 +88,8 @@ public:
      */
     static PyObject* getVolume(SelfType* self) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
         return makeObject(self->value->getVolume()).release();
     }
 
@@ -99,6 +104,9 @@ public:
      */
     static int setVolume(SelfType* self, PyObject* value) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(value);
         self->value->setVolume(cast<units::Volume>(value));
 
         return 0;
@@ -114,6 +122,8 @@ public:
      */
     static PyObject* getVolumeMax(SelfType* self) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
         return makeObject(self->value->getVolumeMax()).release();
     }
 
@@ -128,6 +138,9 @@ public:
      */
     static int setVolumeMax(SelfType* self, PyObject* value) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(value);
         self->value->setVolumeMax(cast<units::Volume>(value));
 
         return 0;
@@ -143,6 +156,8 @@ public:
      */
     static PyObject* getGrowthRate(SelfType* self) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
         return makeObject(self->value->getGrowthRate()).release();
     }
 
@@ -157,10 +172,132 @@ public:
      */
     static int setGrowthRate(SelfType* self, PyObject* value) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(value);
         self->value->setGrowthRate(cast<plugin::cell::CellBase::GrowthRate>(value));
 
         return 0;
     }
+
+
+    /**
+     * @brief Returns cell radius.
+     *
+     * @param self
+     *
+     * @return
+     */
+    static PyObject* getRadius(SelfType* self) noexcept
+    {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        return makeObject(self->value->getRadius()).release();
+    }
+
+
+#ifdef CECE_RENDER
+
+    /**
+     * @brief Returns cell GFP saturation value.
+     *
+     * @param self
+     *
+     * @return
+     */
+    static PyObject* getSaturationGFP(SelfType* self) noexcept
+    {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        return makeObject(self->value->getSaturationGFP()).release();
+    }
+
+
+    /**
+     * @brief Set cell GFP saturation value.
+     *
+     * @param self
+     * @param value
+     *
+     * @return
+     */
+    static int setSaturationGFP(SelfType* self, PyObject* value) noexcept
+    {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(value);
+        self->value->setSaturationGFP(cast<plugin::cell::CellBase::FluorescentSaturation>(value));
+
+        return 0;
+    }
+
+    /**
+     * @brief Returns cell RFP saturation value.
+     *
+     * @param self
+     *
+     * @return
+     */
+    static PyObject* getSaturationRFP(SelfType* self) noexcept
+    {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        return makeObject(self->value->getSaturationRFP()).release();
+    }
+
+
+    /**
+     * @brief Set cell RFP saturation value.
+     *
+     * @param self
+     * @param value
+     *
+     * @return
+     */
+    static int setSaturationRFP(SelfType* self, PyObject* value) noexcept
+    {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(value);
+        self->value->setSaturationRFP(cast<plugin::cell::CellBase::FluorescentSaturation>(value));
+
+        return 0;
+    }
+
+    /**
+     * @brief Returns cell YFP saturation value.
+     *
+     * @param self
+     *
+     * @return
+     */
+    static PyObject* getSaturationYFP(SelfType* self) noexcept
+    {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        return makeObject(self->value->getSaturationYFP()).release();
+    }
+
+
+    /**
+     * @brief Set cell YFP saturation value.
+     *
+     * @param self
+     * @param value
+     *
+     * @return
+     */
+    static int setSaturationYFP(SelfType* self, PyObject* value) noexcept
+    {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(value);
+        self->value->setSaturationYFP(cast<plugin::cell::CellBase::FluorescentSaturation>(value));
+
+        return 0;
+    }
+
+#endif
 
 
     /**
@@ -173,11 +310,16 @@ public:
      */
     static PyObject* getMoleculeCount(SelfType* self, PyObject* args) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(value);
+
         char* name;
 
         if (!PyArg_ParseTuple(args, "s", &name))
             return nullptr;
 
+        CECE_ASSERT(name);
         return makeObject(self->value->getMoleculeCount(name)).release();
     }
 
@@ -191,6 +333,8 @@ public:
      */
     static PyObject* kill(SelfType* self) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
         self->value->kill();
 
         return none().release();
@@ -206,6 +350,8 @@ public:
      */
     static Py_ssize_t getMappingSize(SelfType* self) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
         return self->value->getMolecules().size();
     }
 
@@ -220,6 +366,10 @@ public:
      */
     static PyObject* getMappingSubscript(SelfType* self, PyObject* key) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(key);
+
         const char* name = PyString_AsString(key);
 
         if (!name)
@@ -240,6 +390,10 @@ public:
      */
     static int setMappingSubscript(SelfType* self, PyObject* key, PyObject* value) noexcept
     {
+        CECE_ASSERT(self);
+        CECE_ASSERT(self->value);
+        CECE_ASSERT(key);
+
         const char* name = PyString_AsString(key);
 
         if (!name)
@@ -262,9 +416,15 @@ private:
 
     /// Type properties.
     PyGetSetDef m_properties[4] = {
-        {const_cast<char*>("volume"),     (getter) getVolume,     (setter) setVolume,       nullptr},
-        {const_cast<char*>("volumeMax"),  (getter) getVolumeMax,  (setter) setVolumeMax,    nullptr},
-        {const_cast<char*>("growthRate"), (getter) getGrowthRate, (setter) setGrowthRate,   nullptr},
+        {const_cast<char*>("volume"),        (getter) getVolume,        (setter) setVolume,          nullptr},
+        {const_cast<char*>("volumeMax"),     (getter) getVolumeMax,     (setter) setVolumeMax,       nullptr},
+        {const_cast<char*>("growthRate"),    (getter) getGrowthRate,    (setter) setGrowthRate,      nullptr},
+        {const_cast<char*>("radius"),        (getter) getRadius,        nullptr,                     nullptr},
+#ifdef CECE_RENDER
+        {const_cast<char*>("saturationGFP"), (getter) getSaturationGFP, (setter) setSaturationGFP,   nullptr},
+        {const_cast<char*>("saturationRFP"), (getter) getSaturationRFP, (setter) setSaturationRFP,   nullptr},
+        {const_cast<char*>("saturationYFP"), (getter) getSaturationYFP, (setter) setSaturationYFP,   nullptr},
+#endif
         {nullptr}  /* Sentinel */
     };
 

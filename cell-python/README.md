@@ -7,19 +7,24 @@ Adds access to `cell` plugin objects from Python.
 
 | Name            | Parent             | Description        |
 | --------------- | ------------------ | ------------------ |
-| `cell.BaseCell` | `simulator.Object` | Base cell object.  |
-| `cell.Yeast`    | `cell.BaseCell`    | Yeast cell.        |
+| `cell.CellBase` | `simulator.Object` | Base cell object.  |
+| `cell.Yeast`    | `cell.CellBase`    | Yeast cell.        |
 
-### Object `cell.BaseCell`
+### Object `cell.CellBase`
 
 Base class for all cell objects.
 
 #### Properties:
 
-| Name         | Type    | Description       |
-| ------------ | ------- | ----------------- |
-| `volume`     | `float` | Cell volume       |
-| `growthRate` | `float` | Cell growth rate. |
+| Name           | Type           | Mode | Description            |
+| -------------- | -------------- | ---- | ---------------------- |
+| `volume`       | `float[um3]`   | RW   | Cell volume.           |
+| `volumeMax`    | `float[um3]`   | RW   | Max cell volume.       |
+| `growthRate`   | `float[um3/s]` | RW   | Cell growth rate.      |
+| `radius`       | `float[um]`    | R    | Cell radius.           |
+| `saturationGFP`| `float[#/um3]` | RW   | GFP saturation volume. |
+| `saturationRFP`| `float[#/um3]` | RW   | RFP saturation volume. |
+| `saturationYFP`| `float[#/um3]` | RW   | YFP saturation volume. |
 
 #### Methods:
 
