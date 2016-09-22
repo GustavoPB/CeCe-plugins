@@ -33,10 +33,19 @@ Cell can have set initial amount of molecule at the beginning.
 </object>
 ```
 
+### Molecule property
+
+| Property | Type      | Default | Description          | Example |
+| -------- | --------- | ------- | -------------------- | ------- |
+| `name`   | `string`  | `-`     | Molecule name.       | `GFP`   |
+| `amount` | `integer` | `-`     | Number of molecules. | `300`   |
+
 ### Yeast
 
 | Property             | Type       | Default | Description                         | Example  |
 | -------------------- | ---------- | ------- | ----------------------------------- | -------- |
+| `volume-bud`         | `unit[m3]` | `0`     | Initial bud volume.                 | `20um3`  |
+| `angle-bud`          | `float`    | `0`     | Initial bud position.               | `1.3`    |
 | `volume-bud-create`  | `unit[m3]` | `42um3` | Yeast volume when a bud is created. | `300um3` |
 | `volume-bud-release` | `unit[m3]` | `35um3` | Bud volume when is release.         | `300um3` |
 
@@ -46,6 +55,8 @@ Cell can have set initial amount of molecule at the beginning.
 
 Program that stores amount of all molecules in current iteration to `molecules` data table. It stores object identifier to distinguish between multiple cells.
 
+Result is stored into `molecules.csv` file and is shared by all cells with this program attached.
+
 ```xml
 <object class="cell.Yeast" programs="cell.store-molecules" />
 ```
@@ -54,6 +65,6 @@ Program that stores amount of all molecules in current iteration to `molecules` 
 
 * `iteration` - Iteration number.
 * `totalTime` - Simulation time in seconds.
-* `id`        - Object identifier.
+* `oid`       - Object identifier.
 * `molecule`  - Molecule name.
 * `amount`    - Number of molecules.
