@@ -69,6 +69,7 @@ endif()
 set(CECE_PLUGINS_STANDARD
     agglutination
     background
+    bioreactor
     cell
     cell-python
     chemostat
