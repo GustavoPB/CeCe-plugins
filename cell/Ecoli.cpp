@@ -95,6 +95,7 @@ void Ecoli::update(units::Time dt)
 
         if (m_bud.volume >= getVolumeBudRelease())
         {
+        	addMolecules("RFP", 100000);
             budRelease();
         }
     }
@@ -170,6 +171,7 @@ void Ecoli::budRelease()
     bud->setPrograms(getPrograms().clone());
     bud->setDensity(getDensity());
     bud->setGrowthRate(getGrowthRate());
+    bud->setVolumeMax(getVolumeMax());
     bud->updateShape();
 
     // Split molecules between Ecoli and bud
