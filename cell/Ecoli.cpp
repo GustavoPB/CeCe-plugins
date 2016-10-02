@@ -90,10 +90,12 @@ void Ecoli::update(units::Time dt)
 
     if (hasBud())
     {
-        m_bud.volume += volumeDiff;
+    	m_bud.volumeFake += volumeDiff; //TODELETE
+        m_bud.volume += Zero; //TOFIX
+
         setVolume(getVolume() - volumeDiff);
 
-        if (m_bud.volume >= getVolumeBudRelease())
+        if (m_bud.volumeFake >= getVolumeBudRelease()) //TOFIX
         {
         	addMolecules("RFP", 100000);
             budRelease();
@@ -144,54 +146,54 @@ void Ecoli::budRelease()
 {
     Assert(hasBud());
 
-    // Calculate bud position
-    const auto angle = getRotation();
-    const auto offset = units::PositionVector(Zero, calcRadius(getVolume()) + calcRadius(getVolumeBud())).rotated(-getAngleBud());
-
-    const auto omega = getAngularVelocity();
-    const auto center = getMassCenterPosition();
-
-    // Change ecoli velocity
-    if (omega != Zero)
-    {
-        setVelocity(getVelocity() + cross(omega, getPosition() - center));
-        setAngularVelocity(omega);
-    }
-
-    // Get current position
-    const auto posBud = getPosition() + offset.rotated(angle);
-    const auto velocityBud = getVelocity() + cross(omega, getWorldPosition(offset) - center);
-
-    // Release bud into the world
-    auto bud = getSimulation().createObject<Ecoli>();
-    bud->setVolume(m_bud.volume);
-    bud->setPosition(posBud);
-    bud->setVelocity(velocityBud);
-    bud->setAngularVelocity(omega);
-    bud->setPrograms(getPrograms().clone());
-    bud->setDensity(getDensity());
-    bud->setGrowthRate(getGrowthRate());
-    bud->setVolumeMax(getVolumeMax());
-    bud->updateShape();
-
-    // Split molecules between Ecoli and bud
-
-    // Total volume
-    const auto totalVolume = getVolume() + m_bud.volume;
-
-    // Copy old state
-    const auto molecules = getMolecules();
-
-    // Foreach molecules
-    for (const auto& p : molecules)
-    {
-        // Molecules per volume unit
-        const auto concentration = p.second / totalVolume;
-
-        // Set molecule count to Ecoli and bud
-        setMoleculeCount(p.first, concentration * getVolume());
-        bud->setMoleculeCount(p.first, concentration * bud->getVolume());
-    }
+//    // Calculate bud position
+//    const auto angle = getRotation();
+//    const auto offset = units::PositionVector(Zero, calcRadius(getVolume()) + calcRadius(getVolumeBud())).rotated(-getAngleBud());
+//
+//    const auto omega = getAngularVelocity();
+//    const auto center = getMassCenterPosition();
+//
+//    // Change ecoli velocity
+//    if (omega != Zero)
+//    {
+//        setVelocity(getVelocity() + cross(omega, getPosition() - center));
+//        setAngularVelocity(omega);
+//    }
+//
+//    // Get current position
+//    const auto posBud = getPosition() + offset.rotated(angle);
+//    const auto velocityBud = getVelocity() + cross(omega, getWorldPosition(offset) - center);
+//
+//    // Release bud into the world
+//    auto bud = getSimulation().createObject<Ecoli>();
+//    bud->setVolume(m_bud.volume);
+//    bud->setPosition(posBud);
+//    bud->setVelocity(velocityBud);
+//    bud->setAngularVelocity(omega);
+//    bud->setPrograms(getPrograms().clone());
+//    bud->setDensity(getDensity());
+//    bud->setGrowthRate(getGrowthRate());
+//    bud->setVolumeMax(getVolumeMax());
+//    bud->updateShape();
+//
+//    // Split molecules between Ecoli and bud
+//
+//    // Total volume
+//    const auto totalVolume = getVolume() + m_bud.volume;
+//
+//    // Copy old state
+//    const auto molecules = getMolecules();
+//
+//    // Foreach molecules
+//    for (const auto& p : molecules)
+//    {
+//        // Molecules per volume unit
+//        const auto concentration = p.second / totalVolume;
+//
+//        // Set molecule count to Ecoli and bud
+//        setMoleculeCount(p.first, concentration * getVolume());
+//        bud->setMoleculeCount(p.first, concentration * bud->getVolume());
+//    }
 
     // Release bud
     m_hasBud = false;

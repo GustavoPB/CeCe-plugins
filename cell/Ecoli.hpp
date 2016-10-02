@@ -301,6 +301,9 @@ private:
         /// Bud volume.
         units::Volume volume = Zero;
 
+        /// Fake Volume
+        units::Volume volumeFake = Zero; //TODELETE
+
         /// Last shape update radius.
         units::Length lastRadius = Zero;
     } m_bud;
