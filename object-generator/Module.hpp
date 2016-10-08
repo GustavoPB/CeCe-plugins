@@ -38,6 +38,7 @@
 #include "cece/core/IterationRange.hpp"
 #include "cece/module/Module.hpp"
 #include "cece/config/Configuration.hpp"
+#include "PID.hpp"
 
 /* ************************************************************************ */
 
@@ -88,8 +89,8 @@ struct ObjectDesc
     /// Value in order to model the density of a given cell within a volume
     units::Volume supervisedVolume;
 
-    /// Density value to be supervised
-    units::Density supervidedDensity;
+    /// Density value to be tracked
+    units::Density steadyDensity;
 
     /// Axis distributions.
     Distributions distributions;
@@ -164,6 +165,8 @@ private:
     /// List of generated objects.
     DynamicArray<ObjectDesc> m_objects;
 
+    ///PID Definition: not prepared to support multiple object tracking
+    PID pid = PID(0.001,1000,0.0,5.0,0.0,10.0);
 };
 
 /* ************************************************************************ */

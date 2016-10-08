@@ -28,6 +28,8 @@ set(SRCS
     Plugin.cpp
     Module.hpp
     Module.cpp
+    PID.cpp
+    PID.hpp
 )
 
 # Build plugin

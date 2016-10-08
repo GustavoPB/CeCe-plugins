@@ -212,13 +212,23 @@ void Module::update()
             continue;
 
         //Looking after the density of an object stay steady
+        double number;
         if (desc.supervisedVolume != Zero)
         {
-        	const auto number = simulation.getObjectCount(desc.className)/desc.supervisedVolume;
-        	Log::warning(number);
+        	const auto numbero = simulation.getObjectCount(desc.className)/desc.supervisedVolume;
+        	Log::warning(numbero);
+
+        	//Funcionalidad de PID
+        	auto pidResult = pid.calculate(static_cast<double>(desc.steadyDensity), static_cast<double>(numbero));
+        	Log::warning("pid result: ");
+        	Log::warning(pidResult);
+        	number = pidResult;
         }
-        // Create object number + probability
-        const auto number = desc.rate * simulation.getTimeStep();
+        else
+        {
+        	// Create object number + probability
+        	number = desc.rate * simulation.getTimeStep();
+        }
 
         // Number of created with 100% probability
         const auto baseCount = std::floor(number);
@@ -300,24 +310,18 @@ void Module::loadConfig(const config::Configuration& config)
             desc.rate = cfg.get<ObjectDesc::SpawnRate>("probability");
         }
 
-        if(cfg.has("supervisedVolume"))
+        if(cfg.has("supervisedVolume") && cfg.has("steadyDensity"))
         {
         	desc.supervisedVolume = cfg.get<units::Volume>("supervisedVolume");
+        	desc.steadyDensity = cfg.get<units::Density>("steadyDensity");
         	Log::warning("Value set to supervised volume. Object density control enabled");
-
-        	if(cfg.has("steadyDensity"))
-        	{
-        		desc.supervidedDensity = cfg.get<units::Density>("supervisedDensity");
-        	}
-        	else
-        	{
-        		desc.supervidedDensity = Zero;
-        	}
+        	Log::warning(desc.steadyDensity);
         }
         else
         {
         	Log::warning("No value set to supervised volume. Object density control not enabled");
         	desc.supervisedVolume = Zero;
+        	desc.steadyDensity = Zero;
         }
 
         if (cfg.has("distribution"))
