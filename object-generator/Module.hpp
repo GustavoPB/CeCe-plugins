@@ -85,6 +85,12 @@ struct ObjectDesc
     /// Rate of object spawning.
     SpawnRate rate;
 
+    /// Value in order to model the density of a given cell within a volume
+    units::Volume supervisedVolume;
+
+    /// Density value to be supervised
+    units::Density supervidedDensity;
+
     /// Axis distributions.
     Distributions distributions;
 

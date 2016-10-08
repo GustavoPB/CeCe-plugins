@@ -211,6 +211,12 @@ void Module::update()
         if (!inRange(desc.active, iteration))
             continue;
 
+        //Looking after the density of an object stay steady
+        if (desc.supervisedVolume != Zero)
+        {
+        	const auto number = simulation.getObjectCount(desc.className)/desc.supervisedVolume;
+        	Log::warning(number);
+        }
         // Create object number + probability
         const auto number = desc.rate * simulation.getTimeStep();
 
@@ -292,6 +298,26 @@ void Module::loadConfig(const config::Configuration& config)
             // Backward compatibility
             Log::warning("[object-generator] 'probability' is deprecated, use 'rate' instead.");
             desc.rate = cfg.get<ObjectDesc::SpawnRate>("probability");
+        }
+
+        if(cfg.has("supervisedVolume"))
+        {
+        	desc.supervisedVolume = cfg.get<units::Volume>("supervisedVolume");
+        	Log::warning("Value set to supervised volume. Object density control enabled");
+
+        	if(cfg.has("steadyDensity"))
+        	{
+        		desc.supervidedDensity = cfg.get<units::Density>("supervisedDensity");
+        	}
+        	else
+        	{
+        		desc.supervidedDensity = Zero;
+        	}
+        }
+        else
+        {
+        	Log::warning("No value set to supervised volume. Object density control not enabled");
+        	desc.supervisedVolume = Zero;
         }
 
         if (cfg.has("distribution"))
