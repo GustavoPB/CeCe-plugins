@@ -99,7 +99,6 @@ struct ObjectDesc
     /// Position distributions.
     using Distributions = StaticArray<Distribution, config::DIMENSION>;
 
-
     /// Object class name.
     String className;
 
@@ -123,6 +122,9 @@ struct ObjectDesc
 
     /// Object configuration
     config::Configuration config;
+
+    ///Path where export data results
+    String csvPath = "";
 };
 
 /* ************************************************************************ */

@@ -30,6 +30,8 @@
 #include <random>
 #include <string>
 #include <cmath>
+#include <iostream>
+#include <fstream>
 
 // CeCe
 #include "cece/core/Log.hpp"
@@ -216,7 +218,9 @@ void Module::update()
         double calculatedRate;
         if (desc.supervisedVolume != Zero)
         {
-        	const auto currentObjDensity = simulation.getObjectCount(desc.className)/desc.supervisedVolume;
+        	auto objectCount = simulation.getObjectCount(desc.className);
+        	auto currentIteration = simulation.getIteration();
+        	const auto currentObjDensity = objectCount/desc.supervisedVolume;
         	//Log::warning(currentObjDensity);
 
         	//PID Regulation
@@ -227,8 +231,21 @@ void Module::update()
 						  desc.pidParams.kd,
 						  desc.pidParams.ki);
         	auto pidResult = pid.calculate(static_cast<double>(desc.steadyDensity), static_cast<double>(currentObjDensity));
-        	//Log::warning("pid result: ");
-        	//Log::warning(pidResult);
+
+        	//Print info if file is defined
+        	if (desc.csvPath != "")
+        	{
+        		std::ofstream myfile (desc.csvPath, std::ios::app);
+				if (myfile.is_open())
+				  {
+					myfile << currentIteration << " - " <<
+							objectCount << " - " <<
+							currentObjDensity << " - " <<
+							pidResult << "\n";
+					myfile.close();
+				  }
+        	}
+
         	calculatedRate = pidResult;
         }
         else
@@ -301,6 +318,8 @@ void Module::loadConfig(const config::Configuration& config)
     // Configure parent
     module::Module::loadConfig(config);
 
+    auto& simulation = getSimulation();
+
     for (auto&& cfg : config.getConfigurations("object"))
     {
         ObjectDesc desc;
@@ -316,6 +335,27 @@ void Module::loadConfig(const config::Configuration& config)
 			desc.pidParams.max = cfg.get<double>("pidMax");
 			desc.pidParams.min = cfg.get<double>("pidMin");
         	Log::warning("Value set to supervised volume. Object density control enabled");
+
+        	//Print results on csv file
+        	if(cfg.has("pathToCsvFile"))
+        	{
+        		desc.csvPath = cfg.get<String>("pathToCsvFile");
+        		//Print headers
+        		std::ofstream myfile (desc.csvPath);
+        		if (myfile.is_open())
+        		  {
+        			myfile << "Supervised Volume: " << desc.supervisedVolume << "\n";
+        			myfile << "Steady Density: " << desc.steadyDensity << "\n";
+        			myfile << "PID configuration: " << "Kp: " << desc.pidParams.kp <<
+        					" Kd: " << desc.pidParams.kd <<
+							" Ki: " << desc.pidParams.ki <<
+							" Max: " << desc.pidParams.max <<
+							" Min: " << desc.pidParams.min << "\n";
+        			myfile << "Simulation Time Step: " << simulation.getTimeStep() << "s\n\n";
+        		    myfile << "Iteration - ObjectCount - CurrentDensity - PID_Output\n";
+        		    myfile.close();
+        		  }
+        	}
         }
         else
         {
