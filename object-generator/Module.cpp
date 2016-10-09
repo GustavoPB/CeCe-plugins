@@ -41,6 +41,7 @@
 #include "cece/object/Object.hpp"
 #include "cece/simulator/Simulation.hpp"
 #include "cece/simulator/TimeMeasurement.hpp"
+#include "PID.hpp"
 
 /* ************************************************************************ */
 
@@ -212,29 +213,35 @@ void Module::update()
             continue;
 
         //Looking after the density of an object stay steady
-        double number;
+        double calculatedRate;
         if (desc.supervisedVolume != Zero)
         {
-        	const auto numbero = simulation.getObjectCount(desc.className)/desc.supervisedVolume;
-        	Log::warning(numbero);
+        	const auto currentObjDensity = simulation.getObjectCount(desc.className)/desc.supervisedVolume;
+        	//Log::warning(currentObjDensity);
 
-        	//Funcionalidad de PID
-        	auto pidResult = pid.calculate(static_cast<double>(desc.steadyDensity), static_cast<double>(numbero));
-        	Log::warning("pid result: ");
-        	Log::warning(pidResult);
-        	number = pidResult;
+        	//PID Regulation
+        	PID pid = PID(static_cast<double>(simulation.getTimeStep()),
+        				  desc.pidParams.max,
+						  desc.pidParams.min,
+						  desc.pidParams.kp,
+						  desc.pidParams.kd,
+						  desc.pidParams.ki);
+        	auto pidResult = pid.calculate(static_cast<double>(desc.steadyDensity), static_cast<double>(currentObjDensity));
+        	//Log::warning("pid result: ");
+        	//Log::warning(pidResult);
+        	calculatedRate = pidResult;
         }
         else
         {
         	// Create object number + probability
-        	number = desc.rate * simulation.getTimeStep();
+        	calculatedRate = desc.rate * simulation.getTimeStep();
         }
 
         // Number of created with 100% probability
-        const auto baseCount = std::floor(number);
+        const auto baseCount = std::floor(calculatedRate);
 
         // Probability of the remaining object
-        const auto probability = number - baseCount;
+        const auto probability = calculatedRate - baseCount;
         Assert(probability >= 0);
         Assert(probability <= 1);
         std::bernoulli_distribution distSpawn(probability);
@@ -299,29 +306,34 @@ void Module::loadConfig(const config::Configuration& config)
         ObjectDesc desc;
         desc.className = cfg.get("class");
 
-        if (cfg.has("rate"))
-        {
-            desc.rate = cfg.get<ObjectDesc::SpawnRate>("rate");
-        }
-        else
-        {
-            // Backward compatibility
-            Log::warning("[object-generator] 'probability' is deprecated, use 'rate' instead.");
-            desc.rate = cfg.get<ObjectDesc::SpawnRate>("probability");
-        }
-
         if(cfg.has("supervisedVolume") && cfg.has("steadyDensity"))
         {
         	desc.supervisedVolume = cfg.get<units::Volume>("supervisedVolume");
         	desc.steadyDensity = cfg.get<units::Density>("steadyDensity");
+        	desc.pidParams.kp = cfg.get<double>("pidKp");
+			desc.pidParams.ki = cfg.get<double>("pidKi");
+			desc.pidParams.kd = cfg.get<double>("pidKd");
+			desc.pidParams.max = cfg.get<double>("pidMax");
+			desc.pidParams.min = cfg.get<double>("pidMin");
         	Log::warning("Value set to supervised volume. Object density control enabled");
-        	Log::warning(desc.steadyDensity);
         }
         else
         {
         	Log::warning("No value set to supervised volume. Object density control not enabled");
         	desc.supervisedVolume = Zero;
         	desc.steadyDensity = Zero;
+
+        	//Looking for rate values instead
+        	if (cfg.has("rate"))
+			{
+				desc.rate = cfg.get<ObjectDesc::SpawnRate>("rate");
+			}
+			else
+			{
+				// Backward compatibility
+				Log::warning("[object-generator] 'probability' is deprecated, use 'rate' instead.");
+				desc.rate = cfg.get<ObjectDesc::SpawnRate>("probability");
+			}
         }
 
         if (cfg.has("distribution"))

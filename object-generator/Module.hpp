@@ -38,7 +38,6 @@
 #include "cece/core/IterationRange.hpp"
 #include "cece/module/Module.hpp"
 #include "cece/config/Configuration.hpp"
-#include "PID.hpp"
 
 /* ************************************************************************ */
 
@@ -69,6 +68,27 @@ struct Distribution
 /* ************************************************************************ */
 
 /**
+ * @brief Structure for storing PID configurable parameters
+ */
+struct PIDParameters
+{
+    // Kp -  proportional gain
+	double kp = 0;
+
+	// Ki -  Integral gain
+	double ki = 0;
+
+    // Kd -  derivative gain
+	double kd = 0;
+
+    // max - maximum value of manipulated variable
+	double max = 0;
+
+    // min - minimum value of manipulated variable
+	double min = 0;
+};
+
+/**
  * @brief Structure for storing created object parameters.
  */
 struct ObjectDesc
@@ -91,6 +111,9 @@ struct ObjectDesc
 
     /// Density value to be tracked
     units::Density steadyDensity;
+
+    /// PID parameters
+    PIDParameters pidParams;
 
     /// Axis distributions.
     Distributions distributions;
@@ -164,9 +187,6 @@ private:
 
     /// List of generated objects.
     DynamicArray<ObjectDesc> m_objects;
-
-    ///PID Definition: not prepared to support multiple object tracking
-    PID pid = PID(0.001,1000,0.0,5.0,0.0,10.0);
 };
 
 /* ************************************************************************ */
