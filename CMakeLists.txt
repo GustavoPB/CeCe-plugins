@@ -79,6 +79,7 @@ set(CECE_PLUGINS_STANDARD
     diffusion-streamlines
     diffusion-streamlines-python
     fluorescence
+    infection
     object-generator
     object-streamlines-generator
     obstacle
