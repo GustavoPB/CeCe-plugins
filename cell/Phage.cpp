@@ -121,6 +121,12 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
     setVolumeBudCreate(config.get("volume-bud-create", getVolumeBudCreate()));
     setVolumeBudRelease(config.get("volume-bud-release", getVolumeBudRelease()));
 
+    setFitnessPeriodicity(config.get("fitness-periodicity", getFitnessPeriodicity()));
+	setBadFitnessValue(config.get("fitness-bad-value", getBadFitnessValue()));
+	setGoodFitnessValud(config.get("fitness-good-value", getGoodFitnessValud()));
+	setBadFitnessAmplitude(config.get("fitness-bad-amplitude", getBadFitnessAmplitude()));
+	setGoodFitnessAmplitude(config.get("fitness-bad-amplitude", getGoodFitnessAmplitude()));
+
     // Update cell shape
     updateShape();
 }

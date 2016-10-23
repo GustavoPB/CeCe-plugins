@@ -138,6 +138,32 @@ public:
         return m_volumeBudRelease;
     }
 
+    //Fitness values
+    double getFitnessPeriodicity() const noexcept
+	{
+		return fitnessPeriodicity;
+	}
+
+    double getBadFitnessValue() const noexcept
+	{
+		return badFitnessValue;
+	}
+
+    double getGoodFitnessValud() const noexcept
+	{
+		return goodFitnessValue;
+	}
+
+    double getBadFitnessAmplitude() const noexcept
+	{
+		return badFitnessAmplitude;
+	}
+
+    double getGoodFitnessAmplitude() const noexcept
+	{
+		return goodFitnessAmplitude;
+	}
+
 
 // Public Accessors
 public:
@@ -191,6 +217,32 @@ public:
     {
         m_volumeBudRelease = std::move(volume);
     }
+
+    ///Fitness methods
+    void setFitnessPeriodicity(double value) noexcept
+	{
+		fitnessPeriodicity = value;
+	}
+
+    void setBadFitnessValue(double value) noexcept
+	{
+    	badFitnessValue = value;
+	}
+
+    void setGoodFitnessValud(double value) noexcept
+	{
+    	goodFitnessValue = value;
+	}
+
+    void setBadFitnessAmplitude(double value) noexcept
+	{
+    	badFitnessAmplitude = value;
+	}
+
+    void setGoodFitnessAmplitude(double value) noexcept
+	{
+    	goodFitnessAmplitude = value;
+	}
 
 
 // Public Operations
@@ -328,6 +380,17 @@ private:
 
     /// If shape must be updated.
     bool m_shapeForceUpdate = false;
+
+    ///Fitness parameters
+    double fitnessPeriodicity = 0.0;
+
+    double badFitnessValue = 0.0;
+
+    double goodFitnessValue = 0.0;
+
+    double badFitnessAmplitude = 0.0;
+
+    double goodFitnessAmplitude = 0.0;
 
 };
 
