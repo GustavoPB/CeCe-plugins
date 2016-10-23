@@ -34,6 +34,8 @@ set(SRCS
     Yeast.cpp
     Ecoli.hpp
     Ecoli.cpp
+    Phage.hpp
+    Phage.cpp
     StoreMolecules.hpp
     StoreMolecules.cpp
 )
@@ -46,6 +48,8 @@ if (CECE_RENDER)
         DrawableYeast.cpp
         DrawableEcoli.hpp
         DrawableEcoli.cpp
+        DrawablePhage.hpp
+        DrawablePhage.cpp
 
         # Shaders
         vs.cell.hpp
@@ -54,6 +58,8 @@ if (CECE_RENDER)
         fs.yeast.hpp
         vs.ecoli.hpp
         fs.ecoli.hpp
+        vs.phage.hpp
+        fs.phage.hpp
     )
 endif ()
 
