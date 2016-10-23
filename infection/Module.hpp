@@ -119,8 +119,8 @@ private:
     {
         RealType aConst;
         RealType dConst;
-        String ligand;
-        String receptor;
+        String pathogen;
+        String host;
     };
 
 
