@@ -68,6 +68,7 @@ Phage::Phage(simulator::Simulation& simulation, String typeName, object::Object:
     shapes.push_back(Shape::makeCircle(calcRadius(getVolume())));
 
     //getBody()->SetAngularDamping(10);
+
 }
 
 /* ************************************************************************ */

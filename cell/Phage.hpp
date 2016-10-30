@@ -139,7 +139,7 @@ public:
     }
 
     //Fitness values
-    double getFitnessPeriodicity() const noexcept
+    int getFitnessPeriodicity() const noexcept
 	{
 		return fitnessPeriodicity;
 	}
@@ -163,6 +163,11 @@ public:
 	{
 		return goodFitnessAmplitude;
 	}
+
+    double getFitness() const noexcept
+    {
+    	return fitness;
+    }
 
 
 // Public Accessors
@@ -219,7 +224,7 @@ public:
     }
 
     ///Fitness methods
-    void setFitnessPeriodicity(double value) noexcept
+    void setFitnessPeriodicity(int value) noexcept
 	{
 		fitnessPeriodicity = value;
 	}
@@ -243,6 +248,11 @@ public:
 	{
     	goodFitnessAmplitude = value;
 	}
+
+    void setFitness(double value)
+    {
+    	fitness = value;
+    }
 
 
 // Public Operations
@@ -382,7 +392,7 @@ private:
     bool m_shapeForceUpdate = false;
 
     ///Fitness parameters
-    double fitnessPeriodicity = 0.0;
+    int fitnessPeriodicity = 0;
 
     double badFitnessValue = 0.0;
 
@@ -391,6 +401,9 @@ private:
     double badFitnessAmplitude = 0.0;
 
     double goodFitnessAmplitude = 0.0;
+
+    ///Cell fitness value
+    double fitness = 0.0;
 
 };
 
