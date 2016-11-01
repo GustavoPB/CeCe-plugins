@@ -30,6 +30,7 @@
 #include <random>
 
 // CeCe
+#include "cece/core/Log.hpp"
 #include "cece/core/Assert.hpp"
 #include "cece/core/constants.hpp"
 #include "cece/core/Shape.hpp"
@@ -66,10 +67,9 @@ Phage::Phage(simulator::Simulation& simulation, String typeName, object::Object:
     auto& shapes = getMutableShapes();
     shapes.reserve(2);
     shapes.push_back(Shape::makeCircle(calcRadius(getVolume())));
-
     //getBody()->SetAngularDamping(10);
-
 }
+
 
 /* ************************************************************************ */
 
@@ -113,6 +113,65 @@ void Phage::update(units::Time dt)
 
 /* ************************************************************************ */
 
+int Phage::calculateFitness()
+{
+	int result = 0;
+
+	double timeStep = (double)getSimulation().getTotalTime().value();
+	double periodicity = (double)getFitnessPeriodicity().value();
+
+	if (timeStep!=0 && periodicity!= 0)
+	{
+		auto rest = (int)(1000*timeStep) % (int)(1000*periodicity);
+		if (rest < getFitnessPeriodicityAmplitude())//Valor seleccionable por configuracion
+		{
+			//Asignar buen fitness
+			result = generateGoodFitness();
+		}
+		else
+		{
+			//Asignar mal fitness
+			result = generateBadFitness();
+		}
+	}
+
+	return result;
+}
+
+int Phage::generateGoodFitness()
+{
+	int result = 0;
+	auto setPoint = getGoodFitnessValue();
+
+	std::default_random_engine eng(g_rd());
+	std::bernoulli_distribution bern_dist(0.5);
+	std::uniform_int_distribution<int> unif_dist(0, getGoodFitnessAmplitude());
+
+	//First aproax: toggle the amplitude according to bernoulli distribution
+	auto direction = bern_dist(eng) ? 1 : -1;
+	auto delta = unif_dist(eng);
+	result = setPoint + direction * delta;
+
+	return result;
+}
+
+int Phage::generateBadFitness()
+{
+	int result = 0;
+	auto setPoint = getGoodFitnessValue() + getBadFitnessDefaultDistance();
+
+	std::default_random_engine eng(g_rd());
+	std::bernoulli_distribution bern_dist(0.5);
+	std::uniform_int_distribution<int> unif_dist(0, getBadFitnessAmplitude());
+
+	//First aproax: toggle the amplitude according to bernoulli distribution
+	auto direction = bern_dist(eng) ? 1 : -1;
+	auto delta = unif_dist(eng);
+	result = setPoint + direction * delta;
+
+	return result;
+}
+
 void Phage::configure(const config::Configuration& config, simulator::Simulation& simulation)
 {
     CellBase::configure(config, simulation);
@@ -122,11 +181,15 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
     setVolumeBudCreate(config.get("volume-bud-create", getVolumeBudCreate()));
     setVolumeBudRelease(config.get("volume-bud-release", getVolumeBudRelease()));
 
-    setFitnessPeriodicity(config.get("fitness-periodicity", getFitnessPeriodicity()));
-	setBadFitnessValue(config.get("fitness-bad-value", getBadFitnessValue()));
-	setGoodFitnessValud(config.get("fitness-good-value", getGoodFitnessValud()));
-	setBadFitnessAmplitude(config.get("fitness-bad-amplitude", getBadFitnessAmplitude()));
-	setGoodFitnessAmplitude(config.get("fitness-bad-amplitude", getGoodFitnessAmplitude()));
+    setFitnessPeriodicity(config.get<units::Time>("fitness-periodicity", getFitnessPeriodicity()));
+    setFitnessPeriodicityAmplitude(config.get<int>("fitness-periodicity-amplitude", getFitnessPeriodicityAmplitude()));
+
+    setBadFitnessDefaultDistance(config.get<int>("fitness-distance", getBadFitnessDefaultDistance()));
+	setGoodFitnessValue(config.get<int>("fitness-solution", getGoodFitnessValue()));
+	setBadFitnessAmplitude(config.get<int>("fitness-distance-delta", getBadFitnessAmplitude()));
+	setGoodFitnessAmplitude(config.get<int>("fitness-solution-delta", getGoodFitnessAmplitude()));
+
+	setFitness(calculateFitness());
 
     // Update cell shape
     updateShape();

@@ -59,7 +59,7 @@ class CellApi : public plugin::Api
             registerObject<Cell>("cell.Cell").
             registerObject<Yeast>("cell.Yeast").
 			registerObject<Ecoli>("cell.Ecoli").
-			registerObject<Ecoli>("cell.Phage").
+			registerObject<Phage>("cell.Phage").
             registerProgram<StoreMolecules>("cell.store-molecules")
         ;
     }

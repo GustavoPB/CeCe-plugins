@@ -139,35 +139,40 @@ public:
     }
 
     //Fitness values
-    int getFitnessPeriodicity() const noexcept
+    units::Time getFitnessPeriodicity() const noexcept
 	{
 		return fitnessPeriodicity;
 	}
 
-    double getBadFitnessValue() const noexcept
+    int getBadFitnessDefaultDistance() const noexcept
 	{
-		return badFitnessValue;
+		return badFitnessDefaultDistance;
 	}
 
-    double getGoodFitnessValud() const noexcept
+    int getGoodFitnessValue() const noexcept
 	{
 		return goodFitnessValue;
 	}
 
-    double getBadFitnessAmplitude() const noexcept
+    int getBadFitnessAmplitude() const noexcept
 	{
 		return badFitnessAmplitude;
 	}
 
-    double getGoodFitnessAmplitude() const noexcept
+    int getGoodFitnessAmplitude() const noexcept
 	{
 		return goodFitnessAmplitude;
 	}
 
-    double getFitness() const noexcept
+    int getFitness() const noexcept
     {
     	return fitness;
     }
+
+    int getFitnessPeriodicityAmplitude() const noexcept
+	{
+    	return fitnessPeriodicityAmplitude;
+	}
 
 
 // Public Accessors
@@ -224,34 +229,39 @@ public:
     }
 
     ///Fitness methods
-    void setFitnessPeriodicity(int value) noexcept
+    void setFitnessPeriodicity(units::Time value) noexcept
 	{
 		fitnessPeriodicity = value;
 	}
 
-    void setBadFitnessValue(double value) noexcept
+    void setBadFitnessDefaultDistance(int value) noexcept
 	{
-    	badFitnessValue = value;
+    	badFitnessDefaultDistance = value;
 	}
 
-    void setGoodFitnessValud(double value) noexcept
+    void setGoodFitnessValue(int value) noexcept
 	{
     	goodFitnessValue = value;
 	}
 
-    void setBadFitnessAmplitude(double value) noexcept
+    void setBadFitnessAmplitude(int value) noexcept
 	{
     	badFitnessAmplitude = value;
 	}
 
-    void setGoodFitnessAmplitude(double value) noexcept
+    void setGoodFitnessAmplitude(int value) noexcept
 	{
     	goodFitnessAmplitude = value;
 	}
 
-    void setFitness(double value)
+    void setFitness(int value)
     {
     	fitness = value;
+    }
+
+    void setFitnessPeriodicityAmplitude(int value)
+    {
+    	fitnessPeriodicityAmplitude = value;
     }
 
 
@@ -286,6 +296,13 @@ public:
      * @brief Release bud phage.
      */
     void budRelease();
+
+    int calculateFitness();
+
+    int generateGoodFitness();
+
+    int generateBadFitness();
+
 
 
 #ifdef CECE_RENDER
@@ -392,18 +409,20 @@ private:
     bool m_shapeForceUpdate = false;
 
     ///Fitness parameters
-    int fitnessPeriodicity = 0;
+    units::Time fitnessPeriodicity = Zero;
 
-    double badFitnessValue = 0.0;
+    int fitnessPeriodicityAmplitude = 0;
 
-    double goodFitnessValue = 0.0;
+    int badFitnessDefaultDistance = 0;
 
-    double badFitnessAmplitude = 0.0;
+    int goodFitnessValue = 0;
 
-    double goodFitnessAmplitude = 0.0;
+    int badFitnessAmplitude = 0;
+
+    int goodFitnessAmplitude = 0;
 
     ///Cell fitness value
-    double fitness = 0.0;
+    int fitness = 0;
 
 };
 
