@@ -41,6 +41,7 @@
 // Plugins
 #include "../cell/CellBase.hpp"
 #include "../cell/Ecoli.hpp"
+#include "../cell/Phage.hpp"
 
 /* ************************************************************************ */
 
@@ -196,20 +197,6 @@ void Module::terminate()
 
 void Module::onContact(object::Object& o1, object::Object& o2)
 {
-	//Programamos escape si los objetos de que chocan no son del tipo especificado por configuración
-    //if (!o1.is<plugin::cell::Ecoli>() || !o2.is<plugin::cell::Ecoli>())
-      //  return;
-
-
-
-    // Get cell objects
-//    auto cell1 = o1.cast<plugin::cell::Ecoli>();
-//    auto cell2 = o2.cast<plugin::cell::Ecoli>();
-
-    // Get cells radiuses
-//    const auto radius1 = o1.getShapes()[0].getCircle().radius;
-//    const auto radius2 = o2.getShapes()[0].getCircle().radius;
-
 	auto type1 = o1.getTypeName();
 	auto type2 = o2.getTypeName();
 
@@ -247,39 +234,11 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 		if(is1Pathogen != is2Host)
 			return;
 
+		//Cell casting
+		auto phage = is1Pathogen ?
+				static_cast<plugin::cell::Phage*>(&o1) :
+				static_cast<plugin::cell::Phage*>(&o2);
 
-//        std::bernoulli_distribution dist1(
-//            getAssociationPropensity(
-//                m_step, radius1.value(), radius2.value(),
-//                cell1->getMoleculeCount(m_bonds[i].host), cell2->getMoleculeCount(m_bonds[i].pathogen),
-//                m_bonds[i].aConst
-//            )
-//        );
-
-/*
-        if (dist1(g_gen))
-        {
-            Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-            m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst});
-            continue;
-        }
-*/
-
-//        std::bernoulli_distribution dist2(
-//            getAssociationPropensity(
-//                m_step, radius1.value(), radius2.value(),
-//                cell2->getMoleculeCount(m_bonds[i].host), cell1->getMoleculeCount(m_bonds[i].pathogen),
-//                m_bonds[i].aConst
-//            )
-//        );
-/*
-        if (dist2(g_gen))
-        {
-            Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-            m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst});
-            continue;
-        }
-*/
     }
 }
 
