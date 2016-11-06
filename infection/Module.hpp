@@ -121,6 +121,7 @@ private:
         RealType dConst;
         String pathogen;
         String host;
+        int maxOffspring;
     };
 
 
@@ -143,6 +144,7 @@ private:
         ViewPtr<object::Object> o1;
         ViewPtr<object::Object> o2;
         RealType dConst;
+        int offspring;
     };
 
 

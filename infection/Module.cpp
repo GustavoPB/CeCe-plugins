@@ -104,7 +104,8 @@ void Module::loadConfig(const config::Configuration& config)
             c_bond.get<RealType>("association-constant"),
             c_bond.get<RealType>("disassociation-constant"),
             c_bond.get("pathogen"),
-            c_bond.get("host")
+            c_bond.get("host"),
+			c_bond.get<int>("max-offspring")
         });
     }
 }
@@ -123,6 +124,7 @@ void Module::storeConfig(config::Configuration& config) const
         bondConfig.set("disassociation-constant", bond.dConst);
         bondConfig.set("pathogen", bond.pathogen);
         bondConfig.set("host", bond.host);
+        bondConfig.set("max-offspring", bond.maxOffspring);
     }
 }
 
@@ -157,10 +159,11 @@ void Module::update()
     // Foreach objects
     for (auto& object : getSimulation().getObjects())
     {
-        if (!object->is<plugin::cell::CellBase>())
-            continue;
+    	//De momento solo hay celulas
+        //if (!object->is<plugin::cell::CellBase>())
+        //    continue;
 
-        auto cell = object->cast<plugin::cell::CellBase>();
+        auto cell = static_cast<plugin::cell::CellBase*>(object);//object->cast<plugin::cell::CellBase>();
 
         for (const auto& bound : cell->getBounds())
         {
@@ -238,6 +241,46 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 		auto phage = is1Pathogen ?
 				static_cast<plugin::cell::Phage*>(&o1) :
 				static_cast<plugin::cell::Phage*>(&o2);
+
+		auto fitnessDistance = (double)abs(phage->getFitness() - phage->getGoodFitnessValue());
+		auto phageAptitud = 1.0/fitnessDistance;
+		std::bernoulli_distribution dist(phageAptitud);
+
+		int offspring = 0;
+		if(phageAptitud != std::numeric_limits<double>::infinity())
+		{
+			if(dist(g_gen))
+			{
+				double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
+				offspring = phageAptitud/offspringBandwidth;
+			}
+		}
+		else
+		{
+			offspring = m_bonds[i].maxOffspring;
+		}
+
+		if(offspring != 0)
+		{
+			//Generamos enlace
+			Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
+			m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
+			continue;
+		}
+//		if(dist(g_gen))
+//		{
+//			int offspring = 0;
+//			if(phageAptitud != std::numeric_limits<double>::infinity())
+//			{
+//				double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
+//				offspring = phageAptitud/offspringBandwidth;
+//			}
+//			else
+//			{
+//				offspring = m_bonds[i].maxOffspring;
+//			}
+//		}
+
 
     }
 }
