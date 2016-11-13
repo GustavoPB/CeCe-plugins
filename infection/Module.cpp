@@ -101,7 +101,6 @@ void Module::loadConfig(const config::Configuration& config)
     for (auto&& c_bond : config.getConfigurations("bond"))
     {
         m_bonds.push_back(Bond{
-            c_bond.get<RealType>("association-constant"),
             c_bond.get<RealType>("disassociation-constant"),
             c_bond.get("pathogen"),
             c_bond.get("host"),
@@ -120,7 +119,6 @@ void Module::storeConfig(config::Configuration& config) const
     for (const auto& bond : m_bonds)
     {
         auto bondConfig = config.addConfiguration("bond");
-        bondConfig.set("association-constant", bond.aConst);
         bondConfig.set("disassociation-constant", bond.dConst);
         bondConfig.set("pathogen", bond.pathogen);
         bondConfig.set("host", bond.host);
@@ -163,7 +161,7 @@ void Module::update()
         //if (!object->is<plugin::cell::CellBase>())
         //    continue;
 
-        auto cell = static_cast<plugin::cell::CellBase*>(object);//object->cast<plugin::cell::CellBase>();
+        auto cell = static_cast<plugin::cell::CellBase*>(object.get());//object->cast<plugin::cell::CellBase>();
 
         for (const auto& bound : cell->getBounds())
         {

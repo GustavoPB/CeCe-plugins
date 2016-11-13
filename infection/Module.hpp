@@ -117,7 +117,6 @@ private:
      */
     struct Bond
     {
-        RealType aConst;
         RealType dConst;
         String pathogen;
         String host;
