@@ -188,22 +188,28 @@ void Module::update()
                 {
 
                 	auto offspring = data->offspring;
-                	//for (unsigned int i = 0; i < offspring; i++)
-                	//{
+                	units::PositionVector destroyPos = Zero;
+                	destroyPos[0] = units::Length(1000000);
+                	destroyPos[1] = units::Length(1000000);
+					auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
+					auto hostPos = cell->getPosition();
+					//Kill does not work properly
+					//We program the killing by moving the cell out of the simulation frame
+					cell->setPosition(destroyPos);
+
+					for (unsigned int i = 0; i < offspring; i++)
+                	{
 						auto child = getSimulation().createObject(bound.object->getTypeName());
-						auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
+						auto phageChild = static_cast<plugin::cell::Phage*>(child.get());
 
-						//Transmite phage properties
-
-
-
-
-//						units::PositionVector pos;
-//						pos = cell->getPosition();
-//
-//						object->setPosition(pos);
-					//}
-
+						//Transmit phage properties
+						phageChild->setPosition(hostPos);
+						phageChild->setFitness(phage->getFitness());
+						phageChild->setVolume(phage->getVolume());
+						phageChild->setGoodFitnessValue(phage->getGoodFitnessValue());
+						phageChild->setMoleculeCount("BFP", 10000);
+					}
+					cell->setPosition(destroyPos);
                 }
 
             }
@@ -260,45 +266,60 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 			return;
 
 		//Cell casting
-		auto phage = is1Pathogen ?
-				static_cast<plugin::cell::Phage*>(&o1) :
-				static_cast<plugin::cell::Phage*>(&o2);
+		auto host = is2Host ?
+				static_cast<plugin::cell::CellBase*>(&o2) :
+				static_cast<plugin::cell::CellBase*>(&o1);
 
-		auto fitnessDistance = (double)abs(phage->getFitness() - phage->getGoodFitnessValue());
-		auto phageAptitud = 1.0/fitnessDistance;
-		std::bernoulli_distribution dist(phageAptitud);
-
-		int offspring = 0;
-		if(phageAptitud != std::numeric_limits<double>::infinity())
+		if (!host->isInfected())
 		{
-			if(dist(g_gen))
+			host->setInfected(true);
+			auto phage = is1Pathogen ?
+					static_cast<plugin::cell::Phage*>(&o1) :
+					static_cast<plugin::cell::Phage*>(&o2);
+
+			auto fitnessDistance = (double)abs(phage->getFitness() - phage->getGoodFitnessValue());
+			auto phageAptitud = 1.0/fitnessDistance;
+			std::bernoulli_distribution dist(phageAptitud);
+
+			int offspring = 0;
+			if(phageAptitud != std::numeric_limits<double>::infinity())
 			{
-				double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
-				offspring = phageAptitud/offspringBandwidth;
-			}
-		}
-		else
-		{
-			offspring = m_bonds[i].maxOffspring;
-		}
-
-		if(offspring != 0)
-		{
-			//Generamos enlace
-			//Ensure that the first object is the host
-			if(is1Pathogen)
-			{
-				Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-				m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring});
-				continue;
+				if(dist(g_gen))
+				{
+					double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
+					offspring = phageAptitud/offspringBandwidth;
+				}
 			}
 			else
 			{
-				Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-				m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
-				continue;
+				offspring = m_bonds[i].maxOffspring;
+			}
+
+			if(offspring != 0)
+			{
+				//Generamos enlace
+				//Ensure that the first object is the host
+				if(is1Pathogen)
+				{
+					Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
+					m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring});
+					//host->setInfected(true);
+					continue;
+				}
+				else
+				{
+					Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
+					m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
+					//host->setInfected(true);
+					continue;
+				}
+			}
+			else
+			{
+				host->setInfected(false);
 			}
 		}
+
 
     }
 }

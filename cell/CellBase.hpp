@@ -402,6 +402,16 @@ public:
         m_bfpSaturation = saturation;
     }
 
+    void setInfected(bool value)
+    {
+    	infected = value;
+    }
+
+    bool isInfected()
+    {
+    	return infected;
+    }
+
 #endif
 
 
@@ -490,6 +500,8 @@ private:
 
     /// Map of molecules.
     Map<String, MoleculeCount> m_molecules;
+
+    bool infected = false;
 
 #ifdef CECE_RENDER
     /// GFP saturation.
