@@ -132,6 +132,7 @@ private:
         char guard = '@';
         ViewPtr<Module> module;
         RealType Kd;
+        int offspring;
     };
 
 

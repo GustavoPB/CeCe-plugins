@@ -148,8 +148,9 @@ void Module::update()
         auto data = makeUnique<BoundData>();
         data->module = this;
         data->Kd = p.dConst;
+        data->offspring = p.offspring;
 
-        p.o1->createBound(*p.o2, std::move(data));
+        p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
     }
 
     m_bindings.clear();
@@ -161,7 +162,7 @@ void Module::update()
         //if (!object->is<plugin::cell::CellBase>())
         //    continue;
 
-        auto cell = static_cast<plugin::cell::CellBase*>(object.get());//object->cast<plugin::cell::CellBase>();
+        auto cell = static_cast<plugin::cell::CellBase*>(object.get());
 
         for (const auto& bound : cell->getBounds())
         {
@@ -182,6 +183,29 @@ void Module::update()
                 CECE_ASSERT(bound.object);
                 Log::debug("Released: ", cell->getId(), ", ", bound.object->getId());
                 cell->removeBound(*bound.object);
+
+                //Perform offspring
+                {
+
+                	auto offspring = data->offspring;
+                	//for (unsigned int i = 0; i < offspring; i++)
+                	//{
+						auto child = getSimulation().createObject(bound.object->getTypeName());
+						auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
+
+						//Transmite phage properties
+
+
+
+
+//						units::PositionVector pos;
+//						pos = cell->getPosition();
+//
+//						object->setPosition(pos);
+					//}
+
+                }
+
             }
         }
     }
@@ -261,27 +285,24 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 		if(offspring != 0)
 		{
 			//Generamos enlace
-			Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-			m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
-			continue;
+			//Ensure that the first object is the host
+			if(is1Pathogen)
+			{
+				Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
+				m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring});
+				continue;
+			}
+			else
+			{
+				Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
+				m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
+				continue;
+			}
 		}
-//		if(dist(g_gen))
-//		{
-//			int offspring = 0;
-//			if(phageAptitud != std::numeric_limits<double>::infinity())
-//			{
-//				double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
-//				offspring = phageAptitud/offspringBandwidth;
-//			}
-//			else
-//			{
-//				offspring = m_bonds[i].maxOffspring;
-//			}
-//		}
-
 
     }
 }
+
 
 /* ************************************************************************ */
 }
