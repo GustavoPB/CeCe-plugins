@@ -121,7 +121,6 @@ private:
         String pathogen;
         String host;
         int maxOffspring;
-        String infoFilePath;
     };
 
 
@@ -134,7 +133,6 @@ private:
         ViewPtr<Module> module;
         RealType Kd;
         int offspring;
-        String infoFilePath;
     };
 
 
@@ -147,7 +145,6 @@ private:
         ViewPtr<object::Object> o2;
         RealType dConst;
         int offspring;
-        String infoFilePath;
     };
 
 
@@ -162,6 +159,8 @@ private:
 
     /// List of created bonds.
     DynamicArray<Bond> m_bonds;
+
+    String infoFilePath;
 };
 
 /* ************************************************************************ */

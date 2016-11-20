@@ -29,6 +29,8 @@
 // C++
 #include <random>
 #include <algorithm>
+#include <iostream>
+#include <fstream>
 
 // CeCe
 #include "cece/core/Log.hpp"
@@ -116,16 +118,36 @@ void Module::loadConfig(const config::Configuration& config)
     // Configure parent
     module::Module::loadConfig(config);
 
+
     for (auto&& c_bond : config.getConfigurations("bond"))
     {
         m_bonds.push_back(Bond{
             c_bond.get<RealType>("disassociation-constant"),
             c_bond.get("pathogen"),
             c_bond.get("host"),
-			c_bond.get<int>("max-offspring"),
-			c_bond.get<String>("info-file-path")
+			c_bond.get<int>("max-offspring")
         });
     }
+
+    if(config.has("info-file-path"))
+    {
+    	infoFilePath = config.get<String>("info-file-path");
+		for(Bond bond: m_bonds)
+		{
+			//Print headers
+			std::ofstream myfile (infoFilePath);
+			if (myfile.is_open())
+			  {
+				myfile << "Pathogen: " << bond.pathogen << "\n";
+				myfile << "Host: " << bond.host << "\n";
+				myfile << "Max offspring: " << bond.maxOffspring << "\n\n";
+
+				myfile << "Iteration - Pathogen Count - Fitness Average - Default F. Distance - F. Distance Average - Good Pathogen Ratio [%]\n";
+				myfile.close();
+			  }
+		}
+    }
+
 }
 
 /* ************************************************************************ */
@@ -142,7 +164,6 @@ void Module::storeConfig(config::Configuration& config) const
         bondConfig.set("pathogen", bond.pathogen);
         bondConfig.set("host", bond.host);
         bondConfig.set("max-offspring", bond.maxOffspring);
-        bondConfig.set("info-file-path", bond.infoFilePath);
     }
 }
 
@@ -169,14 +190,53 @@ void Module::update()
         data->module = this;
         data->Kd = p.dConst;
         data->offspring = p.offspring;
-        data->infoFilePath = p.infoFilePath;
 
         p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
     }
 
     m_bindings.clear();
 
-    // Foreach objects
+	//perform info printing each time a new pathogen is released
+	auto currentIteration = getSimulation().getIteration();
+	if(infoFilePath != "" && currentIteration != 1)
+	{
+		auto pathogenCount = getSimulation().getObjectCount("cell.Phage");
+		int defaultDistance = 0;
+		RealType goodPathogenCount = 0;
+		RealType fitnessAverage = 0;
+		double fitnessDistanceAverage = 0;
+
+		for (auto& object : getSimulation().getObjects("cell.Phage"))
+		{
+			auto phage = static_cast<plugin::cell::Phage*>(object.get());
+			fitnessAverage += phage->getFitness();
+			fitnessDistanceAverage += phage->getFitnessDistance();
+			defaultDistance = phage->getBadFitnessDefaultDistance();
+			auto goodFitnessRange = phage->getFitness() < (phage->getGoodFitnessValue() + phage->getGoodFitnessAmplitude());
+			if (goodFitnessRange)
+			{
+				goodPathogenCount++;
+			}
+		}
+		fitnessAverage /= pathogenCount;
+		fitnessDistanceAverage /= pathogenCount;
+		RealType goodPathogenRatio = goodPathogenCount/pathogenCount*100;
+		//print
+		{
+			std::ofstream myfile (infoFilePath, std::ios::app);
+			if (myfile.is_open())
+			  {
+				myfile << currentIteration << " - " <<
+						pathogenCount << " - " <<
+						fitnessAverage << " - " <<
+						defaultDistance << " - " <<
+						fitnessDistanceAverage << " - " <<
+						goodPathogenRatio << "\n";
+				myfile.close();
+			  }
+		}
+
+	// Foreach objects
     for (auto& object : getSimulation().getObjects())
     {
     	//De momento solo hay celulas
@@ -233,29 +293,6 @@ void Module::update()
 					cell->setPosition(destroyPos);
                 }
 
-				Log::warning("printing");
-				//perform info printing each time a new pathogen is released
-				if(data->infoFilePath != "")
-				{
-					auto pathogenCount = getSimulation().getObjectCount("cell.Phage");
-					RealType fitnessAverage = 0;
-					double fitnessDistanceAverage = 0;
-
-					for (auto& object : getSimulation().getObjects("cell.Phage"))
-					{
-						auto phage = static_cast<plugin::cell::Phage*>(object.get());
-						fitnessAverage += phage->getFitness();
-						fitnessDistanceAverage += phage->getFitnessDistance();
-
-					}
-					fitnessAverage /= pathogenCount;
-					fitnessDistanceAverage /= pathogenCount;
-					//print
-					{
-						Log::warning(pathogenCount);
-						Log::warning(fitnessAverage);
-						Log::warning(fitnessDistanceAverage);
-					}
 				}
             }
 
@@ -323,7 +360,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 					static_cast<plugin::cell::Phage*>(&o1) :
 					static_cast<plugin::cell::Phage*>(&o2);
 
-			auto fitnessDistance = (double)abs(phage->getFitness() - phage->getGoodFitnessValue());
+			auto fitnessDistance = phage->getFitnessDistance();
 			auto phageAptitud = 1.0/fitnessDistance;
 			std::bernoulli_distribution dist(phageAptitud);
 
@@ -348,14 +385,14 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				if(is1Pathogen)
 				{
 					Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-					m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring, m_bonds[i].infoFilePath});
+					m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring});
 					//host->setInfected(true);
 					continue;
 				}
 				else
 				{
 					Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-					m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring, m_bonds[i].infoFilePath});
+					m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
 					//host->setInfected(true);
 					continue;
 				}
