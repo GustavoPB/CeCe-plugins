@@ -89,6 +89,24 @@ RealType getDisassociationPropensity(units::Time step, RealType Kd)
 
 /* ************************************************************************ */
 
+//void performOffspring(plugin::cell::Phage& pathogen, int offspring, units::PositionVector hostPos)
+//{
+//	for (unsigned int i = 0; i < offspring; i++)
+//	{
+//		auto child = getSimulation().createObject(pathogen.getTypeName());
+//		auto phageChild = static_cast<plugin::cell::Phage*>(child.get());
+//
+//		//Transmit phage properties
+//		phageChild->setPosition(hostPos);
+//		phageChild->setFitness(pathogen.getFitness());
+//		phageChild->setVolume(pathogen.getVolume());
+//		phageChild->setGoodFitnessValue(pathogen.getGoodFitnessValue());
+//		phageChild->setMoleculeCount("BFP", 10000);
+//	}
+//}
+
+/* ************************************************************************ */
+
 }
 
 /* ************************************************************************ */
@@ -104,7 +122,8 @@ void Module::loadConfig(const config::Configuration& config)
             c_bond.get<RealType>("disassociation-constant"),
             c_bond.get("pathogen"),
             c_bond.get("host"),
-			c_bond.get<int>("max-offspring")
+			c_bond.get<int>("max-offspring"),
+			c_bond.get<String>("info-file-path")
         });
     }
 }
@@ -123,6 +142,7 @@ void Module::storeConfig(config::Configuration& config) const
         bondConfig.set("pathogen", bond.pathogen);
         bondConfig.set("host", bond.host);
         bondConfig.set("max-offspring", bond.maxOffspring);
+        bondConfig.set("info-file-path", bond.infoFilePath);
     }
 }
 
@@ -149,6 +169,7 @@ void Module::update()
         data->module = this;
         data->Kd = p.dConst;
         data->offspring = p.offspring;
+        data->infoFilePath = p.infoFilePath;
 
         p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
     }
@@ -212,7 +233,32 @@ void Module::update()
 					cell->setPosition(destroyPos);
                 }
 
+				Log::warning("printing");
+				//perform info printing each time a new pathogen is released
+				if(data->infoFilePath != "")
+				{
+					auto pathogenCount = getSimulation().getObjectCount("cell.Phage");
+					RealType fitnessAverage = 0;
+					double fitnessDistanceAverage = 0;
+
+					for (auto& object : getSimulation().getObjects("cell.Phage"))
+					{
+						auto phage = static_cast<plugin::cell::Phage*>(object.get());
+						fitnessAverage += phage->getFitness();
+						fitnessDistanceAverage += phage->getFitnessDistance();
+
+					}
+					fitnessAverage /= pathogenCount;
+					fitnessDistanceAverage /= pathogenCount;
+					//print
+					{
+						Log::warning(pathogenCount);
+						Log::warning(fitnessAverage);
+						Log::warning(fitnessDistanceAverage);
+					}
+				}
             }
+
         }
     }
 }
@@ -302,14 +348,14 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				if(is1Pathogen)
 				{
 					Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-					m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring});
+					m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring, m_bonds[i].infoFilePath});
 					//host->setInfected(true);
 					continue;
 				}
 				else
 				{
 					Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-					m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
+					m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring, m_bonds[i].infoFilePath});
 					//host->setInfected(true);
 					continue;
 				}

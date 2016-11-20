@@ -174,6 +174,11 @@ public:
     	return fitnessPeriodicityAmplitude;
 	}
 
+    double getFitnessDistance()
+    {
+    	return fitnessDistance;
+    }
+
 
 // Public Accessors
 public:
@@ -262,6 +267,11 @@ public:
     void setFitnessPeriodicityAmplitude(int value)
     {
     	fitnessPeriodicityAmplitude = value;
+    }
+
+    void setFitnessDistance(double value)
+    {
+    	fitnessDistance = value;
     }
 
 
@@ -423,6 +433,8 @@ private:
 
     ///Cell fitness value
     int fitness = 0;
+
+    double fitnessDistance = 0;
 
 };
 

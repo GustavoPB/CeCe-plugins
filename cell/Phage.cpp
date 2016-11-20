@@ -190,6 +190,7 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
 	setGoodFitnessAmplitude(config.get<int>("fitness-solution-delta", getGoodFitnessAmplitude()));
 
 	setFitness(calculateFitness());
+	setFitnessDistance((double)abs(getFitness() - getGoodFitnessValue()));
 
     // Update cell shape
     updateShape();
