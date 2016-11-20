@@ -390,6 +390,22 @@ void Phage::updateShape()
 
 /* ************************************************************************ */
 
+ViewPtr<plugin::cell::Phage> Phage::replicate()
+{
+	auto child = getSimulation().createObject("cell.Phage");
+	auto phageChild = static_cast<plugin::cell::Phage*>(child.get());
+
+	//Transmit phage properties
+	phageChild->setFitness(getFitness());
+	phageChild->setVolume(getVolume());
+	phageChild->setGoodFitnessValue(getGoodFitnessValue());
+	phageChild->setMoleculeCount("BFP", 10000);
+	phageChild->setChild();
+	return phageChild;
+}
+
+/* ************************************************************************ */
+
 }
 }
 }

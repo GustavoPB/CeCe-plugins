@@ -282,19 +282,10 @@ void Module::update()
 					//Kill does not work properly
 					//We program the killing by moving the cell out of the simulation frame
 					cell->setPosition(destroyPos);
-
 					for (unsigned int i = 0; i < offspring; i++)
                 	{
-						auto child = getSimulation().createObject(bound.object->getTypeName());
-						auto phageChild = static_cast<plugin::cell::Phage*>(child.get());
-
-						//Transmit phage properties
+						auto phageChild = phage->replicate();
 						phageChild->setPosition(hostPos);
-						phageChild->setFitness(phage->getFitness());
-						phageChild->setVolume(phage->getVolume());
-						phageChild->setGoodFitnessValue(phage->getGoodFitnessValue());
-						phageChild->setMoleculeCount("BFP", 10000);
-						phageChild->setChild();
 					}
 					cell->setPosition(destroyPos);
                 }

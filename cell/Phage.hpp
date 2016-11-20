@@ -323,7 +323,11 @@ public:
 
     int generateBadFitness();
 
+    /**
+     * @brief Method for replication
+     */
 
+    ViewPtr<plugin::cell::Phage> replicate();
 
 #ifdef CECE_RENDER
 
