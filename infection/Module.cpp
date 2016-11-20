@@ -287,7 +287,6 @@ void Module::update()
 						auto phageChild = phage->replicate();
 						phageChild->setPosition(hostPos);
 					}
-					cell->setPosition(destroyPos);
                 }
 
 				}
