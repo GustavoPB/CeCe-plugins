@@ -243,6 +243,7 @@ void Module::update()
 					for (unsigned int i = 0; i < offspring; i++)
                 	{
 						auto phageChild = phage->replicate();
+						phageChild->mutate();
 						phageChild->setPosition(hostPos);
 					}
                 }

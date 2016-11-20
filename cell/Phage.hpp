@@ -184,6 +184,16 @@ public:
     	return isChildPhage;
     }
 
+    double getMutationProbability()
+    {
+    	return mutationProb;
+    }
+
+    int getMutationAmplitude()
+    {
+    	return mutationAmplitude;
+    }
+
 
 // Public Accessors
 public:
@@ -284,6 +294,16 @@ public:
     	isChildPhage = true;
     }
 
+    void setMutationProbability(double value)
+    {
+    	mutationProb = value;
+    }
+
+    void setMutationAmplitude(int value)
+    {
+    	mutationAmplitude = value;
+    }
+
 
 // Public Operations
 public:
@@ -328,6 +348,11 @@ public:
      */
 
     ViewPtr<plugin::cell::Phage> replicate();
+
+    /**
+     * @brief Mutation ratio according to a certain probability
+     */
+    void mutate();
 
 #ifdef CECE_RENDER
 
@@ -451,6 +476,10 @@ private:
     bool isChildPhage = false;
 
     double fitnessDistance = 0;
+
+    double mutationProb = 0.0;
+
+    int mutationAmplitude = 0;
 
 };
 

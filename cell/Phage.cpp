@@ -189,6 +189,12 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
 	setBadFitnessAmplitude(config.get<int>("fitness-distance-delta", getBadFitnessAmplitude()));
 	setGoodFitnessAmplitude(config.get<int>("fitness-solution-delta", getGoodFitnessAmplitude()));
 
+	if(config.has("mutation-probability") && config.has("mutation-amplitude"))
+	{
+		setMutationProbability(config.get<double>("mutation-probability", getMutationProbability()));
+		setMutationAmplitude(config.get<int>("mutation-amplitude", getMutationAmplitude()));
+	}
+
 	setFitness(calculateFitness());
 	setFitnessDistance((double)abs(getFitness() - getGoodFitnessValue()));
 
@@ -400,8 +406,28 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 	phageChild->setVolume(getVolume());
 	phageChild->setGoodFitnessValue(getGoodFitnessValue());
 	phageChild->setMoleculeCount("BFP", 10000);
+	phageChild->setMutationAmplitude(getMutationAmplitude());
+	phageChild->setMutationProbability(getMutationProbability());
 	phageChild->setChild();
 	return phageChild;
+}
+
+/* ************************************************************************ */
+
+void Phage::mutate()
+{
+	Log::warning(getMutationProbability());
+	std::default_random_engine eng(g_rd());
+	std::bernoulli_distribution mut_prob(getMutationProbability());
+	std::bernoulli_distribution mut_dir(0.5);
+	std::uniform_int_distribution<int> unif_dist(0, getMutationAmplitude());
+	if(mut_prob(eng))
+	{
+		auto direction = mut_dir(eng) ? 1 : -1;
+		auto delta = unif_dist(eng);
+		auto result = getFitness() + direction * delta;
+		setFitness(result);
+	}
 }
 
 /* ************************************************************************ */
