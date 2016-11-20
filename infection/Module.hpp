@@ -107,6 +107,10 @@ public:
      */
     void onContact(object::Object& o1, object::Object& o2) override;
 
+    /*
+     * @perform info printig
+     */
+    void printSimulationInfo();
 
 // Private Structures
 private:

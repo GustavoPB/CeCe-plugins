@@ -197,49 +197,7 @@ void Module::update()
     m_bindings.clear();
 
 	//perform info printing each time a new pathogen is released
-	auto currentIteration = getSimulation().getIteration();
-	if(infoFilePath != "" && currentIteration != 1)
-	{
-		auto pathogenCount = getSimulation().getObjectCount("cell.Phage");
-		int defaultDistance = 0;
-		RealType goodPathogenCount = 0;
-		RealType goodPathogenChildrenCount = 0;
-		RealType fitnessAverage = 0;
-		double fitnessDistanceAverage = 0;
-
-		for (auto& object : getSimulation().getObjects("cell.Phage"))
-		{
-			auto phage = static_cast<plugin::cell::Phage*>(object.get());
-			fitnessAverage += phage->getFitness();
-			fitnessDistanceAverage += phage->getFitnessDistance();
-			defaultDistance = phage->getBadFitnessDefaultDistance();
-			auto goodFitnessRange = phage->getFitness() < (phage->getGoodFitnessValue() + phage->getGoodFitnessAmplitude());
-			if (goodFitnessRange)
-			{
-				goodPathogenCount++;
-				if(phage->isChild())
-					goodPathogenChildrenCount++;
-			}
-		}
-		fitnessAverage /= pathogenCount;
-		fitnessDistanceAverage /= pathogenCount;
-		RealType goodPathogenRatio = goodPathogenCount/pathogenCount*100;
-		RealType goodPathogenChildrenRatio = goodPathogenChildrenCount/pathogenCount*100;
-		//print
-		{
-			std::ofstream myfile (infoFilePath, std::ios::app);
-			if (myfile.is_open())
-			  {
-				myfile << currentIteration << " - " <<
-						pathogenCount << " - " <<
-						fitnessAverage << " - " <<
-						defaultDistance << " - " <<
-						fitnessDistanceAverage << " - " <<
-						goodPathogenRatio << " - " <<
-						goodPathogenChildrenRatio << "\n";
-				myfile.close();
-			  }
-		}
+    printSimulationInfo();
 
 	// Foreach objects
     for (auto& object : getSimulation().getObjects())
@@ -293,7 +251,6 @@ void Module::update()
             }
 
         }
-    }
 }
 
 /* ************************************************************************ */
@@ -398,9 +355,56 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				host->setInfected(false);
 			}
 		}
-
-
     }
+}
+
+
+void Module::printSimulationInfo()
+{
+	auto currentIteration = getSimulation().getIteration();
+	if(infoFilePath != "" && currentIteration != 1)
+	{
+		auto pathogenCount = getSimulation().getObjectCount("cell.Phage");
+		int defaultDistance = 0;
+		RealType goodPathogenCount = 0;
+		RealType goodPathogenChildrenCount = 0;
+		RealType fitnessAverage = 0;
+		double fitnessDistanceAverage = 0;
+
+		for (auto& object : getSimulation().getObjects("cell.Phage"))
+		{
+			auto phage = static_cast<plugin::cell::Phage*>(object.get());
+			fitnessAverage += phage->getFitness();
+			fitnessDistanceAverage += phage->getFitnessDistance();
+			defaultDistance = phage->getBadFitnessDefaultDistance();
+			auto goodFitnessRange = phage->getFitness() < (phage->getGoodFitnessValue() + phage->getGoodFitnessAmplitude());
+			if (goodFitnessRange)
+			{
+				goodPathogenCount++;
+				if(phage->isChild())
+					goodPathogenChildrenCount++;
+			}
+		}
+		fitnessAverage /= pathogenCount;
+		fitnessDistanceAverage /= pathogenCount;
+		RealType goodPathogenRatio = goodPathogenCount/pathogenCount*100;
+		RealType goodPathogenChildrenRatio = goodPathogenChildrenCount/pathogenCount*100;
+		//print
+		{
+			std::ofstream myfile (infoFilePath, std::ios::app);
+			if (myfile.is_open())
+			  {
+				myfile << currentIteration << " - " <<
+						pathogenCount << " - " <<
+						fitnessAverage << " - " <<
+						defaultDistance << " - " <<
+						fitnessDistanceAverage << " - " <<
+						goodPathogenRatio << " - " <<
+						goodPathogenChildrenRatio << "\n";
+				myfile.close();
+			  }
+		}
+	}
 }
 
 
