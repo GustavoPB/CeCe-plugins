@@ -142,7 +142,7 @@ void Module::loadConfig(const config::Configuration& config)
 				myfile << "Host: " << bond.host << "\n";
 				myfile << "Max offspring: " << bond.maxOffspring << "\n\n";
 
-				myfile << "Iteration - Pathogen Count - Fitness Average - Default F. Distance - F. Distance Average - Good Pathogen Ratio [%]\n";
+				myfile << "Iteration - Pathogen Count - Fitness Average - Default F. Distance - F. Distance Average - Good Pathogen Ratio [%] - Good Pathogen Children Ratio [%]\n";
 				myfile.close();
 			  }
 		}
@@ -203,6 +203,7 @@ void Module::update()
 		auto pathogenCount = getSimulation().getObjectCount("cell.Phage");
 		int defaultDistance = 0;
 		RealType goodPathogenCount = 0;
+		RealType goodPathogenChildrenCount = 0;
 		RealType fitnessAverage = 0;
 		double fitnessDistanceAverage = 0;
 
@@ -216,11 +217,14 @@ void Module::update()
 			if (goodFitnessRange)
 			{
 				goodPathogenCount++;
+				if(phage->isChild())
+					goodPathogenChildrenCount++;
 			}
 		}
 		fitnessAverage /= pathogenCount;
 		fitnessDistanceAverage /= pathogenCount;
 		RealType goodPathogenRatio = goodPathogenCount/pathogenCount*100;
+		RealType goodPathogenChildrenRatio = goodPathogenChildrenCount/pathogenCount*100;
 		//print
 		{
 			std::ofstream myfile (infoFilePath, std::ios::app);
@@ -231,7 +235,8 @@ void Module::update()
 						fitnessAverage << " - " <<
 						defaultDistance << " - " <<
 						fitnessDistanceAverage << " - " <<
-						goodPathogenRatio << "\n";
+						goodPathogenRatio << " - " <<
+						goodPathogenChildrenRatio << "\n";
 				myfile.close();
 			  }
 		}
@@ -289,6 +294,7 @@ void Module::update()
 						phageChild->setVolume(phage->getVolume());
 						phageChild->setGoodFitnessValue(phage->getGoodFitnessValue());
 						phageChild->setMoleculeCount("BFP", 10000);
+						phageChild->setChild();
 					}
 					cell->setPosition(destroyPos);
                 }

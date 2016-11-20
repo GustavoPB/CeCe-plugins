@@ -179,6 +179,11 @@ public:
     	return fitnessDistance;
     }
 
+    bool isChild()
+    {
+    	return isChildPhage;
+    }
+
 
 // Public Accessors
 public:
@@ -272,6 +277,11 @@ public:
     void setFitnessDistance(double value)
     {
     	fitnessDistance = value;
+    }
+
+    void setChild()
+    {
+    	isChildPhage = true;
     }
 
 
@@ -433,6 +443,8 @@ private:
 
     ///Cell fitness value
     int fitness = 0;
+
+    bool isChildPhage = false;
 
     double fitnessDistance = 0;
 
