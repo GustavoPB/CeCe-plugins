@@ -416,7 +416,6 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 
 void Phage::mutate()
 {
-	Log::warning(getMutationProbability());
 	std::default_random_engine eng(g_rd());
 	std::bernoulli_distribution mut_prob(getMutationProbability());
 	std::bernoulli_distribution mut_dir(0.5);
