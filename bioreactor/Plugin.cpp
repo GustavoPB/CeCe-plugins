@@ -67,6 +67,11 @@ class BioreactorApi: public plugin::Api {
 		const auto visible = config.get("visible", false);
 		const auto isSymmetric = config.get("isSymmetric", true);
 
+		//Store bioreactor configuration as a simulation parameter (needed by python programs)
+		simulation.setParameter("bioreactor-size", config.get<String>("size"));
+		simulation.setParameter("bioreactor-pipe-radius", config.get<String>("pipe-radius"));
+		simulation.setParameter("bioreactor-pipe-top", config.get<String>("pipe-top"));
+
 		if (isSymmetric) {
 			// Upper part
 			{
