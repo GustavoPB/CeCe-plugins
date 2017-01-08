@@ -139,9 +139,10 @@ public:
     }
 
     //Fitness values
-    units::Time getFitnessPeriodicity() const noexcept
+
+    double getGoodFitnessProportion() const noexcept
 	{
-		return fitnessPeriodicity;
+    	return goodFitnessProp;
 	}
 
     int getBadFitnessDefaultDistance() const noexcept
@@ -168,11 +169,6 @@ public:
     {
     	return fitness;
     }
-
-    int getFitnessPeriodicityAmplitude() const noexcept
-	{
-    	return fitnessPeriodicityAmplitude;
-	}
 
     double getFitnessDistance()
     {
@@ -249,9 +245,10 @@ public:
     }
 
     ///Fitness methods
-    void setFitnessPeriodicity(units::Time value) noexcept
+
+    void setGoodFitnessProportion(double value) noexcept
 	{
-		fitnessPeriodicity = value;
+		goodFitnessProp = value;
 	}
 
     void setBadFitnessDefaultDistance(int value) noexcept
@@ -277,11 +274,6 @@ public:
     void setFitness(int value)
     {
     	fitness = value;
-    }
-
-    void setFitnessPeriodicityAmplitude(int value)
-    {
-    	fitnessPeriodicityAmplitude = value;
     }
 
     void setFitnessDistance(double value)
@@ -458,9 +450,7 @@ private:
     bool m_shapeForceUpdate = false;
 
     ///Fitness parameters
-    units::Time fitnessPeriodicity = Zero;
-
-    int fitnessPeriodicityAmplitude = 0;
+    double goodFitnessProp = 0.0;
 
     int badFitnessDefaultDistance = 0;
 

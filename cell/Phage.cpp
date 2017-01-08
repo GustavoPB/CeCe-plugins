@@ -117,22 +117,19 @@ int Phage::calculateFitness()
 {
 	int result = 0;
 
-	double timeStep = (double)getSimulation().getTotalTime().value();
-	double periodicity = (double)getFitnessPeriodicity().value();
+	// Distribuimos fitness en función de "good-fitness-proportion"
+	std::default_random_engine eng(g_rd());
+	std::bernoulli_distribution bern_dist(getGoodFitnessProportion());
 
-	if (timeStep!=0 && periodicity!= 0)
+	if (bern_dist(eng))
 	{
-		auto rest = (int)(1000*timeStep) % (int)(1000*periodicity);
-		if (rest < getFitnessPeriodicityAmplitude())//Valor seleccionable por configuracion
-		{
-			//Asignar buen fitness
-			result = generateGoodFitness();
-		}
-		else
-		{
-			//Asignar mal fitness
-			result = generateBadFitness();
-		}
+		//Asignar buen fitness
+		result = generateGoodFitness();
+	}
+	else
+	{
+		//Asignar mal fitness
+		result = generateBadFitness();
 	}
 
 	return result;
@@ -147,7 +144,7 @@ int Phage::generateGoodFitness()
 	std::bernoulli_distribution bern_dist(0.5);
 	std::uniform_int_distribution<int> unif_dist(0, getGoodFitnessAmplitude());
 
-	//First aproax: toggle the amplitude according to bernoulli distribution
+	//First approach: toggle the amplitude according to bernoulli distribution
 	auto direction = bern_dist(eng) ? 1 : -1;
 	auto delta = unif_dist(eng);
 	result = setPoint + direction * delta;
@@ -164,7 +161,7 @@ int Phage::generateBadFitness()
 	std::bernoulli_distribution bern_dist(0.5);
 	std::uniform_int_distribution<int> unif_dist(0, getBadFitnessAmplitude());
 
-	//First aproax: toggle the amplitude according to bernoulli distribution
+	//First approach: toggle the amplitude according to bernoulli distribution
 	auto direction = bern_dist(eng) ? 1 : -1;
 	auto delta = unif_dist(eng);
 	result = setPoint + direction * delta;
@@ -181,8 +178,7 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
     setVolumeBudCreate(config.get("volume-bud-create", getVolumeBudCreate()));
     setVolumeBudRelease(config.get("volume-bud-release", getVolumeBudRelease()));
 
-    setFitnessPeriodicity(config.get<units::Time>("fitness-periodicity", getFitnessPeriodicity()));
-    setFitnessPeriodicityAmplitude(config.get<int>("fitness-periodicity-amplitude", getFitnessPeriodicityAmplitude()));
+    setGoodFitnessProportion(config.get<double>("good-fitness-proportion", getGoodFitnessProportion()));
 
     setBadFitnessDefaultDistance(config.get<int>("fitness-distance", getBadFitnessDefaultDistance()));
 	setGoodFitnessValue(config.get<int>("fitness-solution", getGoodFitnessValue()));
