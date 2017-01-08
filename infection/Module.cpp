@@ -123,10 +123,10 @@ void Module::loadConfig(const config::Configuration& config)
     {
         m_bonds.push_back(Bond{
         	c_bond.get<RealType>("probability-of-infection"),
-            c_bond.get<RealType>("disassociation-constant"),
             c_bond.get("pathogen"),
             c_bond.get("host"),
-			c_bond.get<int>("max-offspring")
+			c_bond.get<int>("max-offspring"),
+			c_bond.get<RealType>("elipse-time")
         });
     }
 
@@ -166,7 +166,6 @@ void Module::storeConfig(config::Configuration& config) const
     {
         auto bondConfig = config.addConfiguration("bond");
         bondConfig.set("probability-of-infection", bond.probOfInfection);
-        bondConfig.set("disassociation-constant", bond.dConst);
         bondConfig.set("pathogen", bond.pathogen);
         bondConfig.set("host", bond.host);
         bondConfig.set("max-offspring", bond.maxOffspring);
@@ -194,7 +193,6 @@ void Module::update()
     {
         auto data = makeUnique<BoundData>();
         data->module = this;
-        data->Kd = p.dConst;
         data->offspring = p.offspring;
 
         p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
@@ -224,38 +222,22 @@ void Module::update()
             if (data->guard != '@')
                 continue;
 
-            std::bernoulli_distribution dist(
-                getDisassociationPropensity(m_step, data->Kd)
-            );
+			//Perform offspring
+			auto offspring = data->offspring;
+			if (offspring != 0)
+			{
+				auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
+				auto hostPos = cell->getPosition();
 
-            if (dist(g_gen))
-            {
-                CECE_ASSERT(bound.object);
-                Log::debug("Released: ", cell->getId(), ", ", bound.object->getId());
-                cell->removeBound(*bound.object);
-
-                //Perform offspring
-                {
-
-                	auto offspring = data->offspring;
-                	units::PositionVector destroyPos = Zero;
-                	destroyPos[0] = units::Length(1000000);
-                	destroyPos[1] = units::Length(1000000);
-					auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
-					auto hostPos = cell->getPosition();
-					//Kill does not work properly
-					//We program the killing by moving the cell out of the simulation frame
-					cell->setPosition(destroyPos);
-					for (unsigned int i = 0; i < offspring; i++)
-                	{
-						auto phageChild = phage->replicate();
-						phageChild->mutate();
-						phageChild->setPosition(hostPos);
-					}
-                }
-
+				for (unsigned int i = 0; i < offspring; i++)
+				{
+					auto phageChild = phage->replicate();
+					phageChild->mutate();
+					phageChild->setPosition(hostPos);
 				}
-            }
+			}
+
+         }
 
         }
 }
@@ -341,14 +323,14 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 			if(is1Pathogen)
 			{
 				Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-				m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring});
+				m_bindings.push_back(JointDef{&o2, &o1, offspring});
 				//host->setInfected(true);
 				continue;
 			}
 			else
 			{
 				Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-				m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
+				m_bindings.push_back(JointDef{&o1, &o2, offspring});
 				//host->setInfected(true);
 				continue;
 			}

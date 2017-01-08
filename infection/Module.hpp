@@ -122,10 +122,10 @@ private:
     struct Bond
     {
     	RealType probOfInfection;
-        RealType dConst;
         String pathogen;
         String host;
         int maxOffspring;
+        RealType elipseTime;
     };
 
 
@@ -136,7 +136,6 @@ private:
     {
         char guard = '@';
         ViewPtr<Module> module;
-        RealType Kd;
         int offspring;
     };
 
@@ -148,7 +147,6 @@ private:
     {
         ViewPtr<object::Object> o1;
         ViewPtr<object::Object> o2;
-        RealType dConst;
         int offspring;
     };
 
