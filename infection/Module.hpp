@@ -110,7 +110,7 @@ public:
     /*
      * @perform info printig
      */
-    void printSimulationInfo();
+    void printSimulationInfo(String pathogenType);
 
 // Private Structures
 private:
@@ -121,6 +121,7 @@ private:
      */
     struct Bond
     {
+    	RealType probOfInfection;
         RealType dConst;
         String pathogen;
         String host;
@@ -165,6 +166,8 @@ private:
     DynamicArray<Bond> m_bonds;
 
     String infoFilePath;
+
+    String trackedPathogen;
 };
 
 /* ************************************************************************ */

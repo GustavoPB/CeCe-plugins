@@ -122,6 +122,7 @@ void Module::loadConfig(const config::Configuration& config)
     for (auto&& c_bond : config.getConfigurations("bond"))
     {
         m_bonds.push_back(Bond{
+        	c_bond.get<RealType>("probability-of-infection"),
             c_bond.get<RealType>("disassociation-constant"),
             c_bond.get("pathogen"),
             c_bond.get("host"),
@@ -132,19 +133,23 @@ void Module::loadConfig(const config::Configuration& config)
     if(config.has("info-file-path"))
     {
     	infoFilePath = config.get<String>("info-file-path");
+    	trackedPathogen = config.get<String>("tracked-pathogen");
 		for(Bond bond: m_bonds)
 		{
-			//Print headers
-			std::ofstream myfile (infoFilePath);
-			if (myfile.is_open())
-			  {
-				myfile << "Pathogen: " << bond.pathogen << "\n";
-				myfile << "Host: " << bond.host << "\n";
-				myfile << "Max offspring: " << bond.maxOffspring << "\n\n";
+			if(bond.pathogen == trackedPathogen)
+			{
+				//Print headers
+				std::ofstream myfile (infoFilePath);
+				if (myfile.is_open())
+				  {
+					myfile << "Pathogen: " << bond.pathogen << "\n";
+					myfile << "Host: " << bond.host << "\n";
+					myfile << "Max offspring: " << bond.maxOffspring << "\n\n";
 
-				myfile << "Iteration - Pathogen Count - Fitness Average - Default F. Distance - F. Distance Average - Good Pathogen Ratio [%] - Good Pathogen Children Ratio [%]\n";
-				myfile.close();
-			  }
+					myfile << "Iteration - Pathogen Count - Fitness Average - Default F. Distance - F. Distance Average - Good Pathogen Ratio [%] - Good Pathogen Children Ratio [%]\n";
+					myfile.close();
+				  }
+			}
 		}
     }
 
@@ -160,6 +165,7 @@ void Module::storeConfig(config::Configuration& config) const
     for (const auto& bond : m_bonds)
     {
         auto bondConfig = config.addConfiguration("bond");
+        bondConfig.set("probability-of-infection", bond.probOfInfection);
         bondConfig.set("disassociation-constant", bond.dConst);
         bondConfig.set("pathogen", bond.pathogen);
         bondConfig.set("host", bond.host);
@@ -197,7 +203,7 @@ void Module::update()
     m_bindings.clear();
 
 	//perform info printing each time a new pathogen is released
-    printSimulationInfo();
+    printSimulationInfo(trackedPathogen);
 
 	// Foreach objects
     for (auto& object : getSimulation().getObjects())
@@ -274,7 +280,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
     	auto typePathogen = m_bonds[i].pathogen;
     	auto typeHost = m_bonds[i].host;
 
-    	//Checkin object 1 type
+    	//Checking object 1 type
     	auto is1Pathogen = false;
     	if (type1 == typePathogen)
     	{
@@ -286,7 +292,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
     			return; //the object ain't pathogen nor host
     	}
 
-    	//Checkin object 2 type
+    	//Checking object 2 type
 		auto is2Host = false;
 		if (type2 == typeHost)
 		{
@@ -302,12 +308,14 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 		if(is1Pathogen != is2Host)
 			return;
 
-		//Cell casting
+		//Cell type casting
 		auto host = is2Host ?
 				static_cast<plugin::cell::CellBase*>(&o2) :
 				static_cast<plugin::cell::CellBase*>(&o1);
 
-		if (!host->isInfected())
+		std::bernoulli_distribution associationDist(m_bonds[i].probOfInfection);
+
+		if (associationDist(g_gen) && !host->isInfected())
 		{
 			host->setInfected(true);
 			auto phage = is1Pathogen ?
@@ -316,63 +324,53 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 
 			auto fitnessDistance = phage->getFitnessDistance();
 			auto phageAptitud = 1.0/fitnessDistance;
-			std::bernoulli_distribution dist(phageAptitud);
 
 			int offspring = 0;
 			if(phageAptitud != std::numeric_limits<double>::infinity())
 			{
-				if(dist(g_gen))
-				{
-					double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
-					offspring = phageAptitud/offspringBandwidth;
-				}
+				double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
+				offspring = phageAptitud/offspringBandwidth;
 			}
-			else
+			else // In case Distance equals 0 so the solution is exactly the target
 			{
 				offspring = m_bonds[i].maxOffspring;
 			}
 
-			if(offspring != 0)
+			//Generamos enlace
+			//Ensure that the first object is the host
+			if(is1Pathogen)
 			{
-				//Generamos enlace
-				//Ensure that the first object is the host
-				if(is1Pathogen)
-				{
-					Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-					m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring});
-					//host->setInfected(true);
-					continue;
-				}
-				else
-				{
-					Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-					m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
-					//host->setInfected(true);
-					continue;
-				}
+				Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
+				m_bindings.push_back(JointDef{&o2, &o1, m_bonds[i].dConst, offspring});
+				//host->setInfected(true);
+				continue;
 			}
 			else
 			{
-				host->setInfected(false);
+				Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
+				m_bindings.push_back(JointDef{&o1, &o2, m_bonds[i].dConst, offspring});
+				//host->setInfected(true);
+				continue;
 			}
+
 		}
     }
 }
 
 
-void Module::printSimulationInfo()
+void Module::printSimulationInfo(String pathogenType)
 {
 	auto currentIteration = getSimulation().getIteration();
 	if(infoFilePath != "" && currentIteration != 1)
 	{
-		auto pathogenCount = getSimulation().getObjectCount("cell.Phage");
+		auto pathogenCount = getSimulation().getObjectCount(pathogenType);
 		int defaultDistance = 0;
 		RealType goodPathogenCount = 0;
 		RealType goodPathogenChildrenCount = 0;
 		RealType fitnessAverage = 0;
 		double fitnessDistanceAverage = 0;
 
-		for (auto& object : getSimulation().getObjects("cell.Phage"))
+		for (auto& object : getSimulation().getObjects(pathogenType))
 		{
 			auto phage = static_cast<plugin::cell::Phage*>(object.get());
 			fitnessAverage += phage->getFitness();
