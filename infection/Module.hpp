@@ -39,6 +39,7 @@
 #include "cece/module/Module.hpp"
 #include "cece/object/ContactListener.hpp"
 #include "cece/object/BoundData.hpp"
+#include "cece/core/UnitIo.hpp"
 
 /* ************************************************************************ */
 
@@ -125,7 +126,7 @@ private:
         String pathogen;
         String host;
         int maxOffspring;
-        RealType elipseTime;
+        units::Time elipseTime;
     };
 
 
@@ -137,6 +138,8 @@ private:
         char guard = '@';
         ViewPtr<Module> module;
         int offspring;
+        units::Time elipseTime;
+        units::Time timeToRelease;
     };
 
 
@@ -148,6 +151,7 @@ private:
         ViewPtr<object::Object> o1;
         ViewPtr<object::Object> o2;
         int offspring;
+        units::Time elipseTime;
     };
 
 

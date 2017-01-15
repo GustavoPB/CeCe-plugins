@@ -126,7 +126,7 @@ void Module::loadConfig(const config::Configuration& config)
             c_bond.get("pathogen"),
             c_bond.get("host"),
 			c_bond.get<int>("max-offspring"),
-			c_bond.get<RealType>("elipse-time")
+			c_bond.get<int>("elipse-time")*getSimulation().getTimeStep()
         });
     }
 
@@ -146,7 +146,7 @@ void Module::loadConfig(const config::Configuration& config)
 					myfile << "Host: " << bond.host << "\n";
 					myfile << "Max offspring: " << bond.maxOffspring << "\n\n";
 
-					myfile << "Iteration - Pathogen Count - Fitness Average - Default F. Distance - F. Distance Average - Good Pathogen Ratio [%] - Good Pathogen Children Ratio [%]\n";
+					myfile << "Iteration - Pathogen Count - Fitness Average - Default F. Target - F. Distance Average - Good Pathogen Ratio [%] - Good Pathogen Children Ratio [%]\n";
 					myfile.close();
 				  }
 			}
@@ -184,7 +184,7 @@ void Module::init()
 void Module::update()
 {
     // Store time step
-    m_step = getSimulation().getTimeStep();
+    m_step = getSimulation().getIteration()*getSimulation().getTimeStep();
 
     auto _ = measure_time("infection", simulator::TimeMeasurement(getSimulation()));
 
@@ -194,6 +194,8 @@ void Module::update()
         auto data = makeUnique<BoundData>();
         data->module = this;
         data->offspring = p.offspring;
+        data->elipseTime = p.elipseTime;
+        data->timeToRelease = p.elipseTime + m_step;
 
         p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
     }
@@ -224,7 +226,9 @@ void Module::update()
 
 			//Perform offspring
 			auto offspring = data->offspring;
-			if (offspring != 0)
+			bool releaseOffspring = m_step > data->timeToRelease;
+
+			if (offspring != 0 && releaseOffspring)
 			{
 				auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
 				auto hostPos = cell->getPosition();
@@ -235,6 +239,20 @@ void Module::update()
 					phageChild->mutate();
 					phageChild->setPosition(hostPos);
 				}
+
+				{
+					auto updatedData = makeUnique<BoundData>();
+					updatedData->module = this;
+					updatedData->offspring = data->offspring;
+					updatedData->elipseTime = data->elipseTime;
+					updatedData->timeToRelease = data->elipseTime + m_step;
+
+					CECE_ASSERT(bound.object);
+					cell->removeBound(*bound.object);
+
+					cell->createBound(*bound.object.get(), std::move(updatedData));
+				}
+
 			}
 
          }
@@ -261,6 +279,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
     	//Checking if the simulation definition allows the bond
     	auto typePathogen = m_bonds[i].pathogen;
     	auto typeHost = m_bonds[i].host;
+    	auto elipseTime = m_bonds[i].elipseTime;
 
     	//Checking object 1 type
     	auto is1Pathogen = false;
@@ -295,14 +314,19 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				static_cast<plugin::cell::CellBase*>(&o2) :
 				static_cast<plugin::cell::CellBase*>(&o1);
 
-		std::bernoulli_distribution associationDist(m_bonds[i].probOfInfection);
+		std::bernoulli_distribution associationDistribution(m_bonds[i].probOfInfection);
 
-		if (associationDist(g_gen) && !host->isInfected())
+		if (associationDistribution(g_gen) && !host->isInfected())
 		{
-			host->setInfected(true);
 			auto phage = is1Pathogen ?
 					static_cast<plugin::cell::Phage*>(&o1) :
 					static_cast<plugin::cell::Phage*>(&o2);
+
+			//Check if search time is reached
+			if (!phage->IsInfective())
+				return;
+
+			host->setInfected(true);
 
 			auto fitnessDistance = phage->getFitnessDistance();
 			auto phageAptitud = 1.0/fitnessDistance;
@@ -318,19 +342,19 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				offspring = m_bonds[i].maxOffspring;
 			}
 
-			//Generamos enlace
+			//Generate bond
 			//Ensure that the first object is the host
 			if(is1Pathogen)
 			{
 				Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-				m_bindings.push_back(JointDef{&o2, &o1, offspring});
+				m_bindings.push_back(JointDef{&o2, &o1, offspring, elipseTime});
 				//host->setInfected(true);
 				continue;
 			}
 			else
 			{
 				Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-				m_bindings.push_back(JointDef{&o1, &o2, offspring});
+				m_bindings.push_back(JointDef{&o1, &o2, offspring, elipseTime});
 				//host->setInfected(true);
 				continue;
 			}
@@ -346,7 +370,7 @@ void Module::printSimulationInfo(String pathogenType)
 	if(infoFilePath != "" && currentIteration != 1)
 	{
 		auto pathogenCount = getSimulation().getObjectCount(pathogenType);
-		int defaultDistance = 0;
+		int fitnessTarget = 0;
 		RealType goodPathogenCount = 0;
 		RealType goodPathogenChildrenCount = 0;
 		RealType fitnessAverage = 0;
@@ -357,7 +381,7 @@ void Module::printSimulationInfo(String pathogenType)
 			auto phage = static_cast<plugin::cell::Phage*>(object.get());
 			fitnessAverage += phage->getFitness();
 			fitnessDistanceAverage += phage->getFitnessDistance();
-			defaultDistance = phage->getBadFitnessDefaultDistance();
+			fitnessTarget = phage->getGoodFitnessValue();
 			auto goodFitnessRange = phage->getFitness() < (phage->getGoodFitnessValue() + phage->getGoodFitnessAmplitude());
 			if (goodFitnessRange)
 			{
@@ -378,7 +402,7 @@ void Module::printSimulationInfo(String pathogenType)
 				myfile << currentIteration << " - " <<
 						pathogenCount << " - " <<
 						fitnessAverage << " - " <<
-						defaultDistance << " - " <<
+						fitnessTarget << " - " <<
 						fitnessDistanceAverage << " - " <<
 						goodPathogenRatio << " - " <<
 						goodPathogenChildrenRatio << "\n";

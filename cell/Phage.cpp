@@ -109,6 +109,9 @@ void Phage::update(units::Time dt)
 
     // Update cell shape
     updateShape();
+
+    //Check if it is possible to enable the infection
+    checkSearchTime(dt);
 }
 
 /* ************************************************************************ */
@@ -189,6 +192,11 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
 	{
 		setMutationProbability(config.get<double>("mutation-probability", getMutationProbability()));
 		setMutationAmplitude(config.get<int>("mutation-amplitude", getMutationAmplitude()));
+	}
+
+	if (config.has("search-time"))
+	{
+		setSearchTime(config.get<units::Time>("search-time", getSearchTime()));
 	}
 
 	setFitness(calculateFitness());
@@ -394,17 +402,19 @@ void Phage::updateShape()
 
 ViewPtr<plugin::cell::Phage> Phage::replicate()
 {
-	auto child = getSimulation().createObject("cell.Phage");
+	auto child = getSimulation().createObject((String)getTypeName());
 	auto phageChild = static_cast<plugin::cell::Phage*>(child.get());
 
 	//Transmit phage properties
 	phageChild->setFitness(getFitness());
 	phageChild->setVolume(getVolume());
 	phageChild->setGoodFitnessValue(getGoodFitnessValue());
-	phageChild->setMoleculeCount("BFP", 10000);
+	//phageChild->setMoleculeCount("BFP", 100000);
 	phageChild->setMutationAmplitude(getMutationAmplitude());
 	phageChild->setMutationProbability(getMutationProbability());
 	phageChild->setChild();
+	phageChild->setSearchTime(getSearchTime());
+	phageChild->disableInfection();
 	return phageChild;
 }
 

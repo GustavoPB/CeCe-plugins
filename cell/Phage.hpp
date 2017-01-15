@@ -29,6 +29,7 @@
 
 // CeCe
 #include "cece/config.hpp"
+#include "cece/core/UnitIo.hpp"
 
 #ifdef CECE_RENDER
 #  include "cece/render/State.hpp"
@@ -190,6 +191,17 @@ public:
     	return mutationAmplitude;
     }
 
+    //Infection methods
+	bool IsInfective()
+	{
+		return isInfective;
+	}
+
+	units::Time getSearchTime()
+	{
+		return searchTime;
+	}
+
 
 // Public Accessors
 public:
@@ -296,6 +308,23 @@ public:
     	mutationAmplitude = value;
     }
 
+    //Infection methods
+    void enableInfection()
+    {
+    	isInfective = true;
+    	addMolecules("GFP", 100000);
+    }
+
+    void disableInfection()
+    {
+    	isInfective = false;
+    }
+
+    void setSearchTime(units::Time value)
+    {
+    	searchTime = value;
+    	currentSearchTime = value;
+    }
 
 // Public Operations
 public:
@@ -345,6 +374,18 @@ public:
      * @brief Mutation ratio according to a certain probability
      */
     void mutate();
+
+    /**
+	 * @brief We check if the phage is able to infect a bacteria considering its search time
+	 */
+    void checkSearchTime(units::Time dt)
+    {
+    	this->currentSearchTime -= dt;
+    	if (this->currentSearchTime <= Zero)
+    	{
+    		this->enableInfection();
+    	}
+    }
 
 #ifdef CECE_RENDER
 
@@ -470,6 +511,13 @@ private:
     double mutationProb = 0.0;
 
     int mutationAmplitude = 0;
+
+    ///Infection parameters
+    bool isInfective = false;
+
+    units::Time searchTime = Zero;
+
+    units::Time currentSearchTime = Zero;
 
 };
 
