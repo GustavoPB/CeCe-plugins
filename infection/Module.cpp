@@ -126,7 +126,7 @@ void Module::loadConfig(const config::Configuration& config)
             c_bond.get("pathogen"),
             c_bond.get("host"),
 			c_bond.get<int>("max-offspring"),
-			c_bond.get<int>("elipse-time")*getSimulation().getTimeStep()
+			c_bond.get<units::Time>("eclipse-time")
         });
     }
 
