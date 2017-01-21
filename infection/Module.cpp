@@ -194,8 +194,8 @@ void Module::update()
         auto data = makeUnique<BoundData>();
         data->module = this;
         data->offspring = p.offspring;
-        data->elipseTime = p.elipseTime;
-        data->timeToRelease = p.elipseTime + m_step;
+        data->eclipseTime = p.eclipseTime;
+        data->timeToRelease = p.eclipseTime + m_step;
 
         p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
     }
@@ -244,8 +244,8 @@ void Module::update()
 					auto updatedData = makeUnique<BoundData>();
 					updatedData->module = this;
 					updatedData->offspring = data->offspring;
-					updatedData->elipseTime = data->elipseTime;
-					updatedData->timeToRelease = data->elipseTime + m_step;
+					updatedData->eclipseTime = data->eclipseTime;
+					updatedData->timeToRelease = data->eclipseTime + m_step;
 
 					CECE_ASSERT(bound.object);
 					cell->removeBound(*bound.object);
@@ -279,7 +279,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
     	//Checking if the simulation definition allows the bond
     	auto typePathogen = m_bonds[i].pathogen;
     	auto typeHost = m_bonds[i].host;
-    	auto elipseTime = m_bonds[i].elipseTime;
+    	auto eclipseTime = m_bonds[i].eclipseTime;
 
     	//Checking object 1 type
     	auto is1Pathogen = false;
@@ -347,14 +347,14 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 			if(is1Pathogen)
 			{
 				Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-				m_bindings.push_back(JointDef{&o2, &o1, offspring, elipseTime});
+				m_bindings.push_back(JointDef{&o2, &o1, offspring, eclipseTime});
 				//host->setInfected(true);
 				continue;
 			}
 			else
 			{
 				Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-				m_bindings.push_back(JointDef{&o1, &o2, offspring, elipseTime});
+				m_bindings.push_back(JointDef{&o1, &o2, offspring, eclipseTime});
 				//host->setInfected(true);
 				continue;
 			}

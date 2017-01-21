@@ -126,7 +126,7 @@ private:
         String pathogen;
         String host;
         int maxOffspring;
-        units::Time elipseTime;
+        units::Time eclipseTime;
     };
 
 
@@ -138,7 +138,7 @@ private:
         char guard = '@';
         ViewPtr<Module> module;
         int offspring;
-        units::Time elipseTime;
+        units::Time eclipseTime;
         units::Time timeToRelease;
     };
 
@@ -151,7 +151,7 @@ private:
         ViewPtr<object::Object> o1;
         ViewPtr<object::Object> o2;
         int offspring;
-        units::Time elipseTime;
+        units::Time eclipseTime;
     };
 
 
