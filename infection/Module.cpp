@@ -126,7 +126,8 @@ void Module::loadConfig(const config::Configuration& config)
             c_bond.get("pathogen"),
             c_bond.get("host"),
 			c_bond.get<int>("max-offspring"),
-			c_bond.get<units::Time>("eclipse-time")
+			c_bond.get<units::Time>("eclipse-time"),
+			c_bond.get<units::Time>("ppr"),
         });
     }
 
@@ -194,7 +195,8 @@ void Module::update()
         auto data = makeUnique<BoundData>();
         data->module = this;
         data->offspring = p.offspring;
-        data->eclipseTime = p.eclipseTime;
+        data->releaseDelay = p.eclipseTime;
+        data->ppr = p.ppr;
         data->timeToRelease = p.eclipseTime + m_step;
 
         p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
@@ -244,8 +246,9 @@ void Module::update()
 					auto updatedData = makeUnique<BoundData>();
 					updatedData->module = this;
 					updatedData->offspring = data->offspring;
-					updatedData->eclipseTime = data->eclipseTime;
-					updatedData->timeToRelease = data->eclipseTime + m_step;
+					updatedData->releaseDelay = data->ppr;
+					updatedData->ppr = data->ppr;
+					updatedData->timeToRelease = data->releaseDelay + m_step;
 
 					CECE_ASSERT(bound.object);
 					cell->removeBound(*bound.object);
@@ -280,6 +283,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
     	auto typePathogen = m_bonds[i].pathogen;
     	auto typeHost = m_bonds[i].host;
     	auto eclipseTime = m_bonds[i].eclipseTime;
+    	auto ppr = m_bonds[i].ppr;
 
     	//Checking object 1 type
     	auto is1Pathogen = false;
@@ -347,14 +351,14 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 			if(is1Pathogen)
 			{
 				Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-				m_bindings.push_back(JointDef{&o2, &o1, offspring, eclipseTime});
+				m_bindings.push_back(JointDef{&o2, &o1, offspring, eclipseTime, ppr});
 				//host->setInfected(true);
 				continue;
 			}
 			else
 			{
 				Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-				m_bindings.push_back(JointDef{&o1, &o2, offspring, eclipseTime});
+				m_bindings.push_back(JointDef{&o1, &o2, offspring, eclipseTime, ppr});
 				//host->setInfected(true);
 				continue;
 			}

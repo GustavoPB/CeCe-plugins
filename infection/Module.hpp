@@ -127,6 +127,7 @@ private:
         String host;
         int maxOffspring;
         units::Time eclipseTime;
+        units::Time ppr;
     };
 
 
@@ -138,8 +139,9 @@ private:
         char guard = '@';
         ViewPtr<Module> module;
         int offspring;
-        units::Time eclipseTime;
+        units::Time releaseDelay;
         units::Time timeToRelease;
+        units::Time ppr;
     };
 
 
@@ -152,6 +154,7 @@ private:
         ViewPtr<object::Object> o2;
         int offspring;
         units::Time eclipseTime;
+        units::Time ppr;
     };
 
 
