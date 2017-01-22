@@ -332,6 +332,10 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 
 			host->setInfected(true);
 
+			//Once a host is infected, it slows the rate it grows
+			auto updatedGrowthRate = host->getGrowthRate() - host->getGrowthPenaltyRate();
+			host->setGrowthRate(updatedGrowthRate);
+
 			auto fitnessDistance = phage->getFitnessDistance();
 			auto phageAptitud = 1.0/fitnessDistance;
 

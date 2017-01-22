@@ -51,6 +51,11 @@ void CellBase::configure(const config::Configuration& config, simulator::Simulat
     // Growth rate
     setGrowthRate(config.get("growth-rate", getGrowthRate()));
 
+    if(config.has("growth-penalty-rate"))
+    {
+    	setGrowthPenaltyRate(config.get("growth-penalty-rate", getGrowthPenaltyRate()));
+    }
+
     // Molecule initializations
     for (auto&& cfg : config.getConfigurations("molecule"))
         setMoleculeCount(cfg.get("name"), cfg.get<MoleculeCount>("amount"));

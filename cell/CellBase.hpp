@@ -239,6 +239,15 @@ public:
         return m_bfpSaturation;
     }
 
+    /**
+	 * @brief Get cell growth penalty rate.
+	 *
+	 */
+    GrowthRate getGrowthPenaltyRate() noexcept
+	{
+		return m_growthPenaltyRate;
+	}
+
 #endif
 
 
@@ -404,13 +413,23 @@ public:
 
     void setInfected(bool value)
     {
-    	infected = value;
+    	m_infected = value;
     }
 
     bool isInfected()
     {
-    	return infected;
+    	return m_infected;
     }
+
+    /**
+	 * @brief Set cell growth penalty rate.
+	 *
+	 * @param rate
+	 */
+	void setGrowthPenaltyRate(GrowthRate rate) noexcept
+	{
+		m_growthPenaltyRate = rate;
+	}
 
 #endif
 
@@ -501,7 +520,10 @@ private:
     /// Map of molecules.
     Map<String, MoleculeCount> m_molecules;
 
-    bool infected = false;
+    //Variables that model infected state
+    bool m_infected = false;
+
+    GrowthRate m_growthPenaltyRate = Zero;
 
 #ifdef CECE_RENDER
     /// GFP saturation.
