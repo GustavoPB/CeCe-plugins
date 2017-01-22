@@ -50,6 +50,7 @@ void CellBase::configure(const config::Configuration& config, simulator::Simulat
 
     // Growth rate
     setGrowthRate(config.get("growth-rate", getGrowthRate()));
+    setCurrentGrowthRate(getGrowthRate());
 
     if(config.has("growth-penalty-rate"))
     {
@@ -76,7 +77,7 @@ void CellBase::configure(const config::Configuration& config, simulator::Simulat
 void CellBase::update(units::Time dt)
 {
     // Volume change
-    const units::Volume dV = getGrowthRate() * (getVolumeMax() - getVolume()) * dt;
+    const units::Volume dV = getCurrentGrowthRate() * (getVolumeMax() - getVolume()) * dt;
 
     // Update volume
     setVolume(getVolume() + dV);

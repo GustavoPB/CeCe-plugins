@@ -133,6 +133,16 @@ public:
         return m_growthRate;
     }
 
+    /**
+	 * @brief Returns cell growth rate.
+	 *
+	 * @return
+	 */
+	GrowthRate getCurrentGrowthRate() const noexcept
+	{
+		return m_currentGrowthRate;
+	}
+
 
     /**
      * @brief Returns cell radius.
@@ -286,6 +296,16 @@ public:
     {
         m_growthRate = rate;
     }
+
+    /**
+	 * @brief Set cell growth rate.
+	 *
+	 * @param rate
+	 */
+	void setCurrentGrowthRate(GrowthRate rate) noexcept
+	{
+		m_currentGrowthRate = rate;
+	}
 
 
     /**
@@ -516,6 +536,8 @@ private:
 
     /// Cell growth rate.
     GrowthRate m_growthRate = Zero;
+
+    GrowthRate m_currentGrowthRate = Zero;
 
     /// Map of molecules.
     Map<String, MoleculeCount> m_molecules;

@@ -333,8 +333,8 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 			host->setInfected(true);
 
 			//Once a host is infected, it slows the rate it grows
-			auto updatedGrowthRate = host->getGrowthRate() - host->getGrowthPenaltyRate();
-			host->setGrowthRate(updatedGrowthRate);
+			auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
+			host->setCurrentGrowthRate(updatedGrowthRate);
 
 			auto fitnessDistance = phage->getFitnessDistance();
 			auto phageAptitud = 1.0/fitnessDistance;
@@ -345,7 +345,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
 				offspring = phageAptitud/offspringBandwidth;
 			}
-			else // In case Distance equals 0 so the solution is exactly the target
+			else // If Distance equals 0 then the solution is exactly the fitness target
 			{
 				offspring = m_bonds[i].maxOffspring;
 			}
