@@ -36,6 +36,7 @@
 #include "cece/core/UnitIo.hpp"
 #include "cece/config/Configuration.hpp"
 #include "cece/simulator/Simulation.hpp"
+#include "cece/core/Log.hpp"
 
 #ifdef CECE_RENDER
 #  include "cece/render/Color.hpp"
@@ -81,27 +82,12 @@ Ecoli::~Ecoli()
 
 void Ecoli::update(units::Time dt)
 {
-    const auto volume0 = getVolume();
     CellBase::update(dt);
-    const auto volume1 = getVolume();
 
-    // Volume change
-    const auto volumeDiff = volume1 - volume0;
-
-    if (hasBud())
-    {
-        m_bud.volume += volumeDiff;
-        setVolume(getVolume() - volumeDiff);
-
-        if (m_bud.volume >= getVolumeBudRelease())
-        {
-            budRelease();
-        }
-    }
-    else if (getVolume() >= getVolumeBudCreate())
-    {
-        budCreate();
-    }
+	if (getVolume() >= (getVolumeMax() - (units::Volume)0.1))
+	{
+		budRelease();
+	}
 
     // Update cell shape
     updateShape();
@@ -128,24 +114,26 @@ void Ecoli::budCreate()
 {
     Assert(!hasBud());
 
-    std::default_random_engine eng(g_rd());
-    std::uniform_real_distribution<float> dist(0.f, 1.f);
+//    std::default_random_engine eng(g_rd());
+//    std::uniform_real_distribution<float> dist(0.f, 1.f);
 
     m_hasBud = true;
-    m_bud.angle = units::Angle(2 * constants::PI * dist(eng));
-
-    m_shapeForceUpdate = true;
+//    m_bud.angle = units::Angle(2 * constants::PI * dist(eng));
+//
+//    m_shapeForceUpdate = true;
 }
 
 /* ************************************************************************ */
 
 void Ecoli::budRelease()
 {
-    Assert(hasBud());
+
+    auto splitedVolume = this->getVolumeMax()/2;
+    this->setVolume(splitedVolume);
 
     // Calculate bud position
     const auto angle = getRotation();
-    const auto offset = units::PositionVector(Zero, calcRadius(getVolume()) + calcRadius(getVolumeBud())).rotated(-getAngleBud());
+    const auto offset = units::PositionVector(Zero, calcRadius(getVolume()) + calcRadius(splitedVolume)).rotated(-getAngleBud());
 
     const auto omega = getAngularVelocity();
     const auto center = getMassCenterPosition();
@@ -164,7 +152,7 @@ void Ecoli::budRelease()
     // Release bud into the world
     auto newEcoli = getSimulation().createObject((String)getTypeName());
     auto bud = static_cast<plugin::cell::Ecoli*>(newEcoli.get());
-    bud->setVolume(m_bud.volume);
+    bud->setVolume(splitedVolume);
     bud->setPosition(posBud);
     bud->setVelocity(velocityBud);
     bud->setAngularVelocity(omega);
@@ -179,7 +167,7 @@ void Ecoli::budRelease()
     // Split molecules between Ecoli and bud
 
     // Total volume
-    const auto totalVolume = getVolume() + m_bud.volume;
+    const auto totalVolume = getVolume()*2;
 
     // Copy old state
     const auto molecules = getMolecules();
@@ -271,7 +259,7 @@ void Ecoli::updateShape()
 
     bool needs_update = m_shapeForceUpdate;
 
-    if (hasBud())
+    /*if (hasBud())
     {
         const auto newRadius = calcRadius(getVolume());
         const auto newBudRadius = calcRadius(getVolumeBud());
@@ -298,7 +286,7 @@ void Ecoli::updateShape()
         }
     }
     else
-    {
+    {*/
         const auto newRadius = calcRadius(getVolume());
         const auto oldRadius = m_lastRadius;
         needs_update = needs_update || ((newRadius - oldRadius) > MIN_CHANGE);
@@ -307,7 +295,7 @@ void Ecoli::updateShape()
         shapes.resize(1);
         Assert(shapes.size() == 1);
         shapes[0].getCircle().radius = newRadius;
-    }
+ //   }
 
     if (!needs_update)
         return;
