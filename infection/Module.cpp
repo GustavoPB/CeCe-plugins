@@ -278,98 +278,100 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 	auto type2 = o2.getTypeName();
 
     for (unsigned int i = 0; i < m_bonds.size(); i++)
-    {
-    	//Checking if the simulation definition allows the bond
-    	auto typePathogen = m_bonds[i].pathogen;
-    	auto typeHost = m_bonds[i].host;
-    	auto eclipseTime = m_bonds[i].eclipseTime;
-    	auto ppr = m_bonds[i].ppr;
-
-    	//Checking object 1 type
-    	auto is1Pathogen = false;
-    	if (type1 == typePathogen)
-    	{
-    		is1Pathogen = true;
-
-    	} else
-    	{
-    		if (type1 != typeHost)
-    			return; //the object ain't pathogen nor host
-    	}
-
-    	//Checking object 2 type
-		auto is2Host = false;
-		if (type2 == typeHost)
 		{
-			is2Host = true;
+			//Checking if the simulation definition allows the bond
+			auto typePathogen = m_bonds[i].pathogen;
+			auto typeHost = m_bonds[i].host;
+			auto eclipseTime = m_bonds[i].eclipseTime;
+			auto ppr = m_bonds[i].ppr;
 
-		} else
-		{
-			if (type2 != typePathogen)
-				return; //the object ain't pathogen nor host
-		}
-
-		//Checking if both are the same type
-		if(is1Pathogen != is2Host)
-			return;
-
-		//Cell type casting
-		auto host = is2Host ?
-				static_cast<plugin::cell::CellBase*>(&o2) :
-				static_cast<plugin::cell::CellBase*>(&o1);
-
-		std::bernoulli_distribution associationDistribution(m_bonds[i].probOfInfection);
-
-		if (associationDistribution(g_gen) && !host->isInfected())
-		{
-			auto phage = is1Pathogen ?
-					static_cast<plugin::cell::Phage*>(&o1) :
-					static_cast<plugin::cell::Phage*>(&o2);
-
-			//Check if search time is reached
-			if (!phage->IsInfective())
-				return;
-
-			host->setInfected(true);
-
-			//Once a host is infected, it slows the rate it grows
-			auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
-			host->setCurrentGrowthRate(updatedGrowthRate);
-
-			auto fitnessDistance = phage->getFitnessDistance();
-			auto phageAptitud = 1.0/fitnessDistance;
-
-			int offspring = 0;
-			if(phageAptitud != std::numeric_limits<double>::infinity())
+			//Checking object 1 type
+			auto is1Pathogen = false;
+			if (type1 == typePathogen)
 			{
-				double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
-				offspring = phageAptitud/offspringBandwidth;
-			}
-			else // If Distance equals 0 then the solution is exactly the fitness target
+				is1Pathogen = true;
+
+			} else
 			{
-				offspring = m_bonds[i].maxOffspring;
+				if (type1 != typeHost)
+					continue; //the object ain't pathogen nor host
 			}
 
-			//Generate bond
-			//Ensure that the first object is the host
-			if(is1Pathogen)
+			//Checking object 2 type
+			auto is2Host = false;
+			if (type2 == typeHost)
 			{
-				Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-				m_bindings.push_back(JointDef{&o2, &o1, offspring, eclipseTime, ppr});
-				//host->setInfected(true);
+				is2Host = true;
+
+			} else
+			{
+				if (type2 != typePathogen)
+					continue; //the object ain't pathogen nor host
+			}
+
+			//Checking if both are the same type
+			if(is1Pathogen != is2Host)
 				continue;
+
+			//Cell type casting
+			auto host = is2Host ?
+					static_cast<plugin::cell::CellBase*>(&o2) :
+					static_cast<plugin::cell::CellBase*>(&o1);
+
+			std::bernoulli_distribution associationDistribution(m_bonds[i].probOfInfection);
+
+			if (associationDistribution(g_gen) && !host->isInfected())
+			{
+				auto phage = is1Pathogen ?
+						static_cast<plugin::cell::Phage*>(&o1) :
+						static_cast<plugin::cell::Phage*>(&o2);
+
+				//Check if search time is reached
+				if (!phage->IsInfective())
+					return;
+
+				host->setInfected(true);
+
+				//Once a host is infected, it slows the rate it grows
+				auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
+				host->setCurrentGrowthRate(updatedGrowthRate);
+
+				auto fitnessDistance = phage->getFitnessDistance();
+				auto phageAptitud = 1.0/fitnessDistance;
+
+				int offspring = 0;
+				if(phageAptitud != std::numeric_limits<double>::infinity())
+				{
+					double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
+					offspring = phageAptitud/offspringBandwidth;
+				}
+				else // If Distance equals 0 then the solution is exactly the fitness target
+				{
+					offspring = m_bonds[i].maxOffspring;
+				}
+
+				//Generate bond
+				//Ensure that the first object is the host
+				if(is1Pathogen)
+				{
+					Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
+					m_bindings.push_back(JointDef{&o2, &o1, offspring, eclipseTime, ppr});
+					return;
+				}
+				else
+				{
+					Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
+					m_bindings.push_back(JointDef{&o1, &o2, offspring, eclipseTime, ppr});
+					return;
+				}
+
 			}
 			else
 			{
-				Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-				m_bindings.push_back(JointDef{&o1, &o2, offspring, eclipseTime, ppr});
-				//host->setInfected(true);
-				continue;
+				return;
 			}
-
 		}
     }
-}
 
 
 void Module::printSimulationInfo(String pathogenType)
