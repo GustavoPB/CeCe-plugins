@@ -147,7 +147,7 @@ void Module::loadConfig(const config::Configuration& config)
 					myfile << "Host: " << bond.host << "\n";
 					myfile << "Max offspring: " << bond.maxOffspring << "\n\n";
 
-					myfile << "Iteration - Pathogen Count - Fitness Average - Default F. Target - F. Distance Average - Good Pathogen Ratio [%] - Good Pathogen Children Ratio [%]\n";
+					myfile << "Time [hours], Pathogen Count, Fitness Average, Default F. Target, F. Distance Average, Good Pathogen Ratio [%], Good Pathogen Children Ratio [%]\n";
 					myfile.close();
 				  }
 			}
@@ -184,22 +184,22 @@ void Module::init()
 
 void Module::update()
 {
-    // Store time step
-    m_step = getSimulation().getIteration()*getSimulation().getTimeStep();
-
     auto _ = measure_time("infection", simulator::TimeMeasurement(getSimulation()));
+	m_step = getSimulation().getIteration()*getSimulation().getTimeStep();
 
     // Foreach pending bindings
     for (auto& p : m_bindings)
     {
-        auto data = makeUnique<BoundData>();
-        data->module = this;
-        data->offspring = p.offspring;
-        data->releaseDelay = p.eclipseTime;
-        data->ppr = p.ppr;
-        data->timeToRelease = p.eclipseTime + m_step;
+		auto host = static_cast<plugin::cell::Ecoli*>(p.o1.get());
+		auto data = makeUnique<BoundData>();
 
-        p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
+		data->module = this;
+		data->offspring = p.offspring;
+		data->releaseDelay = p.ppr;
+		data->ppr = p.ppr;
+		data->timeToRelease = data->releaseDelay + m_step;
+
+		p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
     }
 
     m_bindings.clear();
@@ -215,6 +215,25 @@ void Module::update()
         //    continue;
 
         auto cell = static_cast<plugin::cell::CellBase*>(object.get());
+		
+        //Check best of them
+		/*
+		auto bounds = cell->getBounds();
+        if (bounds.size() > 1)
+        {
+			const auto data1 = static_cast<const BoundData*>(bounds[0].data.get());
+			const auto data2 = static_cast<const BoundData*>(bounds[1].data.get());
+
+			if (data1->offspring >= data2->offspring)
+			{
+				cell->removeBound(*bounds[1].object);
+			}
+			else
+			{
+				cell->removeBound(*bounds[0].object);
+			}
+        }
+		*/
 
         for (const auto& bound : cell->getBounds())
         {
@@ -233,13 +252,13 @@ void Module::update()
 			if (offspring != 0 && releaseOffspring)
 			{
 				auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
-				auto hostPos = cell->getPosition();
+				//auto hostPos = cell->getPosition();
 
 				for (unsigned int i = 0; i < offspring; i++)
 				{
 					auto phageChild = phage->replicate();
 					phageChild->mutate();
-					phageChild->setPosition(hostPos);
+					//phageChild->setPosition(hostPos);
 				}
 
 				{
@@ -248,7 +267,8 @@ void Module::update()
 					updatedData->offspring = data->offspring;
 					updatedData->releaseDelay = data->ppr;
 					updatedData->ppr = data->ppr;
-					updatedData->timeToRelease = data->releaseDelay + m_step;
+					auto aux_m_step = getSimulation().getIteration()*getSimulation().getTimeStep();
+					updatedData->timeToRelease = data->releaseDelay + aux_m_step;
 
 					CECE_ASSERT(bound.object);
 					cell->removeBound(*bound.object);
@@ -333,8 +353,8 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				host->setInfected(true);
 
 				//Once a host is infected, it slows the rate it grows
-				auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
-				host->setCurrentGrowthRate(updatedGrowthRate);
+				//auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
+				//host->setCurrentGrowthRate(updatedGrowthRate);
 
 				auto fitnessDistance = phage->getFitnessDistance();
 				auto phageAptitud = 1.0/fitnessDistance;
@@ -350,18 +370,28 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 					offspring = m_bonds[i].maxOffspring;
 				}
 
+				//If offspring equals 0 then we block the infection and disable phage
+				if (offspring == 0)
+				{
+					host->setInfected(false);
+					phage->disableInfection();
+					return;
+				}
+
 				//Generate bond
 				//Ensure that the first object is the host
 				if(is1Pathogen)
 				{
 					Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
 					m_bindings.push_back(JointDef{&o2, &o1, offspring, eclipseTime, ppr});
+					//host->setInfected(false);
 					return;
 				}
 				else
 				{
 					Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
 					m_bindings.push_back(JointDef{&o1, &o2, offspring, eclipseTime, ppr});
+					//host->setInfected(false);
 					return;
 				}
 
@@ -384,6 +414,7 @@ void Module::printSimulationInfo(String pathogenType)
 		RealType goodPathogenCount = 0;
 		RealType goodPathogenChildrenCount = 0;
 		RealType fitnessAverage = 0;
+		units::Time simulationMinutes;
 		double fitnessDistanceAverage = 0;
 
 		for (auto& object : getSimulation().getObjects(pathogenType))
@@ -404,17 +435,18 @@ void Module::printSimulationInfo(String pathogenType)
 		fitnessDistanceAverage /= pathogenCount;
 		RealType goodPathogenRatio = goodPathogenCount/pathogenCount*100;
 		RealType goodPathogenChildrenRatio = goodPathogenChildrenCount/pathogenCount*100;
+		simulationMinutes = (currentIteration * getSimulation().getTimeStep()) / 60;
 		//print
 		{
 			std::ofstream myfile (infoFilePath, std::ios::app);
 			if (myfile.is_open())
 			  {
-				myfile << currentIteration << " - " <<
-						pathogenCount << " - " <<
-						fitnessAverage << " - " <<
-						fitnessTarget << " - " <<
-						fitnessDistanceAverage << " - " <<
-						goodPathogenRatio << " - " <<
+				myfile << simulationMinutes << ", " <<
+						pathogenCount << ", " <<
+						fitnessAverage << ", " <<
+						fitnessTarget << ", " <<
+						fitnessDistanceAverage << ", " <<
+						goodPathogenRatio << ", " <<
 						goodPathogenChildrenRatio << "\n";
 				myfile.close();
 			  }
