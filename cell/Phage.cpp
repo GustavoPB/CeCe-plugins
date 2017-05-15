@@ -98,7 +98,7 @@ void Phage::update(units::Time dt)
 
         if (m_bud.volumeFake >= getVolumeBudRelease()) //TOFIX
         {
-        	addMolecules("RFP", 100000);
+        	//addMolecules("RFP", 100000);
             budRelease();
         }
     }
@@ -227,54 +227,54 @@ void Phage::budRelease()
 {
     Assert(hasBud());
 
-//    // Calculate bud position
-//    const auto angle = getRotation();
-//    const auto offset = units::PositionVector(Zero, calcRadius(getVolume()) + calcRadius(getVolumeBud())).rotated(-getAngleBud());
-//
-//    const auto omega = getAngularVelocity();
-//    const auto center = getMassCenterPosition();
-//
-//    // Change phage velocity
-//    if (omega != Zero)
-//    {
-//        setVelocity(getVelocity() + cross(omega, getPosition() - center));
-//        setAngularVelocity(omega);
-//    }
-//
-//    // Get current position
-//    const auto posBud = getPosition() + offset.rotated(angle);
-//    const auto velocityBud = getVelocity() + cross(omega, getWorldPosition(offset) - center);
-//
-//    // Release bud into the world
-//    auto bud = getSimulation().createObject<Phage>();
-//    bud->setVolume(m_bud.volume);
-//    bud->setPosition(posBud);
-//    bud->setVelocity(velocityBud);
-//    bud->setAngularVelocity(omega);
-//    bud->setPrograms(getPrograms().clone());
-//    bud->setDensity(getDensity());
-//    bud->setGrowthRate(getGrowthRate());
-//    bud->setVolumeMax(getVolumeMax());
-//    bud->updateShape();
-//
-//    // Split molecules between Phage and bud
-//
-//    // Total volume
-//    const auto totalVolume = getVolume() + m_bud.volume;
-//
-//    // Copy old state
-//    const auto molecules = getMolecules();
-//
-//    // Foreach molecules
-//    for (const auto& p : molecules)
-//    {
-//        // Molecules per volume unit
-//        const auto concentration = p.second / totalVolume;
-//
-//        // Set molecule count to Phage and bud
-//        setMoleculeCount(p.first, concentration * getVolume());
-//        bud->setMoleculeCount(p.first, concentration * bud->getVolume());
-//    }
+    // Calculate bud position
+    const auto angle = getRotation();
+    const auto offset = units::PositionVector(Zero, calcRadius(getVolume()) + calcRadius(getVolumeBud())).rotated(-getAngleBud());
+
+    const auto omega = getAngularVelocity();
+    const auto center = getMassCenterPosition();
+
+    // Change phage velocity
+    if (omega != Zero)
+    {
+        setVelocity(getVelocity() + cross(omega, getPosition() - center));
+        setAngularVelocity(omega);
+    }
+
+    // Get current position
+    const auto posBud = getPosition() + offset.rotated(angle);
+    const auto velocityBud = getVelocity() + cross(omega, getWorldPosition(offset) - center);
+
+    // Release bud into the world
+    auto bud = getSimulation().createObject<Phage>();
+    bud->setVolume(m_bud.volume);
+    bud->setPosition(posBud);
+    bud->setVelocity(velocityBud);
+    bud->setAngularVelocity(omega);
+    bud->setPrograms(getPrograms().clone());
+    bud->setDensity(getDensity());
+    bud->setGrowthRate(getGrowthRate());
+    bud->setVolumeMax(getVolumeMax());
+    bud->updateShape();
+
+    // Split molecules between Phage and bud
+
+    // Total volume
+    const auto totalVolume = getVolume() + m_bud.volume;
+
+    // Copy old state
+    const auto molecules = getMolecules();
+
+    // Foreach molecules
+    for (const auto& p : molecules)
+    {
+        // Molecules per volume unit
+        const auto concentration = p.second / totalVolume;
+
+        // Set molecule count to Phage and bud
+        setMoleculeCount(p.first, concentration * getVolume());
+        bud->setMoleculeCount(p.first, concentration * bud->getVolume());
+    }
 
     // Release bud
     m_hasBud = false;
@@ -405,6 +405,24 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 	auto child = getSimulation().createObject((String)getTypeName());
 	auto phageChild = static_cast<plugin::cell::Phage*>(child.get());
 
+        // Calculate bud position
+    const auto angle = getRotation();
+    const auto offset = units::PositionVector(Zero, calcRadius(getVolume()) + calcRadius(getVolumeBud())).rotated(-getAngleBud());
+
+    const auto omega = getAngularVelocity();
+    const auto center = getMassCenterPosition();
+
+    // Change yeast velocity
+    if (omega != Zero)
+    {
+        setVelocity(getVelocity() + cross(omega, getPosition() - center));
+        setAngularVelocity(omega);
+    }
+
+    // Get current position
+    const auto posChild = getPosition() + offset.rotated(angle);
+    const auto velocityBud = getVelocity() + cross(omega, getWorldPosition(offset) - center);
+
 	//Transmit phage properties
 	phageChild->setFitness(getFitness());
 	phageChild->setVolume(getVolume());
@@ -415,6 +433,8 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 	phageChild->setChild();
 	phageChild->setSearchTime(getSearchTime());
 	phageChild->disableInfection();
+    phageChild->setPosition(posChild);
+    phageChild->updateShape();
 	return phageChild;
 }
 
