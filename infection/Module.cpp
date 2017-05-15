@@ -352,10 +352,6 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 
 				host->setInfected(true);
 
-				//Once a host is infected, it slows the rate it grows
-				//auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
-				//host->setCurrentGrowthRate(updatedGrowthRate);
-
 				auto fitnessDistance = phage->getFitnessDistance();
 				auto phageAptitud = 1.0/fitnessDistance;
 
@@ -384,14 +380,20 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				{
 					Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
 					m_bindings.push_back(JointDef{&o2, &o1, offspring, eclipseTime, ppr});
-					//host->setInfected(false);
+					
+					//Once a host is infected, it slows the rate it grows
+					auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
+					host->setCurrentGrowthRate(updatedGrowthRate);
 					return;
 				}
 				else
 				{
 					Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
 					m_bindings.push_back(JointDef{&o1, &o2, offspring, eclipseTime, ppr});
-					//host->setInfected(false);
+
+					//Once a host is infected, it slows the rate it grows
+					auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
+					host->setCurrentGrowthRate(updatedGrowthRate);
 					return;
 				}
 
