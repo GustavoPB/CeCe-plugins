@@ -202,7 +202,10 @@ public:
 		return searchTime;
 	}
 
-
+    units::Time getTimeToRelease ()
+    {
+        return timeToRelease;
+    }
 // Public Accessors
 public:
 
@@ -318,12 +321,18 @@ public:
     void disableInfection()
     {
     	isInfective = false;
+        removeMolecules("GFP", 100000);
     }
 
     void setSearchTime(units::Time value)
     {
     	searchTime = value;
     	currentSearchTime = value;
+    }
+
+    void setTimeToRelease (units::Time value)
+    {
+        timeToRelease = value;
     }
 
 // Public Operations
@@ -518,6 +527,8 @@ private:
     units::Time searchTime = Zero;
 
     units::Time currentSearchTime = Zero;
+
+    units::Time timeToRelease = Zero;
 
 };
 

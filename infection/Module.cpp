@@ -187,25 +187,26 @@ void Module::update()
     auto _ = measure_time("infection", simulator::TimeMeasurement(getSimulation()));
 	m_step = getSimulation().getIteration()*getSimulation().getTimeStep();
 
+	//perform info printing each time a new pathogen is released
+    printSimulationInfo(trackedPathogen);
+
     // Foreach pending bindings
     for (auto& p : m_bindings)
     {
-		auto host = static_cast<plugin::cell::Ecoli*>(p.o1.get());
+		auto phage = static_cast<plugin::cell::Phage*>(p.o2.get());
 		auto data = makeUnique<BoundData>();
 
 		data->module = this;
 		data->offspring = p.offspring;
 		data->releaseDelay = p.ppr;
 		data->ppr = p.ppr;
-		data->timeToRelease = data->releaseDelay + m_step;
+		phage->setTimeToRelease(data->releaseDelay);
 
 		p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
     }
-
     m_bindings.clear();
 
-	//perform info printing each time a new pathogen is released
-    printSimulationInfo(trackedPathogen);
+	
 
 	// Foreach objects
     for (auto& object : getSimulation().getObjects())
@@ -214,27 +215,7 @@ void Module::update()
         //if (!object->is<plugin::cell::CellBase>())
         //    continue;
 
-        auto cell = static_cast<plugin::cell::CellBase*>(object.get());
-		
-        //Check best of them
-		/*
-		auto bounds = cell->getBounds();
-        if (bounds.size() > 1)
-        {
-			const auto data1 = static_cast<const BoundData*>(bounds[0].data.get());
-			const auto data2 = static_cast<const BoundData*>(bounds[1].data.get());
-
-			if (data1->offspring >= data2->offspring)
-			{
-				cell->removeBound(*bounds[1].object);
-			}
-			else
-			{
-				cell->removeBound(*bounds[0].object);
-			}
-        }
-		*/
-
+        auto cell = static_cast<object::Object*>(object.get());
         for (const auto& bound : cell->getBounds())
         {
             if (bound.data == nullptr)
@@ -244,42 +225,35 @@ void Module::update()
 
             if (data->guard != '@')
                 continue;
+			auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
 
 			//Perform offspring
-			auto offspring = data->offspring;
-			bool releaseOffspring = m_step > data->timeToRelease;
-
-			if (offspring != 0 && releaseOffspring)
+			auto currentTimeToRelease = phage->getTimeToRelease() - getSimulation().getTimeStep();
+			phage->setTimeToRelease(currentTimeToRelease);
+			bool releaseOffspring = phage->getTimeToRelease() <= Zero;
+			if (releaseOffspring)
 			{
-				auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
-				//auto hostPos = cell->getPosition();
+				CECE_ASSERT(bound.object);
+				auto offspring = data->offspring;
+
+				auto pos = phage->getPosition();
+				auto world = getSimulation().getWorldSize();
+				auto pageX = pos.getX();
+				auto pageY = pos.getY();
+				auto worldX = world.getX()/2;
+				auto worldY = world.getY()/2;
+				//TO REVIEW (no se consideran valores negativos de posicion)
+				if(pageX >= worldX || pageY >= worldY)
+					continue;
 
 				for (unsigned int i = 0; i < offspring; i++)
 				{
 					auto phageChild = phage->replicate();
-					phageChild->mutate();
-					//phageChild->setPosition(hostPos);
+					//phageChild->mutate();
 				}
-
-				{
-					auto updatedData = makeUnique<BoundData>();
-					updatedData->module = this;
-					updatedData->offspring = data->offspring;
-					updatedData->releaseDelay = data->ppr;
-					updatedData->ppr = data->ppr;
-					auto aux_m_step = getSimulation().getIteration()*getSimulation().getTimeStep();
-					updatedData->timeToRelease = data->releaseDelay + aux_m_step;
-
-					CECE_ASSERT(bound.object);
-					cell->removeBound(*bound.object);
-
-					cell->createBound(*bound.object.get(), std::move(updatedData));
-				}
-
+				phage->setTimeToRelease(data->releaseDelay);
 			}
-
          }
-
         }
 }
 
@@ -332,12 +306,12 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 			//Checking if both are the same type
 			if(is1Pathogen != is2Host)
 				continue;
-
+		
 			//Cell type casting
 			auto host = is2Host ?
 					static_cast<plugin::cell::CellBase*>(&o2) :
 					static_cast<plugin::cell::CellBase*>(&o1);
-
+		
 			std::bernoulli_distribution associationDistribution(m_bonds[i].probOfInfection);
 
 			if (associationDistribution(g_gen) && !host->isInfected())
@@ -351,6 +325,8 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 					return;
 
 				host->setInfected(true);
+				phage->disableInfection();
+
 
 				auto fitnessDistance = phage->getFitnessDistance();
 				auto phageAptitud = 1.0/fitnessDistance;
@@ -373,7 +349,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 					phage->disableInfection();
 					return;
 				}
-
+				
 				//Generate bond
 				//Ensure that the first object is the host
 				if(is1Pathogen)
@@ -431,6 +407,7 @@ void Module::printSimulationInfo(String pathogenType)
 				goodPathogenCount++;
 				if(phage->isChild())
 					goodPathogenChildrenCount++;
+				
 			}
 		}
 		fitnessAverage /= pathogenCount;

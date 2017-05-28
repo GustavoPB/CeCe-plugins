@@ -197,6 +197,7 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
 	if (config.has("search-time"))
 	{
 		setSearchTime(config.get<units::Time>("search-time", getSearchTime()));
+        enableInfection(); //the phages released on startup should be released as infective
 	}
 
 	setFitness(calculateFitness());
@@ -405,10 +406,9 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 	auto child = getSimulation().createObject((String)getTypeName());
 	auto phageChild = static_cast<plugin::cell::Phage*>(child.get());
 
-        // Calculate bud position
+    // Calculate bud position
     const auto angle = getRotation();
     const auto offset = units::PositionVector(Zero, calcRadius(getVolume()) + calcRadius(getVolumeBud())).rotated(-getAngleBud());
-
     const auto omega = getAngularVelocity();
     const auto center = getMassCenterPosition();
 
@@ -427,6 +427,7 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 	phageChild->setFitness(getFitness());
 	phageChild->setVolume(getVolume());
 	phageChild->setGoodFitnessValue(getGoodFitnessValue());
+
 	//phageChild->setMoleculeCount("BFP", 100000);
 	phageChild->setMutationAmplitude(getMutationAmplitude());
 	phageChild->setMutationProbability(getMutationProbability());
