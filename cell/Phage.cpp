@@ -86,6 +86,9 @@ void Phage::update(units::Time dt)
     CellBase::update(dt);
     const auto volume1 = getVolume();
 
+    //Increment Life in time step
+    setLifeTime(getLifeTime() + dt);
+
     // Volume change
     const auto volumeDiff = volume1 - volume0;
 
@@ -436,6 +439,7 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 	phageChild->disableInfection();
     phageChild->setPosition(posChild);
     phageChild->updateShape();
+    phageChild->setLifeTime(Zero);
 	return phageChild;
 }
 

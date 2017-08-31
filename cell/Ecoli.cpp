@@ -84,6 +84,9 @@ void Ecoli::update(units::Time dt)
 {
     CellBase::update(dt);
 
+    //Increment Life in time step
+    setLifeTime(getLifeTime() + dt);
+
 	if (getVolume() >= (getVolumeMax() - (units::Volume)0.1))
 	{
 		budRelease();

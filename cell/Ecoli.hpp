@@ -138,6 +138,11 @@ public:
         return m_volumeBudRelease;
     }
 
+    units::Time getLifeTime()
+    {
+        return lifeTime;
+    }
+
 
 // Public Accessors
 public:
@@ -190,6 +195,11 @@ public:
     void setVolumeBudRelease(units::Volume volume) noexcept
     {
         m_volumeBudRelease = std::move(volume);
+    }
+
+    void setLifeTime (units::Time value)
+    {
+        lifeTime = value;
     }
 
 
@@ -325,6 +335,9 @@ private:
 
     /// If shape must be updated.
     bool m_shapeForceUpdate = false;
+
+    /// Life time
+    units::Time lifeTime = Zero;
 
 };
 

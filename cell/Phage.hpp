@@ -206,6 +206,11 @@ public:
     {
         return timeToRelease;
     }
+
+    units::Time getLifeTime()
+    {
+        return lifeTime;
+    }
 // Public Accessors
 public:
 
@@ -333,6 +338,11 @@ public:
     void setTimeToRelease (units::Time value)
     {
         timeToRelease = value;
+    }
+
+    void setLifeTime (units::Time value)
+    {
+        lifeTime = value;
     }
 
 // Public Operations
@@ -529,6 +539,9 @@ private:
     units::Time currentSearchTime = Zero;
 
     units::Time timeToRelease = Zero;
+
+    //Life time
+    units::Time lifeTime = Zero;
 
 };
 
