@@ -131,6 +131,11 @@ void Module::loadConfig(const config::Configuration& config)
         });
     }
 
+	if(config.has("print-interval"))
+    {
+		setPrintInterval(config.get<int>("print-interval"));
+	}
+
     if(config.has("info-file-path"))
     {
     	infoFilePath = config.get<String>("info-file-path");
@@ -145,9 +150,10 @@ void Module::loadConfig(const config::Configuration& config)
 				  {
 					myfile << "Pathogen: " << bond.pathogen << "\n";
 					myfile << "Host: " << bond.host << "\n";
+					myfile << "Prob. of Infection: " << bond.probOfInfection << "\n";
 					myfile << "Max offspring: " << bond.maxOffspring << "\n\n";
 
-					myfile << "Time [hours], Pathogen Count, Fitness Average, Default F. Target, F. Distance Average, Good Pathogen Ratio [%], Good Pathogen Children Ratio [%]\n";
+					myfile << "Time [hours], Pathogen Count, Fitness Average, Default F. Target, F. Distance Average, Good Pathogen Ratio [%], Good Pathogen Children Ratio [%], Host Residence Time [h], Phage Residence Time [h]\n";
 					myfile.close();
 				  }
 			}
@@ -188,7 +194,7 @@ void Module::update()
 	m_step = getSimulation().getIteration()*getSimulation().getTimeStep();
 
 	//perform info printing each time a new pathogen is released
-    printSimulationInfo(trackedPathogen);
+    printSimulationInfo("Ecoli", trackedPathogen);
 
     // Foreach pending bindings
     for (auto& p : m_bindings)
@@ -206,10 +212,8 @@ void Module::update()
     }
     m_bindings.clear();
 
-	
-
-	// Foreach objects
-    for (auto& object : getSimulation().getObjects())
+	// Foreach objects. Look for host minimizes the calcules
+    for (auto& object : getSimulation().getObjects("Ecoli"))
     {
     	//De momento solo hay celulas
         //if (!object->is<plugin::cell::CellBase>())
@@ -225,6 +229,7 @@ void Module::update()
 
             if (data->guard != '@')
                 continue;
+
 			auto phage = static_cast<plugin::cell::Phage*>(bound.object.get());
 
 			//Perform offspring
@@ -236,21 +241,38 @@ void Module::update()
 				CECE_ASSERT(bound.object);
 				auto offspring = data->offspring;
 
+				//Guard that prevent from crashing
 				auto pos = phage->getPosition();
 				auto world = getSimulation().getWorldSize();
-				auto pageX = pos.getX();
-				auto pageY = pos.getY();
-				auto worldX = world.getX()/2;
-				auto worldY = world.getY()/2;
-				//TO REVIEW (no se consideran valores negativos de posicion)
-				if(pageX >= worldX || pageY >= worldY)
+				auto phageX = pos.getX();
+				auto phageY = pos.getY();
+				auto worldX = world.getX()/2 -units::Length(10);
+				//auto worldY = world.getY()/2 -units::Length(20);
+				
+				if(phageX >= worldX || phageX <= -worldX)
+				{
+					cell->removeBound(*bound.object);
+					auto ecoli = static_cast<plugin::cell::Ecoli*>(cell);
+					ecoli->addMolecules("RFP", 10000);
 					continue;
+				}
+
+/*
+				if(phageX <= -worldX || phageY <= -worldY)
+				{
+					cell->removeBound(*bound.object);
+					auto ecoli = static_cast<plugin::cell::Ecoli*>(cell);
+					ecoli->addMolecules("RFP", 10000);
+					continue;
+				}
+*/
 
 				for (unsigned int i = 0; i < offspring; i++)
 				{
 					auto phageChild = phage->replicate();
-					//phageChild->mutate();
+					phageChild->mutate();
 				}
+				
 				phage->setTimeToRelease(data->releaseDelay);
 			}
          }
@@ -327,7 +349,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				host->setInfected(true);
 				phage->disableInfection();
 
-
+//
 				auto fitnessDistance = phage->getFitnessDistance();
 				auto phageAptitud = 1.0/fitnessDistance;
 
@@ -349,6 +371,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 					phage->disableInfection();
 					return;
 				}
+//
 				
 				//Generate bond
 				//Ensure that the first object is the host
@@ -359,6 +382,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 					
 					//Once a host is infected, it slows the rate it grows
 					auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
+					if(!updatedGrowthRate <= 0)
 					host->setCurrentGrowthRate(updatedGrowthRate);
 					return;
 				}
@@ -369,6 +393,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 
 					//Once a host is infected, it slows the rate it grows
 					auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
+					if(!updatedGrowthRate <= 0)
 					host->setCurrentGrowthRate(updatedGrowthRate);
 					return;
 				}
@@ -381,19 +406,55 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 		}
     }
 
+units::Time Module::CalculeSinglePhageProductionRate(RealType phageFitness, int maxOffspring, units::Time ppr)
+{
+	int offspring = 0;
+	auto result = units::Time(0);
 
-void Module::printSimulationInfo(String pathogenType)
+	auto phageAptitud = 1.0/phageFitness;
+
+	if(phageAptitud != std::numeric_limits<double>::infinity())
+	{
+		double offspringBandwidth = 1.0/(double)maxOffspring;
+		offspring = phageAptitud/offspringBandwidth;
+	}
+	else // If Distance equals 0 then the offspring is exactly the fitness target
+	{
+		offspring = maxOffspring;
+	}
+
+	result = offspring == 0 ?
+		std::numeric_limits<units::Time>::infinity() :
+		ppr/offspring;
+
+	return result;
+}
+
+void Module::printSimulationInfo(String hostType, String pathogenType)
 {
 	auto currentIteration = getSimulation().getIteration();
-	if(infoFilePath != "" && currentIteration != 1)
+	auto shouldPrint = currentIteration % getPrintInterval() == 0;
+
+	if(infoFilePath != "" && currentIteration != 1 && shouldPrint)
 	{
 		auto pathogenCount = getSimulation().getObjectCount(pathogenType);
+		auto hostCount = getSimulation().getObjectCount(hostType);
 		int fitnessTarget = 0;
 		RealType goodPathogenCount = 0;
 		RealType goodPathogenChildrenCount = 0;
 		RealType fitnessAverage = 0;
 		units::Time simulationMinutes;
 		double fitnessDistanceAverage = 0;
+		units::Time pathogenTotalResidenceTime = Zero;
+		units::Time averagePathogenResidenceTime = Zero;
+		units::Time hostTotalResidenceTime = Zero;
+		units::Time averageHostResidenceTime = Zero; 
+
+		for (auto& object : getSimulation().getObjects(hostType))
+		{
+			auto host = static_cast<plugin::cell::Ecoli*>(object.get());
+			hostTotalResidenceTime += host->getLifeTime();
+		}
 
 		for (auto& object : getSimulation().getObjects(pathogenType))
 		{
@@ -402,12 +463,13 @@ void Module::printSimulationInfo(String pathogenType)
 			fitnessDistanceAverage += phage->getFitnessDistance();
 			fitnessTarget = phage->getGoodFitnessValue();
 			auto goodFitnessRange = phage->getFitness() < (phage->getGoodFitnessValue() + phage->getGoodFitnessAmplitude());
+			pathogenTotalResidenceTime += phage->getLifeTime();
+
 			if (goodFitnessRange)
 			{
 				goodPathogenCount++;
 				if(phage->isChild())
-					goodPathogenChildrenCount++;
-				
+					goodPathogenChildrenCount++;	
 			}
 		}
 		fitnessAverage /= pathogenCount;
@@ -415,6 +477,11 @@ void Module::printSimulationInfo(String pathogenType)
 		RealType goodPathogenRatio = goodPathogenCount/pathogenCount*100;
 		RealType goodPathogenChildrenRatio = goodPathogenChildrenCount/pathogenCount*100;
 		simulationMinutes = (currentIteration * getSimulation().getTimeStep()) / 60;
+		averagePathogenResidenceTime = pathogenTotalResidenceTime / pathogenCount;
+		averagePathogenResidenceTime /= 60;
+		averageHostResidenceTime = hostTotalResidenceTime / hostCount;
+		averageHostResidenceTime /= 60;
+
 		//print
 		{
 			std::ofstream myfile (infoFilePath, std::ios::app);
@@ -426,7 +493,9 @@ void Module::printSimulationInfo(String pathogenType)
 						fitnessTarget << ", " <<
 						fitnessDistanceAverage << ", " <<
 						goodPathogenRatio << ", " <<
-						goodPathogenChildrenRatio << "\n";
+						goodPathogenChildrenRatio << ", " <<
+						averageHostResidenceTime << "," <<
+						averagePathogenResidenceTime << "\n";
 				myfile.close();
 			  }
 		}

@@ -108,10 +108,27 @@ public:
      */
     void onContact(object::Object& o1, object::Object& o2) override;
 
+
+    units::Time CalculeSinglePhageProductionRate(RealType phageFitness, int maxOffspring, units::Time ppr);
+
     /*
      * @perform info printig
      */
-    void printSimulationInfo(String pathogenType);
+    void printSimulationInfo(String hostType, String pathogenType);
+
+    /*
+    *  @Getters and Setters
+    */
+
+    void setPrintInterval (int value)
+    {
+        printInterval = value;
+    }
+
+    int getPrintInterval()
+    {
+        return printInterval;
+    }
 
 // Private Structures
 private:
@@ -173,6 +190,8 @@ private:
     String infoFilePath;
 
     String trackedPathogen;
+
+    int printInterval = 0;
 };
 
 /* ************************************************************************ */

@@ -51,8 +51,7 @@ class InfectionApi : public plugin::Api
     void onLoad(plugin::Repository& repository) const override
     {
         repository.registerApi(this).
-            registerModule<plugin::infection::Module>("infection")
-        ;
+            registerModule<plugin::infection::Module>("infection");
     }
 
 };
