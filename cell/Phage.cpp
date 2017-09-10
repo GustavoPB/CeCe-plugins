@@ -82,35 +82,21 @@ Phage::~Phage()
 
 void Phage::update(units::Time dt)
 {
-    const auto volume0 = getVolume();
+    //const auto volume0 = getVolume();
     CellBase::update(dt);
-    const auto volume1 = getVolume();
+    //const auto volume1 = getVolume();
 
-    //Increment Life in time step
+    //Increment Life in time step -- just for monitoring
     setLifeTime(getLifeTime() + dt);
 
-    // Volume change
-    const auto volumeDiff = volume1 - volume0;
-
-    if (hasBud())
+    if (shouldReplicate)
     {
-    	m_bud.volumeFake += volumeDiff; //TODELETE
-        m_bud.volume += Zero; //TOFIX
-
-        setVolume(getVolume() - volumeDiff);
-
-        if (m_bud.volumeFake >= getVolumeBudRelease()) //TOFIX
-        {
-        	//addMolecules("RFP", 100000);
-            budRelease();
-        }
-    }
-    else if (getVolume() >= getVolumeBudCreate())
-    {
-        budCreate();
+        auto phageChild = replicate();
+	    phageChild->mutate();
+        shouldReplicate = false;
     }
 
-    // Update cell shape
+    // Update phage shape
     updateShape();
 
     //Check if it is possible to enable the infection
@@ -407,6 +393,7 @@ void Phage::updateShape()
 ViewPtr<plugin::cell::Phage> Phage::replicate()
 {
 	auto child = getSimulation().createObject((String)getTypeName());
+
 	auto phageChild = static_cast<plugin::cell::Phage*>(child.get());
 
     // Calculate bud position

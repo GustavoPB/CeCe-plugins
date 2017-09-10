@@ -155,10 +155,7 @@ private:
     {
         char guard = '@';
         ViewPtr<Module> module;
-        int offspring;
-        units::Time releaseDelay;
-        units::Time timeToRelease;
-        units::Time ppr;
+        units::Time singlePhageProductionRate;
     };
 
 
@@ -169,9 +166,7 @@ private:
     {
         ViewPtr<object::Object> o1;
         ViewPtr<object::Object> o2;
-        int offspring;
-        units::Time eclipseTime;
-        units::Time ppr;
+        units::Time singlePhageProductionRate;
     };
 
 

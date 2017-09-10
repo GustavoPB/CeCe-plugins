@@ -406,6 +406,11 @@ public:
     	}
     }
 
+    void queueForReplication()
+    {
+        shouldReplicate = true;
+    }
+
 #ifdef CECE_RENDER
 
     /**
@@ -542,6 +547,8 @@ private:
 
     //Life time
     units::Time lifeTime = Zero;
+
+    bool shouldReplicate = false;
 
 };
 

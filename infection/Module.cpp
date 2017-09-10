@@ -203,10 +203,8 @@ void Module::update()
 		auto data = makeUnique<BoundData>();
 
 		data->module = this;
-		data->offspring = p.offspring;
-		data->releaseDelay = p.ppr;
-		data->ppr = p.ppr;
-		phage->setTimeToRelease(data->releaseDelay);
+		data->singlePhageProductionRate = p.singlePhageProductionRate;
+		phage->setTimeToRelease(data->singlePhageProductionRate);
 
 		p.o1->createBound(*p.o2, std::move(data)); //o1 -> host, o2->pathogen. Thus bonded object is always pathogen
     }
@@ -239,17 +237,16 @@ void Module::update()
 			if (releaseOffspring)
 			{
 				CECE_ASSERT(bound.object);
-				auto offspring = data->offspring;
 
 				//Guard that prevent from crashing
 				auto pos = phage->getPosition();
 				auto world = getSimulation().getWorldSize();
 				auto phageX = pos.getX();
 				auto phageY = pos.getY();
-				auto worldX = world.getX()/2 -units::Length(10);
-				//auto worldY = world.getY()/2 -units::Length(20);
+				auto worldX = world.getX()/2 -units::Length(20);
+				auto worldY = world.getY()/2 -units::Length(20);
 				
-				if(phageX >= worldX || phageX <= -worldX)
+				if((phageX >= worldX || phageX <= -worldX) && phageY >= worldY)
 				{
 					cell->removeBound(*bound.object);
 					auto ecoli = static_cast<plugin::cell::Ecoli*>(cell);
@@ -257,23 +254,10 @@ void Module::update()
 					continue;
 				}
 
-/*
-				if(phageX <= -worldX || phageY <= -worldY)
-				{
-					cell->removeBound(*bound.object);
-					auto ecoli = static_cast<plugin::cell::Ecoli*>(cell);
-					ecoli->addMolecules("RFP", 10000);
-					continue;
-				}
-*/
+				phage->queueForReplication();
 
-				for (unsigned int i = 0; i < offspring; i++)
-				{
-					auto phageChild = phage->replicate();
-					phageChild->mutate();
-				}
-				
-				phage->setTimeToRelease(data->releaseDelay);
+				phage->setTimeToRelease(data->singlePhageProductionRate);
+		
 			}
          }
         }
@@ -348,37 +332,27 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 
 				host->setInfected(true);
 				phage->disableInfection();
+				
+				auto singlePhageProductionRate = 
+				CalculeSinglePhageProductionRate(
+					phage->getFitnessDistance(),
+					m_bonds[i].maxOffspring,
+					ppr
+				);
 
-//
-				auto fitnessDistance = phage->getFitnessDistance();
-				auto phageAptitud = 1.0/fitnessDistance;
-
-				int offspring = 0;
-				if(phageAptitud != std::numeric_limits<double>::infinity())
-				{
-					double offspringBandwidth = 1.0/(double)m_bonds[i].maxOffspring;
-					offspring = phageAptitud/offspringBandwidth;
-				}
-				else // If Distance equals 0 then the solution is exactly the fitness target
-				{
-					offspring = m_bonds[i].maxOffspring;
-				}
-
-				//If offspring equals 0 then we block the infection and disable phage
-				if (offspring == 0)
+				if (singlePhageProductionRate == Zero)
 				{
 					host->setInfected(false);
 					phage->disableInfection();
 					return;
 				}
-//
-				
+
 				//Generate bond
 				//Ensure that the first object is the host
 				if(is1Pathogen)
 				{
 					Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
-					m_bindings.push_back(JointDef{&o2, &o1, offspring, eclipseTime, ppr});
+					m_bindings.push_back(JointDef{&o2, &o1, singlePhageProductionRate});
 					
 					//Once a host is infected, it slows the rate it grows
 					auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
@@ -389,7 +363,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				else
 				{
 					Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
-					m_bindings.push_back(JointDef{&o1, &o2, offspring, eclipseTime, ppr});
+					m_bindings.push_back(JointDef{&o1, &o2, singlePhageProductionRate});
 
 					//Once a host is infected, it slows the rate it grows
 					auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
@@ -409,7 +383,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 units::Time Module::CalculeSinglePhageProductionRate(RealType phageFitness, int maxOffspring, units::Time ppr)
 {
 	int offspring = 0;
-	auto result = units::Time(0);
+	units::Time result = Zero;
 
 	auto phageAptitud = 1.0/phageFitness;
 
@@ -424,7 +398,7 @@ units::Time Module::CalculeSinglePhageProductionRate(RealType phageFitness, int 
 	}
 
 	result = offspring == 0 ?
-		std::numeric_limits<units::Time>::infinity() :
+		Zero :
 		ppr/offspring;
 
 	return result;
