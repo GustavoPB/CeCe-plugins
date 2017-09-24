@@ -181,16 +181,6 @@ public:
     	return isChildPhage;
     }
 
-    double getMutationProbability()
-    {
-    	return mutationProb;
-    }
-
-    int getMutationAmplitude()
-    {
-    	return mutationAmplitude;
-    }
-
     //Infection methods
 	bool IsInfective()
 	{
@@ -304,16 +294,6 @@ public:
     void setChild()
     {
     	isChildPhage = true;
-    }
-
-    void setMutationProbability(double value)
-    {
-    	mutationProb = value;
-    }
-
-    void setMutationAmplitude(int value)
-    {
-    	mutationAmplitude = value;
     }
 
     //Infection methods
@@ -467,6 +447,13 @@ private:
     };
 #endif
 
+ struct MutationConf
+    {
+        units::Time Time;
+        RealType Probability;
+        RealType Amplitude;
+    };
+
 // Private Data Members
 private:
 
@@ -474,6 +461,8 @@ private:
     /// If phage has a bud.
     bool m_hasBud = false;
 
+    /// List of mutation distribution throught time
+    DynamicArray<MutationConf> m_mutations;
 
     /**
      * @brief phage bud.
@@ -531,10 +520,6 @@ private:
     bool isChildPhage = false;
 
     double fitnessDistance = 0;
-
-    double mutationProb = 0.0;
-
-    int mutationAmplitude = 0;
 
     ///Infection parameters
     bool isInfective = false;

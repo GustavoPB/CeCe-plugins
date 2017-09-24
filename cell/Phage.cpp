@@ -177,17 +177,20 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
 	setBadFitnessAmplitude(config.get<int>("fitness-distance-delta", getBadFitnessAmplitude()));
 	setGoodFitnessAmplitude(config.get<int>("fitness-solution-delta", getGoodFitnessAmplitude()));
 
-	if(config.has("mutation-probability") && config.has("mutation-amplitude"))
-	{
-		setMutationProbability(config.get<double>("mutation-probability", getMutationProbability()));
-		setMutationAmplitude(config.get<int>("mutation-amplitude", getMutationAmplitude()));
-	}
-
 	if (config.has("search-time"))
 	{
 		setSearchTime(config.get<units::Time>("search-time", getSearchTime()));
         enableInfection(); //the phages released on startup should be released as infective
 	}
+
+    // Mutation configuration
+    for (auto&& c_mutation : config.getConfigurations("mutation"))
+    {
+        m_mutations.push_back(MutationConf{
+            c_mutation.get<units::Time>("time"),
+        	c_mutation.get<RealType>("probability"),
+            c_mutation.get<RealType>("amplitude")});
+    }
 
 	setFitness(calculateFitness());
 	setFitnessDistance((double)abs(getFitness() - getGoodFitnessValue()));
@@ -419,8 +422,6 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 	phageChild->setGoodFitnessValue(getGoodFitnessValue());
 
 	//phageChild->setMoleculeCount("BFP", 100000);
-	phageChild->setMutationAmplitude(getMutationAmplitude());
-	phageChild->setMutationProbability(getMutationProbability());
 	phageChild->setChild();
 	phageChild->setSearchTime(getSearchTime());
 	phageChild->disableInfection();
@@ -434,17 +435,31 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 
 void Phage::mutate()
 {
-	std::default_random_engine eng(g_rd());
-	std::bernoulli_distribution mut_prob(getMutationProbability());
-	std::bernoulli_distribution mut_dir(0.5);
-	std::uniform_int_distribution<int> unif_dist(0, getMutationAmplitude());
-	if(mut_prob(eng))
-	{
-		auto direction = mut_dir(eng) ? 1 : -1;
-		auto delta = unif_dist(eng);
-		auto result = getFitness() + direction * delta;
-		setFitness(result);
-	}
+    units::Time current_time = getSimulation().getIteration()*getSimulation().getTimeStep();
+    for (int i = 0; i < m_mutations.size(); i++)
+    {
+        if ((m_mutations[i].Time > current_time && i != 0) || i == m_mutations.size()-1 )
+        {
+            int j = i == m_mutations.size()-1 ? i : i-1;
+
+            std::default_random_engine eng(g_rd());
+            std::bernoulli_distribution mut_prob(m_mutations[i-1].Probability);
+            std::bernoulli_distribution mut_dir(0.5);
+            std::uniform_int_distribution<int> unif_dist(0, m_mutations[i-1].Amplitude);
+            if(mut_prob(eng))
+            {
+                auto direction = mut_dir(eng) ? 1 : -1;
+                auto delta = unif_dist(eng);
+                auto result = getFitness() + direction * delta;
+                setFitness(result);
+            }
+            return;
+        }
+        else
+        {
+            return;
+        }
+    }
 }
 
 /* ************************************************************************ */
