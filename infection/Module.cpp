@@ -254,7 +254,8 @@ void Module::update()
 					continue;
 				}
 
-				phage->queueForReplication();
+				int queue = std::abs(data->singlePhageProductionRate / getSimulation().getTimeStep());
+				phage->queueForReplication(queue);
 
 				phage->setTimeToRelease(data->singlePhageProductionRate);
 		

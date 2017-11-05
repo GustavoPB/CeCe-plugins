@@ -91,8 +91,12 @@ void Phage::update(units::Time dt)
 
     if (shouldReplicate)
     {
-        auto phageChild = replicate();
-	    phageChild->mutate();
+        while(replicationQueue)
+        {
+            auto phageChild = replicate();
+            phageChild->mutate();
+            replicationQueue--;
+        }
         shouldReplicate = false;
     }
 

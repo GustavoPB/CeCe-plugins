@@ -87,7 +87,24 @@ void Ecoli::update(units::Time dt)
     //Increment Life in time step
     setLifeTime(getLifeTime() + dt);
 
-	if (getVolume() >= (getVolumeMax() - (units::Volume)0.1))
+
+    auto pos = this->getPosition();
+    auto world = getSimulation().getWorldSize();
+    auto phageX = pos.getX();
+    auto phageY = pos.getY();
+    auto worldX = world.getX()/2 -units::Length(20);
+    auto worldY = world.getY()/2 -units::Length(20);
+
+    bool exit = false;
+    
+    if((phageX >= worldX || phageX <= -worldX) && phageY >= worldY)
+    {
+        this->setInfected(true);
+        exit = true;
+    }
+
+
+	if ((getVolume() >= (getVolumeMax() - (units::Volume)0.1)) && !exit)
 	{
 		budRelease();
 	}

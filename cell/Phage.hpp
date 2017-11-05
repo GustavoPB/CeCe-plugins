@@ -386,9 +386,10 @@ public:
     	}
     }
 
-    void queueForReplication()
+    void queueForReplication(int queue)
     {
         shouldReplicate = true;
+        replicationQueue = queue;
     }
 
 #ifdef CECE_RENDER
@@ -534,6 +535,8 @@ private:
     units::Time lifeTime = Zero;
 
     bool shouldReplicate = false;
+
+    int replicationQueue = 0;
 
 };
 
