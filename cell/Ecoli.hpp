@@ -339,6 +339,17 @@ private:
     /// Life time
     units::Time lifeTime = Zero;
 
+    /// Toxine - Anttoxine driven Behavior
+    
+    //// Promoter library range
+    int promoter_lib = Zero;
+
+    //// Assigned promoter
+    int m_promoter = Zero;
+
+    //// Antitoxine generated amount 
+    int q_antitoxine = Zero; // TO REVIEW: see if being defined is needed
+
 };
 
 /* ************************************************************************ */
