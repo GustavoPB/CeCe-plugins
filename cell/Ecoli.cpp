@@ -27,7 +27,7 @@
 #include "Ecoli.hpp"
 
 // C++
-#include <random>
+//#include <random>
 
 // CeCe
 #include "cece/core/Assert.hpp"
@@ -36,7 +36,7 @@
 #include "cece/core/UnitIo.hpp"
 #include "cece/config/Configuration.hpp"
 #include "cece/simulator/Simulation.hpp"
-#include "cece/core/Log.hpp"
+//#include "cece/core/Log.hpp"
 
 #ifdef CECE_RENDER
 #  include "cece/render/Color.hpp"
@@ -50,7 +50,7 @@ namespace cell {
 
 /* ************************************************************************ */
 
-static std::random_device g_rd;
+//static std::random_device g_rd;
 
 /* ************************************************************************ */
 
@@ -123,6 +123,10 @@ void Ecoli::configure(const config::Configuration& config, simulator::Simulation
     setAngleBud(config.get("angle-bud", getAngleBud()));
     setVolumeBudCreate(config.get("volume-bud-create", getVolumeBudCreate()));
     setVolumeBudRelease(config.get("volume-bud-release", getVolumeBudRelease()));
+
+    // Toxine - Antitoxine driven behaviour
+    auto promoter_library = config.get<int>("promoter-library");
+    setPromoter(promoter_library);
 
     // Update cell shape
     updateShape();

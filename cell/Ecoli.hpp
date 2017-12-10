@@ -29,6 +29,8 @@
 
 // CeCe
 #include "cece/config.hpp"
+#include <random>
+#include "cece/core/Log.hpp"
 
 #ifdef CECE_RENDER
 #  include "cece/render/State.hpp"
@@ -202,6 +204,14 @@ public:
         lifeTime = value;
     }
 
+    /// Toxine - Anttoxine driven Behavior
+    void setPromoter (int promoter_library) {
+        std::random_device g_rd;
+        std::default_random_engine eng(g_rd());
+        std::uniform_int_distribution<int> unif_dist(0, promoter_library);
+        m_promoter = unif_dist(eng);
+    }
+
 
 // Public Operations
 public:
@@ -295,7 +305,6 @@ private:
 // Private Data Members
 private:
 
-
     /// If ecoli has a bud.
     bool m_hasBud = false;
 
@@ -342,13 +351,13 @@ private:
     /// Toxine - Anttoxine driven Behavior
     
     //// Promoter library range
-    int promoter_lib = Zero;
+    //int promoter_lib = Zero; // TO REVIEW: see if being defined is needed
 
     //// Assigned promoter
-    int m_promoter = Zero;
+    int m_promoter = 0; 
 
     //// Antitoxine generated amount 
-    int q_antitoxine = Zero; // TO REVIEW: see if being defined is needed
+    //int q_antitoxine = Zero; // TO REVIEW: see if being defined is needed
 
 };
 
