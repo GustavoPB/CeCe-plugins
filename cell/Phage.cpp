@@ -197,7 +197,11 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
     }
 
 	setFitness(calculateFitness());
-	setFitnessDistance((double)abs(getFitness() - getGoodFitnessValue()));
+    setFitnessDistance((double)abs(getFitness() - getGoodFitnessValue()));
+    
+    /// Toxine - Anttoxine driven Behavior
+    auto transfactor_library = config.get<int>("trancription-factor-library");
+    setTranscriptionFactor(transfactor_library);
 
     // Update cell shape
     updateShape();

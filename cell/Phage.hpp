@@ -30,6 +30,8 @@
 // CeCe
 #include "cece/config.hpp"
 #include "cece/core/UnitIo.hpp"
+#include <random>
+#include "cece/core/Log.hpp"
 
 #ifdef CECE_RENDER
 #  include "cece/render/State.hpp"
@@ -325,6 +327,14 @@ public:
         lifeTime = value;
     }
 
+    /// Toxine - Anttoxine driven Behavior
+    void setTranscriptionFactor (int tp_library) {
+        std::random_device g_rd;
+        std::default_random_engine eng(g_rd());
+        std::uniform_int_distribution<int> unif_dist(0, tp_library);
+        m_transfactor = unif_dist(eng);
+    }
+
 // Public Operations
 public:
 
@@ -537,6 +547,9 @@ private:
     bool shouldReplicate = false;
 
     int replicationQueue = 0;
+
+    //// Promoter library range
+    int m_transfactor = 0;
 
 };
 
