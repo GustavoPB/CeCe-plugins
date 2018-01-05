@@ -346,11 +346,13 @@ public:
         {
             //Asignar buen fitness
             assigned_q_toxine = 0;
+            m_q_giii = 100;
         }
         else
         {
             //Asignar mal fitness
             assigned_q_toxine = max_q_toxine;
+            m_q_giii = 0;
         }
         m_q_toxine = assigned_q_toxine;
     }
@@ -572,6 +574,8 @@ private:
     int m_transfactor = 0;
 
     int m_q_toxine = 0; 
+
+    int m_q_giii = 0;
 
 };
 
