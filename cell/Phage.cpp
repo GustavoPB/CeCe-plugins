@@ -201,6 +201,8 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
     
     /// Toxine - Anttoxine driven Behavior
     auto transfactor_library = config.get<int>("trancription-factor-library");
+    auto max_q_toxine = config.get<int>("maximum-toxine");
+    setToxicityAndGIII(max_q_toxine, getGoodFitnessProportion());
     setTranscriptionFactor(transfactor_library);
 
     // Update cell shape

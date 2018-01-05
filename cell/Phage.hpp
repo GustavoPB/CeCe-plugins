@@ -335,6 +335,26 @@ public:
         m_transfactor = unif_dist(eng);
     }
 
+    void setToxicityAndGIII (int max_q_toxine, good_f_proportion) {
+        int assigned_q_toxine = 0;
+
+        // Distribuimos fitness en función de "good-fitness-proportion"
+        std::default_random_engine eng(g_rd());
+        std::bernoulli_distribution bern_dist(good_f_proportion);
+
+        if (bern_dist(eng))
+        {
+            //Asignar buen fitness
+            assigned_q_toxine = 0;
+        }
+        else
+        {
+            //Asignar mal fitness
+            assigned_q_toxine = max_q_toxine;
+        }
+        m_q_toxine = assigned_q_toxine;
+    }
+
 // Public Operations
 public:
 
@@ -550,6 +570,8 @@ private:
 
     //// Promoter library range
     int m_transfactor = 0;
+
+    int m_q_toxine = 0; 
 
 };
 
