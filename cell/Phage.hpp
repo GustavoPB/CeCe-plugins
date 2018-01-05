@@ -203,6 +203,12 @@ public:
     {
         return lifeTime;
     }
+
+    /// Toxine - Antintoxine driven behavior
+    getGiiiAmount() 
+    {
+        return m_q_giii;
+    }
 // Public Accessors
 public:
 
