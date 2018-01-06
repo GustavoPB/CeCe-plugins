@@ -215,6 +215,16 @@ public:
         return m_trasnfactor_library;
     }
 
+    int getTransFactor()
+    {
+        return m_transfactor;
+    }
+
+    int getToxineAmount()
+    {
+        return m_q_toxine;
+    }
+
 // Public Accessors
 public:
 
@@ -354,6 +364,11 @@ public:
     void setTransFactorLibrary (int value)
     {
         m_trasnfactor_library = value;
+    }
+
+    void setTransFactor (int value)
+    {
+        m_transfactor = value;
     }
 
 // Public Operations

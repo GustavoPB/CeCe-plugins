@@ -322,18 +322,23 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 			auto phage = is1Pathogen ?
 					static_cast<plugin::cell::Phage*>(&o1) :
 					static_cast<plugin::cell::Phage*>(&o2);
+			//Check if phage is infective - phage can only infect one bacteria
+			if (!phage->IsInfective())
+				return;
 			
 			auto probOfInfection = phage->getGiiiAmount();
 			std::bernoulli_distribution associationDistribution(probOfInfection);
 
 			if (associationDistribution(g_gen) && !host->isInfected())
 			{
-				//Check if search time is reached
-				if (!phage->IsInfective())
-					return;
-
 				host->setInfected(true);
 				phage->disableInfection();
+
+				//Evaluate Toxine - Antitoxine balance
+
+				//Calculate fitness according to Promoter - TransFactor Distance
+
+				//Calculate Offspring according to fitness
 				
 				auto singlePhageProductionRate = 
 				CalculeSinglePhageProductionRate(

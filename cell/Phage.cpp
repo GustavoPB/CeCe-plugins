@@ -112,7 +112,7 @@ void Phage::update(units::Time dt)
     void Phage::initTranscriptionFactor (int tp_library) {
         std::default_random_engine eng(g_rd());
         std::uniform_int_distribution<int> unif_dist(0, tp_library);
-        m_transfactor = unif_dist(eng);
+        setTransFactor(unif_dist(eng));
     }
 
     void Phage::initToxineBehavior (int max_q_toxine, int tp_library, int good_f_proportion) {
@@ -441,6 +441,13 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 	phageChild->setFitness(getFitness());
 	phageChild->setVolume(getVolume());
 	phageChild->setGoodFitnessValue(getGoodFitnessValue());
+
+    //Toxine - Antitoxine driven behavior
+    //TOREVIEW: now values are equally trasnmited from parents to children
+    phageChild->setGiiiAmount(getGiiiAmount());
+    phageChild->setToxineAmount(getToxineAmount());
+    phageChild->setTransFactorLibrary(getTransFactorLibrary());
+    phageChild->setTransFactor(getTransFactor());
 
 	//phageChild->setMoleculeCount("BFP", 100000);
 	phageChild->setChild();
