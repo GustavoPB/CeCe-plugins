@@ -145,6 +145,12 @@ public:
         return lifeTime;
     }
 
+    //Toxine - Antitoxine Drive Behavior
+    int getPromoterLibrary() 
+    {
+        return m_promoter_library; 
+    }
+
 
 // Public Accessors
 public:
@@ -210,6 +216,11 @@ public:
         std::default_random_engine eng(g_rd());
         std::uniform_int_distribution<int> unif_dist(0, promoter_library);
         m_promoter = unif_dist(eng);
+    }
+
+    void setPromoterLibrary(int value) 
+    {
+        m_promoter_library = value; 
     }
 
 
@@ -351,7 +362,7 @@ private:
     /// Toxine - Anttoxine driven Behavior
     
     //// Promoter library range
-    //int promoter_lib = Zero; // TO REVIEW: see if being defined is needed
+    int m_promoter_library = 0;
 
     //// Assigned promoter
     int m_promoter = 0; 

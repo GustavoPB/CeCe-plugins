@@ -125,8 +125,8 @@ void Ecoli::configure(const config::Configuration& config, simulator::Simulation
     setVolumeBudRelease(config.get("volume-bud-release", getVolumeBudRelease()));
 
     // Toxine - Antitoxine driven behaviour
-    auto promoter_library = config.get<int>("promoter-library");
-    setPromoter(promoter_library);
+    setPromoterLibrary(config.get<int>("promoter-library", getPromoterLibrary()));
+    setPromoter(getPromoterLibrary());
 
     // Update cell shape
     updateShape();
