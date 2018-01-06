@@ -109,28 +109,6 @@ void Phage::update(units::Time dt)
 
 /* ************************************************************************ */
 
-int Phage::calculateFitness()
-{
-	int result = 0;
-
-	// Distribuimos fitness en función de "good-fitness-proportion"
-	std::default_random_engine eng(g_rd());
-	std::bernoulli_distribution bern_dist(getGoodFitnessProportion());
-
-	if (bern_dist(eng))
-	{
-		//Asignar buen fitness
-		result = generateGoodFitness();
-	}
-	else
-	{
-		//Asignar mal fitness
-		result = generateBadFitness();
-	}
-
-	return result;
-}
-
 int Phage::generateGoodFitness()
 {
 	int result = 0;
@@ -196,14 +174,12 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
             c_mutation.get<RealType>("amplitude")});
     }
 
-	setFitness(calculateFitness());
     setFitnessDistance((double)abs(getFitness() - getGoodFitnessValue()));
     
     /// Toxine - Anttoxine driven Behavior
     setTransFactorLibrary(config.get<int>("trancription-factor-library"));
     auto max_q_toxine = config.get<int>("maximum-toxine");
-    setToxicityAndGIII(max_q_toxine, getGoodFitnessProportion());
-    initTranscriptionFactor(getTransFactorLibrary());
+    initToxineBehavior(max_q_toxine, getTransFactorLibrary(), getGoodFitnessProportion());
 
     // Update cell shape
     updateShape();
