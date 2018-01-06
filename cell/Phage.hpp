@@ -205,7 +205,7 @@ public:
     }
 
     /// Toxine - Antintoxine driven behavior
-    getGiiiAmount() 
+    int getGiiiAmount() 
     {
         return m_q_giii;
     }
@@ -341,9 +341,9 @@ public:
         m_transfactor = unif_dist(eng);
     }
 
-    void setToxicityAndGIII (int max_q_toxine, good_f_proportion) {
+    void setToxicityAndGIII (int max_q_toxine, int good_f_proportion) {
         int assigned_q_toxine = 0;
-
+        std::random_device g_rd;
         // Distribuimos fitness en función de "good-fitness-proportion"
         std::default_random_engine eng(g_rd());
         std::bernoulli_distribution bern_dist(good_f_proportion);
