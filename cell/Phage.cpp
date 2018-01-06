@@ -137,7 +137,7 @@ void Phage::update(units::Time dt)
         {
             //Asignar mal fitness
             assigned_q_toxine = max_q_toxine;
-            assigned_q_giii = 0;
+            assigned_q_giii = 25;
             assigned_fitness = generateBadFitness();
         }
         setToxineAmount(assigned_q_toxine);

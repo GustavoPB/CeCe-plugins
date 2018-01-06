@@ -318,15 +318,16 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 			auto host = is2Host ?
 					static_cast<plugin::cell::CellBase*>(&o2) :
 					static_cast<plugin::cell::CellBase*>(&o1);
-		
-			std::bernoulli_distribution associationDistribution(m_bonds[i].probOfInfection);
+			//Phage type casting
+			auto phage = is1Pathogen ?
+					static_cast<plugin::cell::Phage*>(&o1) :
+					static_cast<plugin::cell::Phage*>(&o2);
+			
+			auto probOfInfection = phage->getGiiiAmount();
+			std::bernoulli_distribution associationDistribution(probOfInfection);
 
 			if (associationDistribution(g_gen) && !host->isInfected())
 			{
-				auto phage = is1Pathogen ?
-						static_cast<plugin::cell::Phage*>(&o1) :
-						static_cast<plugin::cell::Phage*>(&o2);
-
 				//Check if search time is reached
 				if (!phage->IsInfective())
 					return;
