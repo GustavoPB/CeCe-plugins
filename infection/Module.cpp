@@ -334,9 +334,14 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				host->setInfected(true);
 				phage->disableInfection();
 
-				//Evaluate Toxine - Antitoxine balance
-
 				//Calculate fitness according to Promoter - TransFactor Distance
+				phage->calculateFitness(host->getPromoter());
+				
+				//Calculate Antitoxine Amount
+				host->generateAntitoxine(phage->getFitness());
+
+				//Evaluate Toxine - Antitoxine balance
+				host->checkToxineBalance(phage->getToxineAmount());
 
 				//Calculate Offspring according to fitness
 				

@@ -29,6 +29,7 @@
 
 // C++
 #include <cmath>
+#include <random>
 
 // CeCe
 #include "cece/config.hpp"
@@ -258,6 +259,17 @@ public:
 		return m_growthPenaltyRate;
 	}
 
+    //Toxine - Antitoxine Drive Behavior
+    int getPromoterLibrary() 
+    {
+        return m_promoter_library; 
+    }
+
+    int getPromoter()
+    {
+        return m_promoter;
+    }
+    
 #endif
 
 
@@ -441,6 +453,24 @@ public:
     	return m_infected;
     }
 
+    // Toxine - Antitoxine Behavior
+
+    void checkToxineBalance(int phageToxineAmount);
+
+    void generateAntitoxine(int fitness);
+
+    void setPromoter (int promoter_library) {
+        std::random_device g_rd;
+        std::default_random_engine eng(g_rd());
+        std::uniform_int_distribution<int> unif_dist(0, promoter_library);
+        m_promoter = unif_dist(eng);
+    }
+
+    void setPromoterLibrary(int value) 
+    {
+        m_promoter_library = value; 
+    }
+
     /**
 	 * @brief Set cell growth penalty rate.
 	 *
@@ -546,6 +576,17 @@ private:
     bool m_infected = false;
 
     GrowthRate m_growthPenaltyRate = Zero;
+
+    /// Toxine - Anttoxine driven Behavior
+    
+    //// Promoter library range
+    int m_promoter_library = 0;
+
+    //// Assigned promoter
+    int m_promoter = 0; 
+
+    //// Antitoxine generated amount 
+    //int q_antitoxine = Zero; // TO REVIEW: see if being defined is needed
 
 #ifdef CECE_RENDER
     /// GFP saturation.

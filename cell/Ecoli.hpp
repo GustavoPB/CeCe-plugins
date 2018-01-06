@@ -29,7 +29,6 @@
 
 // CeCe
 #include "cece/config.hpp"
-#include <random>
 #include "cece/core/Log.hpp"
 
 #ifdef CECE_RENDER
@@ -145,12 +144,6 @@ public:
         return lifeTime;
     }
 
-    //Toxine - Antitoxine Drive Behavior
-    int getPromoterLibrary() 
-    {
-        return m_promoter_library; 
-    }
-
 
 // Public Accessors
 public:
@@ -209,20 +202,6 @@ public:
     {
         lifeTime = value;
     }
-
-    /// Toxine - Anttoxine driven Behavior
-    void setPromoter (int promoter_library) {
-        std::random_device g_rd;
-        std::default_random_engine eng(g_rd());
-        std::uniform_int_distribution<int> unif_dist(0, promoter_library);
-        m_promoter = unif_dist(eng);
-    }
-
-    void setPromoterLibrary(int value) 
-    {
-        m_promoter_library = value; 
-    }
-
 
 // Public Operations
 public:
@@ -358,17 +337,6 @@ private:
 
     /// Life time
     units::Time lifeTime = Zero;
-
-    /// Toxine - Anttoxine driven Behavior
-    
-    //// Promoter library range
-    int m_promoter_library = 0;
-
-    //// Assigned promoter
-    int m_promoter = 0; 
-
-    //// Antitoxine generated amount 
-    //int q_antitoxine = Zero; // TO REVIEW: see if being defined is needed
 
 };
 

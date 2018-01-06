@@ -112,6 +112,17 @@ render::Color CellBase::calcFluorescentColor(const units::Volume volume) const n
 
 /* ************************************************************************ */
 
+// Toxine Antitoxine driven Behavior
+void CellBase::checkToxineBalance(int phageToxineAmount)
+{
+
+}
+
+void CellBase::generateAntitoxine(int fitness)
+{
+    
+}
+
 }
 }
 }
