@@ -341,6 +341,11 @@ public:
 
     /// Toxine - Anttoxine driven Behavior
 
+    void setToxineAmount (int value)
+    {
+        m_q_toxine = value;
+    }
+
     void setGiiiAmount(int probability) 
     {
         m_q_giii = probability;
@@ -360,6 +365,8 @@ public:
 
     void setToxicityAndGIII (int max_q_toxine, int good_f_proportion) {
         int assigned_q_toxine = 0;
+        int assigned_q_giii = 0;
+
         std::random_device g_rd;
         // Distribuimos fitness en función de "good-fitness-proportion"
         std::default_random_engine eng(g_rd());
@@ -369,15 +376,16 @@ public:
         {
             //Asignar buen fitness
             assigned_q_toxine = 0;
-            m_q_giii = 100;
+            assigned_q_giii = 100;
         }
         else
         {
             //Asignar mal fitness
             assigned_q_toxine = max_q_toxine;
-            m_q_giii = 0;
+            assigned_q_giii = 0;
         }
-        m_q_toxine = assigned_q_toxine;
+        setToxineAmount(assigned_q_toxine);
+        setGiiiAmount(assigned_q_giii);
     }
 
 // Public Operations
