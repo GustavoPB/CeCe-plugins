@@ -109,6 +109,43 @@ void Phage::update(units::Time dt)
 
 /* ************************************************************************ */
 
+    void Phage::initTranscriptionFactor (int tp_library) {
+        std::default_random_engine eng(g_rd());
+        std::uniform_int_distribution<int> unif_dist(0, tp_library);
+        m_transfactor = unif_dist(eng);
+    }
+
+    void Phage::initToxineBehavior (int max_q_toxine, int tp_library, int good_f_proportion) {
+        int assigned_q_toxine = 0;
+        int assigned_q_giii = 0;
+        int assigned_fitness = 0;
+
+        initTranscriptionFactor(tp_library);
+
+        // Distribuimos fitness en función de "good-fitness-proportion"
+        std::default_random_engine eng(g_rd());
+        std::bernoulli_distribution bern_dist(good_f_proportion);
+
+        if (bern_dist(eng))
+        {
+            //Asignar buen fitness
+            assigned_q_toxine = 0;
+            assigned_q_giii = 100;
+            assigned_fitness = generateGoodFitness();
+        }
+        else
+        {
+            //Asignar mal fitness
+            assigned_q_toxine = max_q_toxine;
+            assigned_q_giii = 0;
+            assigned_fitness = generateBadFitness();
+        }
+        setToxineAmount(assigned_q_toxine);
+        setGiiiAmount(assigned_q_giii);
+        setFitness(assigned_fitness);
+        setFitnessDistance((double)abs(getFitness() - getGoodFitnessValue()));
+    }
+
 int Phage::generateGoodFitness()
 {
 	int result = 0;
@@ -173,8 +210,6 @@ void Phage::configure(const config::Configuration& config, simulator::Simulation
         	c_mutation.get<RealType>("probability"),
             c_mutation.get<RealType>("amplitude")});
     }
-
-    setFitnessDistance((double)abs(getFitness() - getGoodFitnessValue()));
     
     /// Toxine - Anttoxine driven Behavior
     setTransFactorLibrary(config.get<int>("trancription-factor-library"));

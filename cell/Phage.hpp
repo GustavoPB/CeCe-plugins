@@ -356,44 +356,6 @@ public:
         m_trasnfactor_library = value;
     }
 
-    void initTranscriptionFactor (int tp_library) {
-        std::random_device g_rd;
-        std::default_random_engine eng(g_rd());
-        std::uniform_int_distribution<int> unif_dist(0, tp_library);
-        m_transfactor = unif_dist(eng);
-    }
-
-    void initToxineBehavior (int max_q_toxine, int tp_library, int good_f_proportion) {
-        int assigned_q_toxine = 0;
-        int assigned_q_giii = 0;
-        int assigned_fitness = 0;
-
-        initTranscriptionFactor(tp_library);
-
-        std::random_device g_rd;
-        // Distribuimos fitness en función de "good-fitness-proportion"
-        std::default_random_engine eng(g_rd());
-        std::bernoulli_distribution bern_dist(good_f_proportion);
-
-        if (bern_dist(eng))
-        {
-            //Asignar buen fitness
-            assigned_q_toxine = 0;
-            assigned_q_giii = 100;
-            assigned_fitness = generateGoodFitness();
-        }
-        else
-        {
-            //Asignar mal fitness
-            assigned_q_toxine = max_q_toxine;
-            assigned_q_giii = 0;
-            assigned_fitness = generateBadFitness();
-        }
-        setToxineAmount(assigned_q_toxine);
-        setGiiiAmount(assigned_q_giii);
-        setFitness(assigned_fitness);
-    }
-
 // Public Operations
 public:
 
@@ -426,11 +388,27 @@ public:
      */
     void budRelease();
 
-    int calculateFitness();
-
+    /**
+     * @brief Generate a considered good fitness
+     */
     int generateGoodFitness();
 
+    /**
+     * @brief Generate a considered bad fitness
+     */
     int generateBadFitness();
+
+    /**
+     * @brief Generate a random Transcription Factor within 
+     * certain range defined by Trancription Factor Library
+     */
+    void initTranscriptionFactor (int tp_library);
+
+    /**
+     * @brief Initialize all variables involved in 
+     * Toxine-Antitoxine driven behavior
+     */
+    void initToxineBehavior (int max_q_toxine, int tp_library, int good_f_proportion);
 
     /**
      * @brief Method for replication
