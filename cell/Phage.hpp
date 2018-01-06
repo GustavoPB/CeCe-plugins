@@ -209,6 +209,12 @@ public:
     {
         return m_q_giii;
     }
+
+    int getTransFactorLibrary()
+    {
+        return m_trasnfactor_library;
+    }
+
 // Public Accessors
 public:
 
@@ -334,7 +340,18 @@ public:
     }
 
     /// Toxine - Anttoxine driven Behavior
-    void setTranscriptionFactor (int tp_library) {
+
+    void setGiiiAmount(int probability) 
+    {
+        m_q_giii = probability;
+    }
+
+    void setTransFactorLibrary (int value)
+    {
+        m_trasnfactor_library = value;
+    }
+
+    void initTranscriptionFactor (int tp_library) {
         std::random_device g_rd;
         std::default_random_engine eng(g_rd());
         std::uniform_int_distribution<int> unif_dist(0, tp_library);
@@ -582,6 +599,8 @@ private:
     int m_q_toxine = 0; 
 
     int m_q_giii = 0;
+
+    int m_trasnfactor_library = 0;
 
 };
 
