@@ -146,11 +146,6 @@ void Phage::initToxineBehavior (int max_q_toxine, int tp_library, int good_f_pro
     setFitnessDistance((double)abs(getFitness() - getGoodFitnessValue()));
 }
 
-void Phage::calculateFitness (int promoter)
-{
-
-}
-
 int Phage::generateGoodFitness()
 {
 	int result = 0;

@@ -335,8 +335,8 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				phage->disableInfection();
 
 				//Calculate fitness according to Promoter - TransFactor Distance
-				phage->calculateFitness(host->getPromoter());
-				
+				phage->setFitness(calculateFitness(host->getPromoter(), phage->getTransFactor()));
+
 				//Calculate Antitoxine Amount
 				host->generateAntitoxine(phage->getFitness());
 
@@ -414,6 +414,16 @@ units::Time Module::CalculeSinglePhageProductionRate(RealType phageFitness, int 
 		ppr/offspring;
 
 	return result;
+}
+
+double Module::calculateFitness(int promoter, int transcriptionFactor)
+{
+	int distance = abs(promoter - transcriptionFactor);
+	// When fitness equals -1, then maximum promoter - transcription factor match
+	auto fitness = distance == 0 ?
+		-1 :
+		1.0/distance;
+	return fitness;
 }
 
 void Module::printSimulationInfo(String hostType, String pathogenType)

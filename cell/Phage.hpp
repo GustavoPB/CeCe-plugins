@@ -425,8 +425,6 @@ public:
      */
     void initToxineBehavior (int max_q_toxine, int tp_library, int good_f_proportion);
 
-    void calculateFitness (int promoter);
-
     /**
      * @brief Method for replication
      */

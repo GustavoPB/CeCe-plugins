@@ -111,6 +111,9 @@ public:
 
     units::Time CalculeSinglePhageProductionRate(RealType phageFitness, int maxOffspring, units::Time ppr);
 
+    // Toxine - Antitoxine Driven Behavior
+    double calculateFitness(int promoter, int transcriptionFactor);
+
     /*
      * @perform info printig
      */
