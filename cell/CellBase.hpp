@@ -270,6 +270,11 @@ public:
         return m_promoter;
     }
 
+    RealType getAntitoxineAmount()
+    {
+        return q_antitoxine;
+    }
+
 #endif
 
 
@@ -455,9 +460,14 @@ public:
 
     // Toxine - Antitoxine Behavior
 
+    void setAntitoxineAmount(RealType value)
+    {
+        q_antitoxine = value;
+    }
+
     void checkToxineBalance(int phageToxineAmount);
 
-    void generateAntitoxine(int fitness, int max_q_toxine);
+    void generateAntitoxine(RealType fitness, int max_q_toxine);
 
     void setPromoter (int promoter_library) {
         std::random_device g_rd;
@@ -586,7 +596,7 @@ private:
     int m_promoter = 0; 
 
     //// Antitoxine generated amount 
-    //int q_antitoxine = Zero; // TO REVIEW: see if being defined is needed
+    RealType q_antitoxine = 0; 
 
 #ifdef CECE_RENDER
     /// GFP saturation.

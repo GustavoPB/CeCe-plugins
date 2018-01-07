@@ -337,9 +337,11 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				//Calculate fitness according to Promoter - TransFactor Distance
 				/// Note: do not assign fitness to phage to not affect basic infection system
 				auto phageToxineFitness = calculateFitness(host->getPromoter(), phage->getTransFactor());
-
+				Log::warning("this is africa");
+				Log::warning(phageToxineFitness);
 				//Calculate Antitoxine Amount
 				host->generateAntitoxine(phageToxineFitness, phage->getToxineMaximum());
+				Log::warning(host->getAntitoxineAmount());
 
 				//Evaluate Toxine - Antitoxine balance
 				host->checkToxineBalance(phage->getToxineAmount());
@@ -417,11 +419,11 @@ units::Time Module::CalculeSinglePhageProductionRate(RealType phageFitness, int 
 	return result;
 }
 
-double Module::calculateFitness(int promoter, int transcriptionFactor)
+RealType Module::calculateFitness(int promoter, int transcriptionFactor)
 {
 	int distance = abs(promoter - transcriptionFactor);
 	// When fitness equals -1, then maximum promoter - transcription factor match
-	auto fitness = distance == 0 ?
+	RealType fitness = distance == 0 ?
 		-1 :
 		1.0/distance;
 	return fitness;

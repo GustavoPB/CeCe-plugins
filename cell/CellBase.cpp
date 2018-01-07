@@ -118,9 +118,18 @@ void CellBase::checkToxineBalance(int phageToxineAmount)
 
 }
 
-void CellBase::generateAntitoxine(int fitness, int max_q_toxine)
+void CellBase::generateAntitoxine(RealType fitness, int max_q_toxine)
 {
-    
+    RealType assigned_q_antitoxine = 0;
+    if (fitness >= 0) {
+        // Generated antitoxine is a fraction from max_q_toxine
+        RealType exponential = fitness - 0.05; //TOREVIEW: la pendiente es muy poco pronunciada para exponentes bajos
+        assigned_q_antitoxine = pow(max_q_toxine, exponential);
+    } else {
+        // if fitness is -1, then maximum fitness which means maximum antitoxine generation
+        assigned_q_antitoxine = max_q_toxine;
+    }
+    setAntitoxineAmount(assigned_q_antitoxine);
 }
 
 }
