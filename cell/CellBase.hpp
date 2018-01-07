@@ -269,7 +269,7 @@ public:
     {
         return m_promoter;
     }
-    
+
 #endif
 
 
@@ -457,7 +457,7 @@ public:
 
     void checkToxineBalance(int phageToxineAmount);
 
-    void generateAntitoxine(int fitness);
+    void generateAntitoxine(int fitness, int max_q_toxine);
 
     void setPromoter (int promoter_library) {
         std::random_device g_rd;

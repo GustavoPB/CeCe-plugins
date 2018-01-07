@@ -338,7 +338,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				phage->setFitness(calculateFitness(host->getPromoter(), phage->getTransFactor()));
 
 				//Calculate Antitoxine Amount
-				host->generateAntitoxine(phage->getFitness());
+				host->generateAntitoxine(phage->getFitness(), phage->getToxineMaximum());
 
 				//Evaluate Toxine - Antitoxine balance
 				host->checkToxineBalance(phage->getToxineAmount());

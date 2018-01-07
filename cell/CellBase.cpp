@@ -118,7 +118,7 @@ void CellBase::checkToxineBalance(int phageToxineAmount)
 
 }
 
-void CellBase::generateAntitoxine(int fitness)
+void CellBase::generateAntitoxine(int fitness, int max_q_toxine)
 {
     
 }

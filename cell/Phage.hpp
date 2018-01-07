@@ -225,6 +225,11 @@ public:
         return m_q_toxine;
     }
 
+    int getToxineMaximum()
+    {
+        return max_q_toxine;
+    }
+
 // Public Accessors
 public:
 
@@ -369,6 +374,11 @@ public:
     void setTransFactor (int value)
     {
         m_transfactor = value;
+    }
+
+    void setToxineMaximum (int value)
+    {
+        max_q_toxine = value;
     }
 
 // Public Operations
@@ -608,6 +618,8 @@ private:
     int m_q_giii = 0;
 
     int m_trasnfactor_library = 0;
+
+    int max_q_toxine = 0;
 
 };
 
