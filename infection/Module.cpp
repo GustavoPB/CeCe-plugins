@@ -335,10 +335,11 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				phage->disableInfection();
 
 				//Calculate fitness according to Promoter - TransFactor Distance
-				phage->setFitness(calculateFitness(host->getPromoter(), phage->getTransFactor()));
+				/// Note: do not assign fitness to phage to not affect basic infection system
+				auto phageToxineFitness = calculateFitness(host->getPromoter(), phage->getTransFactor());
 
 				//Calculate Antitoxine Amount
-				host->generateAntitoxine(phage->getFitness(), phage->getToxineMaximum());
+				host->generateAntitoxine(phageToxineFitness, phage->getToxineMaximum());
 
 				//Evaluate Toxine - Antitoxine balance
 				host->checkToxineBalance(phage->getToxineAmount());
