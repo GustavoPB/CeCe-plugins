@@ -85,7 +85,13 @@ void Ecoli::update(units::Time dt)
     CellBase::update(dt);
 
     //Increment Life in time step
-    setLifeTime(getLifeTime() + dt);
+    //TOREVIEW: if cell is disabled/killed then counter to 0
+    if(getMoleculeCount("RFP") == 0) 
+    {
+        setLifeTime(getLifeTime() + dt);
+    } else {
+        setLifeTime(dt); //TOREVIEW: assign 0
+    }
 
 
     auto pos = this->getPosition();
