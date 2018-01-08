@@ -337,6 +337,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				//Calculate fitness according to Promoter - TransFactor Distance
 				/// Note: do not assign fitness to phage to not affect basic infection system
 				auto phageToxineFitness = calculateFitness(host->getPromoter(), phage->getTransFactor());
+				Log::warning("Fitness host - phage: ", host->getPromoter()," : ", phage->getTransFactor());
 
 				//Calculate Antitoxine Amount
 				host->generateAntitoxine(phageToxineFitness, phage->getToxineMaximum());
@@ -344,28 +345,30 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				//Evaluate Toxine - Antitoxine balance
 				auto toxinePenalty = host->checkToxineBalance(phage->getToxineAmount());
 
-				//Calculate Offspring according to BASIC fitness
-				
+				//Update growth rate or kill cell
+				if (!host->updateGrowthRate(toxinePenalty)) //like disabling cell: used when updateGrowthRate kills cell by toxine
+				{
+					host->addMolecules("RFP", 10000);
+					return; //TOREVIEW: infective phage is also disabled
+				}
+
+				//Calculate Offspring according to fitness
+				//TOREVIEW: implement a selector - adapt to run basic infection protocol
 				auto singlePhageProductionRate = 
 				CalculeSinglePhageProductionRate(
-					phage->getFitnessDistance(),
+					//phage->getFitnessDistance(), //TOREVIEW: adapt to run basic infection protocol
+					phageToxineFitness,
 					m_bonds[i].maxOffspring,
 					ppr
 				);
+
+				Log::warning("Phage release rate: ", singlePhageProductionRate, " mins");
 
 				if (singlePhageProductionRate == Zero)
 				{
 					host->setInfected(false);
 					phage->disableInfection();
 					return;
-				}
-
-				//Update growth rate or kill cell
-
-				if (!host->updateGrowthRate(toxinePenalty)) //like disabling cell: used when updateGrowthRate kills cell by toxine
-				{
-					host->addMolecules("RFP", 10000);
-					return; //TOREVIEW: infective phage is also disabled
 				}
 					
 				///Generate bond: ensure that the first object is the host
@@ -391,22 +394,19 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 
 units::Time Module::CalculeSinglePhageProductionRate(RealType phageFitness, int maxOffspring, units::Time ppr)
 {
-	int offspring = 0;
+	RealType offspring = 0.0;
 	units::Time result = Zero;
 
-	auto phageAptitud = 1.0/phageFitness;
-
-	if(phageAptitud != std::numeric_limits<double>::infinity())
+	if(phageFitness >= 0)
 	{
-		double offspringBandwidth = 1.0/(double)maxOffspring;
-		offspring = phageAptitud/offspringBandwidth;
+		offspring = phageFitness * (RealType)maxOffspring;
 	}
 	else // If Distance equals 0 then the offspring is exactly the fitness target
 	{
-		offspring = maxOffspring;
+		offspring = (RealType)maxOffspring;
 	}
 
-	result = offspring == 0 ?
+	result = offspring < 1 ?
 		Zero :
 		ppr/offspring;
 
