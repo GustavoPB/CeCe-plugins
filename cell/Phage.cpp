@@ -477,8 +477,13 @@ void Phage::mutate()
             {
                 auto direction = mut_dir(eng) ? 1 : -1;
                 auto delta = unif_dist(eng);
-                auto result = getFitness() + direction * delta;
-                setFitness(result);
+                // auto result = getFitness() + direction * delta; //TOREVIEW: consider how to reenable when BASIC fitness mode 
+                auto aux_result = getTransFactor() + direction * delta;
+                auto result = aux_result < 0 ? //Trascription factor cannot be under 0
+                        0 :
+                        aux_result;
+                setTransFactor(result);
+                //setFitness(result); //TOREVIEW: consider how to reenable when BASIC fitness mode 
             }
             return;
         }
