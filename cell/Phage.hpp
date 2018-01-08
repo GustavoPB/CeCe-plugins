@@ -220,7 +220,7 @@ public:
         return m_transfactor;
     }
 
-    int getToxineAmount()
+    RealType getToxineAmount()
     {
         return m_q_toxine;
     }
@@ -356,7 +356,7 @@ public:
 
     /// Toxine - Anttoxine driven Behavior
 
-    void setToxineAmount (int value)
+    void setToxineAmount (RealType value)
     {
         m_q_toxine = value;
     }
@@ -434,6 +434,10 @@ public:
      * Toxine-Antitoxine driven behavior
      */
     void initToxineBehavior (int max_q_toxine, int tp_library, int good_f_proportion);
+
+    void updateGiiiAmount (RealType fitness);
+
+    void updateToxineAmount (RealType lastGeneratedAntitoxine);
 
     /**
      * @brief Method for replication
@@ -613,7 +617,7 @@ private:
     //// Promoter library range
     int m_transfactor = 0;
 
-    int m_q_toxine = 0; 
+    RealType m_q_toxine = 0; 
 
     int m_q_giii = 0;
 

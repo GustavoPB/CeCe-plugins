@@ -443,7 +443,6 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
 	phageChild->setGoodFitnessValue(getGoodFitnessValue());
 
     //Toxine - Antitoxine driven behavior
-    //TOREVIEW: now values are equally trasnmited from parents to children
     phageChild->setGiiiAmount(getGiiiAmount());
     phageChild->setToxineAmount(getToxineAmount());
     phageChild->setTransFactorLibrary(getTransFactorLibrary());
@@ -491,6 +490,32 @@ void Phage::mutate()
 }
 
 /* ************************************************************************ */
+
+    void Phage::updateGiiiAmount (RealType fitness)
+    {
+        RealType assigned_q_giii = 0;
+    if (fitness >= 0) {
+        auto squared_fitness = pow(fitness, 2);
+        auto pole_poss = 0.1;
+        assigned_q_giii = 100 * squared_fitness/(squared_fitness + pole_poss);
+    } else {
+        // if fitness is -1, then maximum fitness which means maximum antitoxine generation
+        assigned_q_giii = max_q_toxine;
+    }
+    Log::warning("Assigned GIII: ", assigned_q_giii);
+    setGiiiAmount(assigned_q_giii);
+    }
+
+    void Phage::updateToxineAmount (RealType lastGeneratedAntitoxine)
+    {
+        auto difference = getToxineMaximum() - lastGeneratedAntitoxine;
+        if (difference < 0)
+        {
+            difference = 0;
+        }
+        Log::warning("Assigned Toxine: ", difference);
+        setToxineAmount(difference);
+    }
 
 }
 }

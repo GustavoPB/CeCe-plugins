@@ -135,9 +135,6 @@ void CellBase::generateAntitoxine(RealType fitness, int max_q_toxine)
 {
     RealType assigned_q_antitoxine = 0;
     if (fitness >= 0) {
-        // Generated antitoxine is a fraction from max_q_toxine
-        RealType exponential = fitness - 0.05; //TOREVIEW: la pendiente es muy poco pronunciada para exponentes bajos
-        //assigned_q_antitoxine = pow(max_q_toxine, exponential);
         auto squared_fitness = pow(fitness, 2);
         auto pole_poss = 0.1/max_q_toxine;
         assigned_q_antitoxine = max_q_toxine * squared_fitness/(squared_fitness + pole_poss);

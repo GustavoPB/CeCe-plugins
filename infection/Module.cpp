@@ -370,7 +370,13 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 					phage->disableInfection();
 					return;
 				}
-					
+
+				// If both phage and bacteria survive
+				//Update phage Giii
+				phage->updateGiiiAmount(phageToxineFitness);
+				//Update phage toxine
+				phage->updateToxineAmount(host->getAntitoxineAmount());
+
 				///Generate bond: ensure that the first object is the host
 				if(is1Pathogen)
 				{
