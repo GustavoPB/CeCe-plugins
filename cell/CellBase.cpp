@@ -29,6 +29,7 @@
 // CeCe
 #include "cece/core/UnitIo.hpp"
 #include "cece/config/Configuration.hpp"
+#include "cece/core/Log.hpp"
 
 /* ************************************************************************ */
 
@@ -113,9 +114,21 @@ render::Color CellBase::calcFluorescentColor(const units::Volume volume) const n
 /* ************************************************************************ */
 
 // Toxine Antitoxine driven Behavior
-void CellBase::checkToxineBalance(int phageToxineAmount)
+CellBase::GrowthRate CellBase::checkToxineBalance(int phageToxineAmount)
 {
+    RealType difference = phageToxineAmount - getAntitoxineAmount();
+    GrowthRate result = (GrowthRate)0;
 
+    if (difference > 0)
+    {
+        // Calcule penalty depending on difference where maximum is one circadian cycle
+        auto circadianCycle = (RealType)getGrowthRate(); // set by user input
+        auto squared_difference = pow(difference, 2);
+        auto pole_poss = 100 * (RealType)circadianCycle;
+        RealType penaltyRate = circadianCycle * squared_difference/(squared_difference + pole_poss);
+        result = (GrowthRate)penaltyRate;
+    }
+    return result;
 }
 
 void CellBase::generateAntitoxine(RealType fitness, int max_q_toxine)
@@ -124,12 +137,35 @@ void CellBase::generateAntitoxine(RealType fitness, int max_q_toxine)
     if (fitness >= 0) {
         // Generated antitoxine is a fraction from max_q_toxine
         RealType exponential = fitness - 0.05; //TOREVIEW: la pendiente es muy poco pronunciada para exponentes bajos
-        assigned_q_antitoxine = pow(max_q_toxine, exponential);
+        //assigned_q_antitoxine = pow(max_q_toxine, exponential);
+        auto squared_fitness = pow(fitness, 2);
+        auto pole_poss = 0.1/max_q_toxine;
+        assigned_q_antitoxine = max_q_toxine * squared_fitness/(squared_fitness + pole_poss);
     } else {
         // if fitness is -1, then maximum fitness which means maximum antitoxine generation
         assigned_q_antitoxine = max_q_toxine;
     }
     setAntitoxineAmount(assigned_q_antitoxine);
+}
+
+bool CellBase::updateGrowthRate(GrowthRate extra_penalty)
+{
+    auto isUpdated = false;
+    GrowthRate updatedGrowthRate = getCurrentGrowthRate() - getGrowthPenaltyRate() - extra_penalty;
+    RealType realtypeUpdatedGrowthRate = (RealType)updatedGrowthRate;
+    if(!(realtypeUpdatedGrowthRate <= 0)) {
+        setCurrentGrowthRate(updatedGrowthRate);
+        isUpdated = true;
+        Log::warning("Updated Growth Rate: ", updatedGrowthRate);
+    } else {
+        Log::warning("killing");
+        //kill();
+        //Cannot kill, so disable cell
+        updatedGrowthRate = Zero;
+        setCurrentGrowthRate(updatedGrowthRate);
+        isUpdated = false;
+    }
+    return isUpdated;
 }
 
 }

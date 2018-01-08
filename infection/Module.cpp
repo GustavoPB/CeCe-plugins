@@ -337,16 +337,14 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				//Calculate fitness according to Promoter - TransFactor Distance
 				/// Note: do not assign fitness to phage to not affect basic infection system
 				auto phageToxineFitness = calculateFitness(host->getPromoter(), phage->getTransFactor());
-				Log::warning("this is africa");
-				Log::warning(phageToxineFitness);
+
 				//Calculate Antitoxine Amount
 				host->generateAntitoxine(phageToxineFitness, phage->getToxineMaximum());
-				Log::warning(host->getAntitoxineAmount());
 
 				//Evaluate Toxine - Antitoxine balance
-				host->checkToxineBalance(phage->getToxineAmount());
+				auto toxinePenalty = host->checkToxineBalance(phage->getToxineAmount());
 
-				//Calculate Offspring according to fitness
+				//Calculate Offspring according to BASIC fitness
 				
 				auto singlePhageProductionRate = 
 				CalculeSinglePhageProductionRate(
@@ -362,30 +360,26 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 					return;
 				}
 
-				//Generate bond
-				//Ensure that the first object is the host
+				//Update growth rate or kill cell
+
+				if (!host->updateGrowthRate(toxinePenalty)) //like disabling cell: used when updateGrowthRate kills cell by toxine
+				{
+					host->addMolecules("RFP", 10000);
+					return; //TOREVIEW: infective phage is also disabled
+				}
+					
+				///Generate bond: ensure that the first object is the host
 				if(is1Pathogen)
 				{
 					Log::debug("Joined: ", o2.getId(), ", ", o1.getId());
 					m_bindings.push_back(JointDef{&o2, &o1, singlePhageProductionRate});
-					
-					//Once a host is infected, it slows the rate it grows
-					auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
-					if(!updatedGrowthRate <= 0)
-					host->setCurrentGrowthRate(updatedGrowthRate);
-					return;
 				}
 				else
 				{
 					Log::debug("Joined: ", o1.getId(), ", ", o2.getId());
 					m_bindings.push_back(JointDef{&o1, &o2, singlePhageProductionRate});
-
-					//Once a host is infected, it slows the rate it grows
-					auto updatedGrowthRate = host->getCurrentGrowthRate() - host->getGrowthPenaltyRate();
-					if(!updatedGrowthRate <= 0)
-					host->setCurrentGrowthRate(updatedGrowthRate);
-					return;
 				}
+				return;
 
 			}
 			else

@@ -465,7 +465,9 @@ public:
         q_antitoxine = value;
     }
 
-    void checkToxineBalance(int phageToxineAmount);
+    CellBase::GrowthRate checkToxineBalance(int phageToxineAmount);
+
+    bool updateGrowthRate(GrowthRate extra_penalty);
 
     void generateAntitoxine(RealType fitness, int max_q_toxine);
 
