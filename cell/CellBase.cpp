@@ -151,7 +151,6 @@ bool CellBase::updateGrowthRate(GrowthRate extra_penalty)
     GrowthRate updatedGrowthRate = getCurrentGrowthRate() - getGrowthPenaltyRate() - extra_penalty;
     RealType realtypeUpdatedGrowthRate = (RealType)updatedGrowthRate;
     if(!(realtypeUpdatedGrowthRate <= 0)) {
-        setCurrentGrowthRate(updatedGrowthRate);
         isUpdated = true;
         Log::warning("Updated Growth Rate: ", updatedGrowthRate);
     } else {
@@ -159,9 +158,9 @@ bool CellBase::updateGrowthRate(GrowthRate extra_penalty)
         //kill();
         //Cannot kill, so disable cell
         updatedGrowthRate = Zero;
-        setCurrentGrowthRate(updatedGrowthRate);
         isUpdated = false;
     }
+    setCurrentGrowthRate(updatedGrowthRate);
     return isUpdated;
 }
 
