@@ -136,7 +136,7 @@ void Phage::initToxineBehavior (int max_q_toxine, int tp_library, int good_f_pro
     else
     {
         //Asignar mal fitness
-        assigned_q_toxine = max_q_toxine;
+        assigned_q_toxine = getToxineMaximum();
         assigned_q_giii = 25;
         assigned_fitness = generateBadFitness();
     }
@@ -455,6 +455,7 @@ ViewPtr<plugin::cell::Phage> Phage::replicate()
     phageChild->setPosition(posChild);
     phageChild->updateShape();
     phageChild->setLifeTime(Zero);
+    phageChild->setVelocity(velocityBud);
 	return phageChild;
 }
 
@@ -504,8 +505,8 @@ void Phage::mutate()
         auto pole_poss = 0.1;
         assigned_q_giii = 100 * squared_fitness/(squared_fitness + pole_poss);
     } else {
-        // if fitness is -1, then maximum fitness which means maximum antitoxine generation
-        assigned_q_giii = max_q_toxine;
+        // if fitness is -1, then maximum fitness which means maximum GIII generation
+        assigned_q_giii = 100;
     }
     Log::warning("Assigned GIII: ", assigned_q_giii);
     setGiiiAmount(assigned_q_giii);

@@ -254,9 +254,9 @@ void Module::update()
 					continue;
 				}
 
-				int queue = std::abs(data->singlePhageProductionRate / getSimulation().getTimeStep());
+				
+				int queue = getSimulation().getTimeStep() / data->singlePhageProductionRate;
 				phage->queueForReplication(queue);
-
 				phage->setTimeToRelease(data->singlePhageProductionRate);
 		
 			}
@@ -322,14 +322,19 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 			auto phage = is1Pathogen ?
 					static_cast<plugin::cell::Phage*>(&o1) :
 					static_cast<plugin::cell::Phage*>(&o2);
-			//Check if phage is infective - phage can only infect one bacteria
-			if (!phage->IsInfective())
+			
+			// Infection Checks
+			if (!phage->IsInfective()) // Check if phage is infective - phage can only infect one bacteria
+				return;
+			if(host->isInfected()) // Check if host is already infected - host can only be infected by one phage
+				return;
+			if(host->getMoleculeCount("RFP") != 0) // Check if host is alive
 				return;
 			
 			auto probOfInfection = phage->getGiiiAmount();
 			std::bernoulli_distribution associationDistribution(probOfInfection);
 
-			if (associationDistribution(g_gen) && !host->isInfected())
+			if (associationDistribution(g_gen))
 			{
 				host->setInfected(true);
 				phage->disableInfection();
@@ -337,6 +342,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				//Calculate fitness according to Promoter - TransFactor Distance
 				/// Note: do not assign fitness to phage to not affect basic infection system
 				auto phageToxineFitness = calculateFitness(host->getPromoter(), phage->getTransFactor());
+				phage->setToxineFitness(phageToxineFitness);
 				Log::warning("Fitness host - phage: ", host->getPromoter()," : ", phage->getTransFactor());
 
 				//Calculate Antitoxine Amount
@@ -368,6 +374,7 @@ void Module::onContact(object::Object& o1, object::Object& o2)
 				{
 					host->setInfected(false);
 					phage->disableInfection();
+					phage->addMolecules("BFP", 10000);
 					return;
 				}
 
@@ -437,55 +444,122 @@ void Module::printSimulationInfo(String hostType, String pathogenType)
 	if(infoFilePath != "" && currentIteration != 1 && shouldPrint)
 	{
 		auto pathogenCount = getSimulation().getObjectCount(pathogenType);
+		auto filteredPathogenCount = 0;
 		auto hostCount = getSimulation().getObjectCount(hostType);
-		int fitnessTarget = 0;
-		RealType goodPathogenCount = 0;
-		RealType goodPathogenChildrenCount = 0;
-		RealType fitnessAverage = 0;
+		auto filteredHostCount = 0;
+		std::map<int, int> modaList;
+		//int fitnessTarget = 0;
+		//RealType goodPathogenCount = 0;
+		//RealType goodPathogenChildrenCount = 0;
+		//RealType fitnessAverage = 0;
 		units::Time simulationMinutes;
-		double fitnessDistanceAverage = 0;
+		//double fitnessDistanceAverage = 0;
 		units::Time pathogenTotalResidenceTime = Zero;
 		units::Time averagePathogenResidenceTime = Zero;
 		units::Time hostTotalResidenceTime = Zero;
 		units::Time averageHostResidenceTime = Zero; 
+		//Toxine - Antitoxine Driven Behavior
+		int infectiveOrChildrenPathogen = 0;
+		RealType toxineAverage = 0;
+		RealType antitoxineAverage = 0;
+		RealType giiiAverage = 0;
+		RealType promToTransDistanceAverage = 0;
+		RealType toxineFitnessAverage = 0;
+		int transFactorLib;
 
 		for (auto& object : getSimulation().getObjects(hostType))
 		{
 			auto host = static_cast<plugin::cell::Ecoli*>(object.get());
 			hostTotalResidenceTime += host->getLifeTime();
+
+			//Toxine - Antitoxine Driven Behavior
+			if (host->getMoleculeCount("RFP") == 0) //if cell is alive
+			{
+				filteredHostCount++;
+				antitoxineAverage += host->getAntitoxineAmount();
+			}
 		}
 
 		for (auto& object : getSimulation().getObjects(pathogenType))
 		{
 			auto phage = static_cast<plugin::cell::Phage*>(object.get());
-			fitnessAverage += phage->getFitness();
-			fitnessDistanceAverage += phage->getFitnessDistance();
-			fitnessTarget = phage->getGoodFitnessValue();
-			auto goodFitnessRange = phage->getFitness() < (phage->getGoodFitnessValue() + phage->getGoodFitnessAmplitude());
+			//fitnessAverage += phage->getFitness();
+			//fitnessDistanceAverage += phage->getFitnessDistance();
+			//fitnessTarget = phage->getGoodFitnessValue();
+			//auto goodFitnessRange = phage->getFitness() < (phage->getGoodFitnessValue() + phage->getGoodFitnessAmplitude());
 			pathogenTotalResidenceTime += phage->getLifeTime();
+			transFactorLib = phage->getTransFactorLibrary();
 
+			/*
 			if (goodFitnessRange)
 			{
 				goodPathogenCount++;
 				if(phage->isChild())
 					goodPathogenChildrenCount++;	
 			}
+			*/
+
+			//Toxine - Antitoxine Driven Behavior
+			
+			if ((!phage->IsInfective() && phage->getMoleculeCount("BFP") == 0) || // Si ha infectado y su offspring NO es 0 ó
+				phage->isChild()) // Si es un hijo
+			{
+				// Leo niveles de toxina y Giii generada
+				infectiveOrChildrenPathogen++;
+				toxineAverage += phage->getToxineAmount();
+				giiiAverage += phage->getGiiiAmount();
+			}
+
+			if (phage->getToxineFitness() != 0) // Si ha infectado independientemente de su fitness
+			{
+				filteredPathogenCount++;
+				toxineFitnessAverage += std::abs(phage->getToxineFitness());
+			}
+
+			/// En cualquier otro caso, para todos los fagos
+			auto transFactor = phage->getTransFactor();
+			std::map<int,int>::iterator found = modaList.find(transFactor);
+
+			if (found != modaList.end())// if it exists
+			{
+				modaList[transFactor]++;
+			} else {
+				modaList[transFactor] = 1;
+			}
+
 		}
-		fitnessAverage /= pathogenCount;
-		fitnessDistanceAverage /= pathogenCount;
-		RealType goodPathogenRatio = goodPathogenCount/pathogenCount*100;
-		RealType goodPathogenChildrenRatio = goodPathogenChildrenCount/pathogenCount*100;
+		//fitnessAverage /= pathogenCount;
+		//fitnessDistanceAverage /= pathogenCount;
+		//RealType goodPathogenRatio = goodPathogenCount/pathogenCount*100;
+		//RealType goodPathogenChildrenRatio = goodPathogenChildrenCount/pathogenCount*100;
 		simulationMinutes = (currentIteration * getSimulation().getTimeStep()) / 60;
 		averagePathogenResidenceTime = pathogenTotalResidenceTime / pathogenCount;
 		averagePathogenResidenceTime /= 60;
 		averageHostResidenceTime = hostTotalResidenceTime / hostCount;
 		averageHostResidenceTime /= 60;
 
+		//Toxine - Antitoxine Driven Behavior
+		auto filteredAntitoxineAverage = antitoxineAverage;
+		auto filteredToxineAverage = toxineAverage;
+		auto filteredGiiiAverage = giiiAverage;
+		auto filteredToxineFitnessAverage = toxineFitnessAverage;
+
+		filteredAntitoxineAverage /= filteredHostCount;
+		filteredToxineAverage /= infectiveOrChildrenPathogen;
+		filteredGiiiAverage /= infectiveOrChildrenPathogen;
+		filteredToxineFitnessAverage /= filteredPathogenCount;
+
+		antitoxineAverage /= hostCount;
+		toxineAverage /= pathogenCount;
+		giiiAverage /= pathogenCount;
+		toxineFitnessAverage /= pathogenCount;
+
 		//print
 		{
 			std::ofstream myfile (infoFilePath, std::ios::app);
 			if (myfile.is_open())
 			  {
+				/* 
 				myfile << simulationMinutes << ", " <<
 						pathogenCount << ", " <<
 						fitnessAverage << ", " <<
@@ -495,8 +569,77 @@ void Module::printSimulationInfo(String hostType, String pathogenType)
 						goodPathogenChildrenRatio << ", " <<
 						averageHostResidenceTime << "," <<
 						averagePathogenResidenceTime << "\n";
+				*/
+
+				myfile << simulationMinutes << ", " <<
+						pathogenCount << ", " <<
+						hostCount << ", " <<
+						toxineAverage << ", " <<
+						antitoxineAverage << ", " <<
+						giiiAverage << ", " <<
+						//promToTransDistanceAverage << ", " <<
+						toxineFitnessAverage << ", " <<
+						averageHostResidenceTime << "," <<
+						averagePathogenResidenceTime << "\n";
 				myfile.close();
 			  }
+			
+			auto filteredInfoFilePath = "/Users/Gus/Desktop/infection-output/filteredSimTest.csv";
+			std::ofstream myfile_filtered (filteredInfoFilePath, std::ios::app);
+			if (myfile_filtered.is_open())
+			  {
+
+				myfile_filtered << simulationMinutes << ", " <<
+						infectiveOrChildrenPathogen << ", " <<
+						filteredPathogenCount << ", " <<
+						filteredHostCount << ", " <<
+						filteredToxineAverage << ", " <<
+						filteredAntitoxineAverage << ", " <<
+						filteredGiiiAverage << ", " <<
+						//promToTransDistanceAverage << ", " <<
+						filteredToxineFitnessAverage << ", " <<
+						averageHostResidenceTime << "," <<
+						averagePathogenResidenceTime << "\n";
+				myfile_filtered.close();
+
+			  }
+		
+		// Print evolution of transcription factor
+		
+		int lastItem = -1;
+		String modaLine = "";
+		for (std::map<int, int>::iterator it = modaList.begin(); it != modaList.end(); ++it)
+		{
+			lastItem++;
+			String thisVal = "";
+			if(lastItem != it->first)
+			{
+				thisVal = "0, ";
+				--it; //if so we do not continue
+			} else {
+				thisVal = std::to_string(it->second) + ", ";
+			}
+
+			modaLine += thisVal;
+		}
+		
+		//Complete array
+		auto diff = transFactorLib - lastItem;
+		while(diff > 0)
+		{
+			modaLine += "0, ";
+			diff--;
+		}
+
+		auto modeInfoFilePath = "/Users/Gus/Desktop/infection-output/modaSimTest.csv";
+		std::ofstream myfile_mode (modeInfoFilePath, std::ios::app);
+		if (myfile_mode.is_open())
+		{
+			myfile_mode << simulationMinutes << ", " << 
+						   modaLine << "\n";
+			myfile_mode.close();
+		} 
+
 		}
 	}
 }

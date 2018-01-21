@@ -230,6 +230,11 @@ public:
         return max_q_toxine;
     }
 
+    RealType getToxineFitness()
+    {
+        return m_toxineFitness;
+    }
+
 // Public Accessors
 public:
 
@@ -379,6 +384,11 @@ public:
     void setToxineMaximum (int value)
     {
         max_q_toxine = value;
+    }
+
+    void setToxineFitness (RealType fitness)
+    {
+        m_toxineFitness = fitness;
     }
 
 // Public Operations
@@ -624,6 +634,8 @@ private:
     int m_trasnfactor_library = 0;
 
     int max_q_toxine = 0;
+
+    RealType m_toxineFitness = 0; // Used to print stats
 
 };
 
